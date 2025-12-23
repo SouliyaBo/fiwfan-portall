@@ -58,10 +58,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                             </button>
                         </div>
 
-                        <Link href="/auth?mode=register" className="w-full py-3 bg-gradient-to-r from-[#F84E6E] to-[#ff758f] rounded-xl text-center font-bold shadow-lg mb-6 hover:shadow-[#F84E6E]/20 transition transform hover:scale-[1.02]">
-                            สมัครสมาชิก
-                        </Link>
-
                         <nav className="flex flex-col gap-2">
                             <SidebarItemWithSubmenu
                                 icon={<MapPin size={20} className="text-green-500" />}
@@ -85,6 +81,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                             <Link href="/check-homework" onClick={() => setIsSidebarOpen(false)} className="flex items-center gap-3 p-3 text-white/80 hover:bg-white/5 rounded-lg transition">
                                 <MessageCircle size={20} className="text-pink-400" />
                                 <span className="font-medium">ตรวจการบ้าน</span>
+                            </Link>
+                            <Link href="/dashboard" onClick={() => setIsSidebarOpen(false)} className="flex items-center gap-3 p-3 text-white/80 hover:bg-white/5 rounded-lg transition">
+                                <MessageCircle size={20} className="text-pink-400" />
+                                <span className="font-medium">Profile</span>
                             </Link>
                             <a href="#" className="flex items-center gap-3 p-3 text-white/80 hover:bg-white/5 rounded-lg transition">
                                 <Send size={20} className="text-blue-400" />

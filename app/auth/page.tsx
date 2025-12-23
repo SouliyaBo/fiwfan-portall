@@ -90,7 +90,7 @@ function AuthForm() {
             localStorage.setItem("token", result.token);
             localStorage.setItem("user", JSON.stringify(result.user));
 
-            router.push("/");
+            router.push("/dashboard");
 
         } catch (err: any) {
             setError(err.message);
