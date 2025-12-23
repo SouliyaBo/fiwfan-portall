@@ -1,0 +1,167 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { Menu, Search, MapPin, Users, Award, MessageCircle, Send, LogOut, ChevronRight, X } from "lucide-react";
+
+export default function AppShell({ children }: { children: React.ReactNode }) {
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    return (
+        <div className="min-h-screen bg-[#020617] text-white font-sans selection:bg-pink-500/30">
+
+            {/* Navbar */}
+            <nav className="fixed top-0 left-0 right-0 h-16 bg-[#020617]/80 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-4 z-50">
+                <div className="flex items-center gap-2">
+                    {/* Logo */}
+                    <Link href="/" className="text-2xl font-bold tracking-tight">
+                        <span className="text-white">Fiw</span>
+                        <span className="text-[#F84E6E]">Fan</span>
+                    </Link>
+                </div>
+
+                <div className="flex items-center gap-4">
+                    <a href="https://t.me/fiwfan" target="_blank" rel="noopener noreferrer" className="hidden md:flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition">
+                        <Send size={16} />
+                        <span>เข้าร่วมบนโทรเลข</span>
+                    </a>
+                    <button className="w-9 h-9 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 transition">
+                        <Search size={18} className="text-white/70" />
+                    </button>
+                    <Link href="/auth?mode=register" className="hidden md:block px-4 py-1.5 bg-[#F84E6E] hover:bg-[#d63d5b] text-white text-sm font-bold rounded-full transition shadow-[0_0_15px_rgba(248,78,110,0.3)]">
+                        สมัครสมาชิก
+                    </Link>
+                    <button
+                        onClick={() => setIsSidebarOpen(true)}
+                        className="w-9 h-9 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 transition"
+                    >
+                        <Menu size={20} className="text-white/90" />
+                    </button>
+                </div>
+            </nav>
+
+            {/* Sidebar Overlay */}
+            {isSidebarOpen && (
+                <>
+                    <div
+                        className="fixed inset-0 bg-black/60 z-50 backdrop-blur-sm animate-in fade-in duration-200"
+                        onClick={() => setIsSidebarOpen(false)}
+                    />
+                    <div className="fixed top-0 right-0 h-full w-[280px] bg-[#0f172a] z-[51] shadow-2xl p-4 flex flex-col animate-in slide-in-from-right duration-300 border-l border-white/10">
+                        <div className="flex items-center justify-between mb-8">
+                            <span className="text-lg font-bold text-white/50">Menu</span>
+                            <button
+                                onClick={() => setIsSidebarOpen(false)}
+                                className="p-2 hover:bg-white/5 rounded-full transition"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <Link href="/auth?mode=register" className="w-full py-3 bg-gradient-to-r from-[#F84E6E] to-[#ff758f] rounded-xl text-center font-bold shadow-lg mb-6 hover:shadow-[#F84E6E]/20 transition transform hover:scale-[1.02]">
+                            สมัครสมาชิก
+                        </Link>
+
+                        <nav className="flex flex-col gap-2">
+                            <SidebarItemWithSubmenu
+                                icon={<MapPin size={20} className="text-green-500" />}
+                                label="สถานที่"
+                                onNavigate={() => setIsSidebarOpen(false)}
+                                items={[
+                                    { header: "กรุงเทพฯ", list: ["สุขุมวิท", "ลาดพร้าว", "ห้วยขวาง", "บางนา", "รัชดา", "รัชดา17", "ธนบุรี", "สวนหลวง", "เพชรเกษม", "บางกอกน้อย", "พระราม 2", "เกษตร-นวมินทร์", "พระโขนง", "ดอนเมือง", "บางแค", "จตุจักร", "บางเขน", "บางบัวทอง", "พระราม 9", "ลาดกระบัง", "บางกะปิ", "สายไหม", "ประเวศ", "ราชเทวี", "ตากสิน", "ภาษีเจริญ", "พระราม 3", "บางพลัด", "สาธร", "คลองเตย", "ดินแดง", "ราษฎร์บูรณะ", "หลักสี่", "สะพานใหม่", "สุทธิสาร", "สรงประภา"] },
+                                    { header: "คนอื่น", list: ["พัทยา", "เมืองชลบุรี", "เมืองนนทบุรี", "เมืองสมุทรปราการ", "เมืองพิษณุโลก", "เมืองระยอง", "ศรีราชา", "เมืองขอนแก่น", "ปากเก็ต", "เมืองเชียงใหม่", "ปากช่อง", "เมืองบุรีรัมย์", "บางพลี", "พานทอง", "เมืองสุราษฎร์ธานี", "เมืองลพบุรี", "บางบ่อส", "เมืองนครสวรรค์", "วังทองหลาง", "หนองแขม", "สรรพยา", "บางเสาธง", "ธัญบุรี", "พระนครศรีอยุธยา", "เมืองภูเก็ต", "คลองหลวง", "กระทุ่มแบน", "อุบลราชธานี", "หาดใหญ่", "เมืองอุดรธานี", "บ้านบึง", "เมืองปทุมธานี", "ทุ่งสง", "เมืองนราธิวาส", "เมืองสกลนคร", "คลองสามวา", "ทุ่งครุ", "ปทุมวัน", "รังสิต", "เมืองสมุทรสาคร", "ลำลูกกา", "เมืองราชบุรี", "เมืองแพร่", "เมืองสระบุรี", "เมืองลำปาง", "เมืองสุรินทร์", "เมืองอุตรดิตถ์", "เมืองนครราชสีมา"] }
+                                ]}
+                            />
+                            <Link href="/agency" onClick={() => setIsSidebarOpen(false)} className="flex items-center gap-3 p-3 text-white/80 hover:bg-white/5 rounded-lg transition">
+                                <Users size={20} className="text-blue-400" />
+                                <span className="font-medium">หน่วยงาน</span>
+                            </Link>
+
+                            <Link href="/leaderboard" onClick={() => setIsSidebarOpen(false)} className="flex items-center gap-3 p-3 text-white/80 hover:bg-white/5 rounded-lg transition">
+                                <Award size={20} className="text-yellow-500" />
+                                <span className="font-medium">ตารางจัดอันดับครับ</span>
+                            </Link>
+
+                            <Link href="/check-homework" onClick={() => setIsSidebarOpen(false)} className="flex items-center gap-3 p-3 text-white/80 hover:bg-white/5 rounded-lg transition">
+                                <MessageCircle size={20} className="text-pink-400" />
+                                <span className="font-medium">ตรวจการบ้าน</span>
+                            </Link>
+                            <a href="#" className="flex items-center gap-3 p-3 text-white/80 hover:bg-white/5 rounded-lg transition">
+                                <Send size={20} className="text-blue-400" />
+                                <span>เข้าร่วมบนโทรเลข</span>
+                            </a>
+                        </nav>
+
+                        <div className="mt-auto border-t border-white/10 pt-6 flex flex-col gap-4">
+                            <div className="flex gap-4">
+                                <Link href="/auth?mode=login" onClick={() => setIsSidebarOpen(false)} className="flex-1 py-2 rounded-lg border border-white/20 text-center text-sm font-medium hover:bg-white/5">
+                                    Login
+                                </Link>
+                                <Link href="/auth?mode=register" onClick={() => setIsSidebarOpen(false)} className="flex-1 py-2 rounded-lg bg-white/10 text-center text-sm font-medium hover:bg-white/20">
+                                    Register
+                                </Link>
+                            </div>
+                            <button className="flex items-center gap-2 text-white/40 text-sm hover:text-white/60">
+                                <LogOut size={16} />
+                                ดาวน์โหลดโลโก้
+                            </button>
+                        </div>
+                    </div>
+                </>
+            )}
+
+            {/* Main Content Payload */}
+            <div className="pt-16">
+                {children}
+            </div>
+
+        </div>
+    );
+}
+
+function SidebarItem({ icon, label }: { icon: React.ReactNode, label: string }) {
+    return (
+        <a href="#" className="flex items-center gap-3 p-3 text-white/80 hover:bg-white/5 rounded-lg transition">
+            {icon}
+            <span className="font-medium">{label}</span>
+        </a>
+    )
+}
+
+function SidebarItemWithSubmenu({ icon, label, items, onNavigate }: { icon: React.ReactNode, label: string, items: { header: string, list: string[] }[], onNavigate?: () => void }) {
+    const [isOpen, setIsOpen] = useState(false);
+
+    return (
+        <div className="flex flex-col">
+            <button key="toggle-btn"
+                onClick={() => setIsOpen(!isOpen)}
+                className="flex items-center justify-between p-3 text-white/80 hover:bg-white/5 rounded-lg transition w-full"
+            >
+                <div className="flex items-center gap-3">
+                    {icon}
+                    <span className="font-medium">{label}</span>
+                </div>
+                <div className={`transition-transform md:text-white/60 ${isOpen ? 'rotate-90' : ''}`}>
+                    <ChevronRight size={16} />
+                </div>
+            </button>
+
+            {isOpen && (
+                <div className="pl-11 pr-2 pb-2 flex flex-col gap-4 animate-in slide-in-from-top-2 duration-200">
+                    {items.map((group, idx) => (
+                        <div key={idx}>
+                            <h4 className="text-xs font-bold text-[#F84E6E] mb-2 uppercase tracking-wider">{group.header}</h4>
+                            <div className="flex flex-col gap-1 border-l border-white/10 pl-3">
+                                {group.list.map((item, i) => (
+                                    <Link key={i} href={`/location/${item}`} onClick={onNavigate} className="text-sm text-white/60 hover:text-white py-1">
+                                        {item}
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    )
+}
