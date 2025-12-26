@@ -8,7 +8,7 @@ import { uploadS3File } from "../../lib/upload";
 import { API_BASE_URL } from "../../lib/constants";
 
 
-import { LogOut, Plus, Image as ImageIcon, Send, Edit, Save, Upload, MapPin, Ruler, DollarSign, User as UserIcon, Phone, Instagram, Hash, Car, Train, Check, MoreHorizontal, Heart, MessageCircle, Share2 } from "lucide-react";
+import { LogOut, Plus, Image as ImageIcon, Send, Edit, Save, Upload, MapPin, Ruler, DollarSign, User as UserIcon, Phone, Instagram, Hash, Car, Train, Check, MoreHorizontal, Heart, MessageCircle, Share2, Camera } from "lucide-react";
 
 // Checkbox Component for easy selection
 const CheckboxField = ({ label, checked, onChange, icon: Icon }: any) => (
@@ -231,6 +231,86 @@ export default function Dashboard() {
         }
     };
 
+    const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || !e.target.files[0]) return;
+        const file = e.target.files[0];
+
+        try {
+            const url = await uploadS3File(file);
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${API_BASE_URL}/users/me`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                body: JSON.stringify({ avatarUrl: url })
+            });
+
+            if (res.ok) {
+                const updated = await res.json();
+                setUser({ ...user, avatarUrl: url });
+                const storageUser = JSON.parse(localStorage.getItem("user") || "{}");
+                localStorage.setItem("user", JSON.stringify({ ...storageUser, avatarUrl: url }));
+                alert("อัปเดตรูปโปรไฟล์สำเร็จ");
+            }
+        } catch (error) {
+            console.error(error);
+            alert("อัปโหลดไม่สำเร็จ");
+        }
+    };
+
+    const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || !e.target.files[0]) return;
+        const file = e.target.files[0];
+
+        try {
+            const url = await uploadS3File(file);
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${API_BASE_URL}/creators/me`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                body: JSON.stringify({ bannerUrl: url })
+            });
+
+            if (res.ok) {
+                setCreator({ ...creator, bannerUrl: url });
+                alert("อัปเดตปกสำเร็จ");
+            }
+        } catch (error) {
+            console.error(error);
+            alert("อัปโหลดไม่สำเร็จ");
+        }
+    };
+
+    const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || e.target.files.length === 0) return;
+        const files = Array.from(e.target.files);
+
+        try {
+            alert(`กำลังอัปโหลด ${files.length} รูป... กรุณารอสักครู่`);
+            const uploadPromises = files.map(file => uploadS3File(file));
+            const distinctUrls = await Promise.all(uploadPromises);
+
+            const token = localStorage.getItem("token");
+            // Fetch current to append or just send new array? logic implies append usually for gallery
+            // But API updateCreatorProfile is $set. Let's append client side and set.
+            const currentImages = creator?.images || [];
+            const newImages = [...currentImages, ...distinctUrls];
+
+            const res = await fetch(`${API_BASE_URL}/creators/me`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                body: JSON.stringify({ images: newImages })
+            });
+
+            if (res.ok) {
+                setCreator({ ...creator, images: newImages });
+                alert("อัปโหลดรูปผลงานสำเร็จ");
+            }
+        } catch (error) {
+            console.error(error);
+            alert("อัปโหลดบางรูปไม่สำเร็จ");
+        }
+    };
+
     const handleProfileUpdate = async () => {
         try {
             const token = localStorage.getItem("token");
@@ -271,7 +351,20 @@ export default function Dashboard() {
             {/* Header */}
             <div className="bg-[#1e1b4b] text-white p-6 pb-8 rounded-b-[40px] shadow-2xl mb-8 relative overflow-hidden">
                 {/* Decorative bg */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-[#F84E6E] rounded-full blur-[100px] opacity-20 -translate-y-1/2 translate-x-1/3"></div>
+                {/* Decorative bg or Banner */}
+                {creator?.bannerUrl ? (
+                    <div className="absolute inset-0 w-full h-full z-0">
+                        <Image
+                            src={getImageUrl(creator.bannerUrl)}
+                            alt="Banner"
+                            fill
+                            className="object-cover opacity-60"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#1e1b4b] to-transparent" />
+                    </div>
+                ) : (
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-[#F84E6E] rounded-full blur-[100px] opacity-20 -translate-y-1/2 translate-x-1/3"></div>
+                )}
 
                 <div className="relative z-10">
                     <div className="flex justify-between items-center mb-8">
@@ -296,6 +389,26 @@ export default function Dashboard() {
                         </div>
 
                         <div className="space-y-8">
+                            {/* 0. Banner & Gallery Header */}
+                            <section className="space-y-4">
+                                <h3 className="text-[#F84E6E] font-bold text-sm uppercase tracking-wider flex items-center gap-2"><ImageIcon size={14} /> รูปปก (Banner)</h3>
+                                <div className="relative w-full aspect-[3/1] bg-black/20 rounded-xl overflow-hidden border border-white/10 group">
+                                    {creator?.bannerUrl ? (
+                                        <Image src={getImageUrl(creator.bannerUrl)} alt="Banner" fill className="object-cover" />
+                                    ) : (
+                                        <div className="flex items-center justify-center h-full text-white/30 text-sm">ยังไม่มีรูปปก</div>
+                                    )}
+                                    <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition cursor-pointer">
+                                        <div className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full flex items-center gap-2 text-white text-sm font-bold hover:bg-white/20 border border-white/10">
+                                            <Camera size={16} /> เปลี่ยนรูปปก
+                                        </div>
+                                        <input type="file" hidden accept="image/*" onChange={handleBannerUpload} />
+                                    </label>
+                                </div>
+                            </section>
+
+                            <div className="h-px bg-white/10" />
+
                             {/* 1. Identity */}
                             <section className="space-y-4">
                                 <h3 className="text-[#F84E6E] font-bold text-sm uppercase tracking-wider flex items-center gap-2"><UserIcon size={14} /> ข้อมูลส่วนตัว</h3>
@@ -401,6 +514,25 @@ export default function Dashboard() {
                                 </div>
                             </section>
 
+                            <div className="h-px bg-white/10" />
+
+                            {/* 4. Gallery */}
+                            <section className="space-y-4">
+                                <h3 className="text-[#F84E6E] font-bold text-sm uppercase tracking-wider flex items-center gap-2"><ImageIcon size={14} /> แกลเลอรี่ผลงาน (Gallery)</h3>
+                                <div className="grid grid-cols-4 gap-2">
+                                    {creator?.images?.map((img: string, i: number) => (
+                                        <div key={i} className="aspect-square relative rounded-lg overflow-hidden bg-white/5">
+                                            <Image src={getImageUrl(img)} fill className="object-cover" alt="" />
+                                        </div>
+                                    ))}
+                                    <label className="aspect-square bg-white/5 rounded-lg border border-white/10 flex flex-col items-center justify-center text-white/50 hover:bg-white/10 hover:text-white transition cursor-pointer gap-2">
+                                        <Plus size={24} />
+                                        <span className="text-xs">เพิ่มรูป</span>
+                                        <input type="file" hidden multiple accept="image/*" onChange={handleGalleryUpload} />
+                                    </label>
+                                </div>
+                            </section>
+
                             <div className="pt-4 flex gap-3 sticky bottom-4 z-20">
                                 <button onClick={handleProfileUpdate} className="flex-1 bg-[#F84E6E] text-white py-4 rounded-xl text-sm font-bold hover:brightness-110 transition shadow-lg shadow-pink-500/30 flex items-center justify-center gap-2">
                                     <Save size={18} /> บันทึกโปรไฟล์
@@ -419,6 +551,10 @@ export default function Dashboard() {
                                     fill
                                     className="object-cover group-hover:scale-110 transition duration-500"
                                 />
+                                <label className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition duration-300 cursor-pointer">
+                                    <Camera className="text-white drop-shadow-md" size={32} />
+                                    <input type="file" hidden accept="image/*" onChange={handleAvatarUpload} />
+                                </label>
                             </div>
                         </div>
                         <div className="flex-1">
@@ -549,12 +685,12 @@ export default function Dashboard() {
 
                             {/* Media */}
                             {post.media && post.media.length > 0 && (
-                                <div className="relative w-full aspect-[4/3] bg-black/5 mt-2">
+                                <div className="relative w-full aspect-video bg-black mt-2">
                                     <Image
                                         src={getImageUrl(post.media[0].url)}
                                         alt="Post content"
                                         fill
-                                        className="object-cover"
+                                        className="object-contain"
                                     />
                                 </div>
                             )}

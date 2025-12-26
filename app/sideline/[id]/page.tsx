@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { MessageCircle, Star, MapPin, Share2, ArrowLeft, ChevronLeft, ChevronRight, Check, Flag, Heart, Instagram, Phone, Car, Train } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { API_BASE_URL } from "../../../lib/constants";
+import { getImageUrl } from "../../../lib/images";
 
 
 
@@ -51,7 +52,7 @@ export default function SidelineDetailPage() {
 
     const mockImages = ["1.png", "2.png", "3.png", "4.png"];
     const displayImages = creator?.posts?.length
-        ? creator.posts.flatMap(p => p.media.map((m: any) => m.url))
+        ? creator.posts.flatMap(p => p.media.map((m: any) => getImageUrl(m.url)))
         : mockImages.map(img => `/mock/creators/${img}`);
 
     useEffect(() => {
