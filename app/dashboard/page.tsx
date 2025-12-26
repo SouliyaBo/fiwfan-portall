@@ -3,7 +3,12 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { LogOut, Plus, Image as ImageIcon, Send, Edit, Save, Upload, MapPin, Ruler, DollarSign, User as UserIcon, Phone, Instagram, Hash, Car, Train } from "lucide-react";
+import { getImageUrl } from "../../lib/images";
+import { uploadS3File } from "../../lib/upload";
+import { API_BASE_URL } from "../../lib/constants";
+
+
+import { LogOut, Plus, Image as ImageIcon, Send, Edit, Save, Upload, MapPin, Ruler, DollarSign, User as UserIcon, Phone, Instagram, Hash, Car, Train, Check, MoreHorizontal, Heart, MessageCircle, Share2 } from "lucide-react";
 
 // Checkbox Component for easy selection
 const CheckboxField = ({ label, checked, onChange, icon: Icon }: any) => (
@@ -123,7 +128,7 @@ export default function Dashboard() {
         try {
             const userId = localStorage.getItem("user");
             const parsedUser = JSON.parse(userId || "{}");
-            const res = await fetch(`http://localhost:3001/creators/${parsedUser.id}`);
+            const res = await fetch(`${API_BASE_URL}/creators/${parsedUser.id}`);
 
             if (res.ok) {
                 const data = await res.json();
@@ -187,20 +192,16 @@ export default function Dashboard() {
             let imageUrl = previewUrl;
 
             if (selectedFile) {
-                const formData = new FormData();
-                formData.append("file", selectedFile);
-
-                const uploadRes = await fetch("http://localhost:3001/upload", {
-                    method: "POST",
-                    body: formData
-                });
-
-                if (!uploadRes.ok) throw new Error("Upload failed");
-                const uploadData = await uploadRes.json();
-                imageUrl = uploadData.url;
+                try {
+                    imageUrl = await uploadS3File(selectedFile);
+                } catch (err: any) {
+                    alert(err.message || "Upload failed");
+                    setIsPosting(false);
+                    return;
+                }
             }
 
-            const res = await fetch("http://localhost:3001/posts", {
+            const res = await fetch(`${API_BASE_URL}/posts`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -240,7 +241,7 @@ export default function Dashboard() {
                 interests: editForm.interests.split(",").map((s: string) => s.trim()).filter((s: string) => s),
             };
 
-            const res = await fetch("http://localhost:3001/creators/me", {
+            const res = await fetch(`${API_BASE_URL}/creators/me`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
@@ -413,7 +414,7 @@ export default function Dashboard() {
                         <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-pink-500 to-yellow-500 p-[3px] shadow-xl flex-shrink-0 relative group cursor-pointer">
                             <div className="w-full h-full rounded-full bg-black overflow-hidden relative">
                                 <Image
-                                    src={user?.avatarUrl || "/mock/creators/1.png"}
+                                    src={getImageUrl(user?.avatarUrl)}
                                     alt="Profile"
                                     fill
                                     className="object-cover group-hover:scale-110 transition duration-500"
@@ -432,6 +433,157 @@ export default function Dashboard() {
                                 </button>
                             </div>
                         </div>
+                    </div>
+                )}
+
+                {/* Create Post Section */}
+                {!isEditing && (
+                    <div className="bg-[#1e1b4b]/50 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-white/5 mb-8">
+                        <div className="flex items-start gap-4">
+                            <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-white/10 relative">
+                                <Image
+                                    src={getImageUrl(user?.avatarUrl)}
+                                    alt="Avatar"
+                                    fill
+                                    className="object-cover"
+                                />
+                            </div>
+                            <div className="flex-1">
+                                <textarea
+                                    value={caption}
+                                    onChange={(e) => setCaption(e.target.value)}
+                                    placeholder="วันนี้ทำอะไรอยู่? บอกผู้ติดตามของคุณสิ..."
+                                    className="w-full bg-transparent text-white placeholder-white/40 text-base resize-none focus:outline-none min-h-[80px]"
+                                />
+
+                                {previewUrl && (
+                                    <div className="relative w-full h-64 rounded-2xl overflow-hidden mb-4 bg-black/40 border border-white/10 group">
+                                        <Image
+                                            src={previewUrl}
+                                            alt="Preview"
+                                            fill
+                                            className="object-contain"
+                                        />
+                                        <button
+                                            onClick={() => {
+                                                setPreviewUrl("");
+                                                setSelectedFile(null);
+                                            }}
+                                            className="absolute top-2 right-2 p-1.5 bg-black/60 text-white rounded-full hover:bg-black/80 transition opacity-0 group-hover:opacity-100"
+                                        >
+                                            <LogOut size={16} className="rotate-45" />
+                                        </button>
+                                    </div>
+                                )}
+
+                                <div className="flex justify-between items-center pt-4 border-t border-white/10">
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="file"
+                                            ref={fileInputRef}
+                                            hidden
+                                            accept="image/*"
+                                            onChange={handleFileSelect}
+                                        />
+                                        <button
+                                            onClick={() => fileInputRef.current?.click()}
+                                            className="p-2 text-[#F84E6E] hover:bg-[#F84E6E]/10 rounded-full transition flex items-center gap-2"
+                                        >
+                                            <ImageIcon size={20} />
+                                            <span className="text-sm font-medium">รูปภาพ</span>
+                                        </button>
+                                    </div>
+                                    <button
+                                        onClick={handlePostSubmit}
+                                        disabled={isPosting || (!caption.trim() && !selectedFile)}
+                                        className="bg-[#F84E6E] text-white px-6 py-2 rounded-full font-bold text-sm hover:shadow-lg hover:shadow-pink-500/20 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                    >
+                                        {isPosting ? "กำลังโพสต์..." : <>โพสต์ <Send size={16} /></>}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Posts Feed */}
+            <div className="mt-8 space-y-6">
+                {myPosts.length > 0 ? (
+                    myPosts.map((post: any) => (
+                        <div key={post._id} className="bg-white dark:bg-zinc-900 rounded-2xl shadow border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+                            {/* Header */}
+                            <div className="p-4 flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="relative w-10 h-10 rounded-full overflow-hidden border border-zinc-200 dark:border-zinc-700">
+                                        <Image
+                                            src={getImageUrl(creator?.user?.avatarUrl)}
+                                            alt={creator?.displayName || "User"}
+                                            fill
+                                            className="object-cover"
+                                        />
+                                    </div>
+                                    <div>
+                                        <div className="font-bold text-zinc-900 dark:text-white flex items-center gap-1">
+                                            {creator?.displayName}
+                                            {creator?.isVerified && <Check className="text-blue-500" size={14} />}
+                                        </div>
+                                        <div className="text-xs text-zinc-500 dark:text-zinc-400">
+                                            {new Date(post.createdAt).toLocaleDateString("th-TH", {
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric'
+                                            })}
+                                        </div>
+                                    </div>
+                                </div>
+                                <button className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
+                                    <MoreHorizontal size={20} />
+                                </button>
+                            </div>
+
+                            {/* Content */}
+                            <div className="px-4 pb-2">
+                                <p className="text-zinc-700 dark:text-zinc-300 whitespace-pre-line">{post.caption}</p>
+                            </div>
+
+                            {/* Media */}
+                            {post.media && post.media.length > 0 && (
+                                <div className="relative w-full aspect-[4/3] bg-black/5 mt-2">
+                                    <Image
+                                        src={getImageUrl(post.media[0].url)}
+                                        alt="Post content"
+                                        fill
+                                        className="object-cover"
+                                    />
+                                </div>
+                            )}
+
+                            {/* Actions */}
+                            <div className="p-4 flex items-center justify-between border-t border-zinc-100 dark:border-zinc-800 mt-2">
+                                <div className="flex items-center gap-4">
+                                    <button className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-400 hover:text-pink-500 transition">
+                                        <Heart size={20} />
+                                        <span className="text-sm font-medium">Coming Soon</span>
+                                    </button>
+                                    <button className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-400 hover:text-blue-500 transition">
+                                        <MessageCircle size={20} />
+                                        <span className="text-sm font-medium">Comment</span>
+                                    </button>
+                                </div>
+                                <button className="text-zinc-600 dark:text-zinc-400 hover:text-green-500 transition">
+                                    <Share2 size={20} />
+                                </button>
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    <div className="text-center py-20 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border-2 border-dashed border-zinc-200 dark:border-zinc-800">
+                        <div className="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <ImageIcon size={32} className="text-zinc-400" />
+                        </div>
+                        <h3 className="text-lg font-medium text-zinc-900 dark:text-white mb-1">ยังไม่มีโพสต์</h3>
+                        <p className="text-zinc-500 dark:text-zinc-400">เริ่มแบ่งปันเรื่องราวของคุณกับแฟนคลับเลย!</p>
                     </div>
                 )}
             </div>

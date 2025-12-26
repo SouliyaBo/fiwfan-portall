@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Eye, EyeOff, Loader2, MessageCircle, AlertCircle } from "lucide-react";
+import { API_BASE_URL } from "../../lib/constants";
 
 // Schemas
 const loginSchema = z.object({
@@ -30,7 +31,7 @@ const registerSchema = z.object({
 });
 
 // API Config
-const API_URL = "http://localhost:3001";
+
 
 
 function AuthForm() {
@@ -77,7 +78,7 @@ function AuthForm() {
         setIsLoading(true);
         setError("");
         try {
-            const res = await fetch(`${"http://localhost:3001"}/auth/login`, {
+            const res = await fetch(`${API_BASE_URL}/auth/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data),
@@ -111,7 +112,7 @@ function AuthForm() {
 
         try {
             // Simulate API call for now or use real one
-            const res = await fetch(`${"http://localhost:3001"}/auth/register`, {
+            const res = await fetch(`${API_BASE_URL}/auth/register`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),

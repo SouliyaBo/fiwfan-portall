@@ -5,8 +5,9 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { MessageCircle, Star, MapPin, Share2, ArrowLeft, ChevronLeft, ChevronRight, Check, Flag, Heart, Instagram, Phone, Car, Train } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
+import { API_BASE_URL } from "../../../lib/constants";
 
-const API_URL = "http://localhost:3001";
+
 
 interface CreatorDetail {
     id: string;
@@ -62,7 +63,7 @@ export default function SidelineDetailPage() {
     const fetchCreator = async (id: string) => {
         try {
             setLoading(true);
-            const res = await fetch(`${API_URL}/creators/${id}`);
+            const res = await fetch(`${API_BASE_URL}/creators/${id}`);
             if (res.ok) {
                 const data = await res.json();
                 setCreator(data);

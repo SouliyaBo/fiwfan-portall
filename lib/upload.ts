@@ -1,0 +1,89 @@
+import React from "react";
+import { API_BASE_URL } from "./constants";
+
+export const uploadS3File = async (input: File | React.ChangeEvent<HTMLInputElement> | any): Promise<string> => {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("No authentication token found");
+
+        // 1. Resolve File Object
+        let data: File;
+        if (input instanceof File) {
+            data = input;
+        } else if (input?.target?.files?.[0]) {
+            data = input.target.files[0];
+        } else {
+            throw new Error("No file provided");
+        }
+
+        // 2. Validate Size (Max 5MB)
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (data.size > maxSize) {
+            throw new Error("File size too large. Maximum size is 5MB.");
+        }
+
+        // 3. Validate Type
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (!allowedTypes.includes(data.type)) {
+            throw new Error("Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.");
+        }
+
+        // 4. Generate Random Filename
+        // Prefix: FIWFAN
+        let generateName = "";
+        let result = "FIWFAN";
+        const characters = "0123456789";
+        const charactersLength = characters.length;
+        for (let i = 0; i < 9; i++) {
+            generateName = result += characters.charAt(
+                Math.floor(Math.random() * charactersLength),
+            );
+        }
+
+        const parts = data.name.split(".");
+        const extension = parts[parts.length - 1];
+        const newImageName = `${generateName}.${extension}`;
+
+        console.log("Requesting presigned URL for:", newImageName);
+
+        // 5. Get Pre-signed URL
+        const presignRes = await fetch(`${API_BASE_URL}/files/presign-url`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                fileName: newImageName,
+                fileType: data.type
+            })
+        });
+
+        if (!presignRes.ok) {
+            throw new Error("Failed to get presigned URL");
+        }
+
+        const { uploadUrl, key } = await presignRes.json();
+        console.log("Presigned URL received. Uploading to S3...");
+
+        // 6. Upload to S3
+        const uploadRes = await fetch(uploadUrl, {
+            method: "PUT",
+            headers: {
+                "Content-Type": data.type
+            },
+            body: data
+        });
+
+        if (!uploadRes.ok) {
+            throw new Error("Upload to storage failed");
+        }
+
+        console.log("Upload completed successfully");
+        return key;
+
+    } catch (error: any) {
+        console.error("File upload error:", error);
+        throw error;
+    }
+};

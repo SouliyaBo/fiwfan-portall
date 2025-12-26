@@ -4,8 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { MessageCircle, ChevronRight, Search } from "lucide-react";
 import { useEffect, useState } from "react";
+import { API_BASE_URL } from "../lib/constants";
 
-const API_URL = "http://localhost:3001";
+
 
 interface Creator {
   _id: string;
@@ -35,7 +36,7 @@ export default function Home() {
     try {
       setLoading(true);
       const query = search ? `?location=${search}` : "";
-      const res = await fetch(`${API_URL}/creators${query}`);
+      const res = await fetch(`${API_BASE_URL}/creators${query}`);
       if (res.ok) {
         const data = await res.json();
         setCreators(data);

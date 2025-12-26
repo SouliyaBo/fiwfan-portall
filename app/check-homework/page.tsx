@@ -4,8 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Star, CheckCircle2, MoreHorizontal } from "lucide-react";
+import { API_BASE_URL } from "../../lib/constants";
 
-const API_URL = "http://localhost:3001";
+
 
 interface Review {
     id: string;
@@ -53,7 +54,7 @@ export default function CheckHomeworkPage() {
     const fetchReviews = async () => {
         try {
             setLoading(true);
-            const res = await fetch(`${API_URL}/reviews`);
+            const res = await fetch(`${API_BASE_URL}/reviews`);
             if (res.ok) {
                 const data = await res.json();
                 setReviews(data);
