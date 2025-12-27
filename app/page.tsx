@@ -5,6 +5,7 @@ import Link from "next/link";
 import { MessageCircle, ChevronRight, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { API_BASE_URL } from "../lib/constants";
+import { getImageUrl } from "../lib/images";
 
 
 
@@ -154,7 +155,9 @@ export default function Home() {
 
 function CreatorCard({ creator }: { creator: Creator }) {
   // Use mock image if none (server returns generic avatar if not set, but let's be safe)
-  const imageSrc = creator.user.avatarUrl || `/mock/creators/${(parseInt(creator._id.slice(-1), 16) % 8) + 1}.png`;
+  const imageSrc = creator.user.avatarUrl
+    ? getImageUrl(creator.user.avatarUrl)
+    : `/mock/creators/${(parseInt(creator._id.slice(-1), 16) % 8) + 1}.png`;
 
   return (
     <Link href={`/sideline/${creator._id}`} className="block relative aspect-[3/4] rounded-xl overflow-hidden group bg-zinc-900 shadow-lg hover:shadow-xl transition dark:border border-white/5">

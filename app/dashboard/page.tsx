@@ -8,7 +8,7 @@ import { uploadS3File } from "../../lib/upload";
 import { API_BASE_URL } from "../../lib/constants";
 
 
-import { LogOut, Plus, Image as ImageIcon, Send, Edit, Save, Upload, MapPin, Ruler, DollarSign, User as UserIcon, Phone, Instagram, Hash, Car, Train, Check, MoreHorizontal, Heart, MessageCircle, Share2, Camera } from "lucide-react";
+import { LogOut, Plus, Image as ImageIcon, Send, Edit, Save, Upload, MapPin, Ruler, DollarSign, User as UserIcon, Phone, Instagram, Hash, Car, Train, Check, MoreHorizontal, Heart, MessageCircle, Share2, Camera, Trash2 } from "lucide-react";
 
 // Checkbox Component for easy selection
 const CheckboxField = ({ label, checked, onChange, icon: Icon }: any) => (
@@ -311,6 +311,30 @@ export default function Dashboard() {
         }
     };
 
+    const handleGalleryDelete = async (indexToDelete: number) => {
+        if (!confirm("ต้องการลบรูปภาพนี้ใช่ไหม?")) return;
+
+        try {
+            const currentImages = creator?.images || [];
+            const newImages = currentImages.filter((_: any, i: number) => i !== indexToDelete);
+
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${API_BASE_URL}/creators/me`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                body: JSON.stringify({ images: newImages })
+            });
+
+            if (res.ok) {
+                setCreator({ ...creator, images: newImages });
+                // alert("ลบรูปภาพสำเร็จ");
+            }
+        } catch (error) {
+            console.error(error);
+            alert("เกิดข้อผิดพลาดในการลบรูปภาพ");
+        }
+    };
+
     const handleProfileUpdate = async () => {
         try {
             const token = localStorage.getItem("token");
@@ -343,6 +367,8 @@ export default function Dashboard() {
             alert("เกิดข้อผิดพลาด");
         }
     };
+
+    console.log("creator:", creator)
 
     if (loading) return <div className="min-h-screen flex items-center justify-center dark:bg-black text-white">Loading...</div>;
 
@@ -393,8 +419,8 @@ export default function Dashboard() {
                             <section className="space-y-4">
                                 <h3 className="text-[#F84E6E] font-bold text-sm uppercase tracking-wider flex items-center gap-2"><ImageIcon size={14} /> รูปปก (Banner)</h3>
                                 <div className="relative w-full aspect-[3/1] bg-black/20 rounded-xl overflow-hidden border border-white/10 group">
-                                    {creator?.bannerUrl ? (
-                                        <Image src={getImageUrl(creator.bannerUrl)} alt="Banner" fill className="object-cover" />
+                                    {user?.avatarUrl ? (
+                                        <Image src={getImageUrl(user?.avatarUrl)} alt="Banner" fill className="object-cover" />
                                     ) : (
                                         <div className="flex items-center justify-center h-full text-white/30 text-sm">ยังไม่มีรูปปก</div>
                                     )}
@@ -521,8 +547,16 @@ export default function Dashboard() {
                                 <h3 className="text-[#F84E6E] font-bold text-sm uppercase tracking-wider flex items-center gap-2"><ImageIcon size={14} /> แกลเลอรี่ผลงาน (Gallery)</h3>
                                 <div className="grid grid-cols-4 gap-2">
                                     {creator?.images?.map((img: string, i: number) => (
-                                        <div key={i} className="aspect-square relative rounded-lg overflow-hidden bg-white/5">
+                                        <div key={i} className="aspect-square relative rounded-lg overflow-hidden bg-white/5 group">
                                             <Image src={getImageUrl(img)} fill className="object-cover" alt="" />
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                                                <button
+                                                    onClick={() => handleGalleryDelete(i)}
+                                                    className="p-2 bg-red-500/80 hover:bg-red-500 text-white rounded-full transition"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
                                         </div>
                                     ))}
                                     <label className="aspect-square bg-white/5 rounded-lg border border-white/10 flex flex-col items-center justify-center text-white/50 hover:bg-white/10 hover:text-white transition cursor-pointer gap-2">
@@ -546,7 +580,7 @@ export default function Dashboard() {
                         <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-pink-500 to-yellow-500 p-[3px] shadow-xl flex-shrink-0 relative group cursor-pointer">
                             <div className="w-full h-full rounded-full bg-black overflow-hidden relative">
                                 <Image
-                                    src={getImageUrl(user?.avatarUrl)}
+                                    src={getImageUrl(creator?.user?.avatarUrl)}
                                     alt="Profile"
                                     fill
                                     className="object-cover group-hover:scale-110 transition duration-500"
@@ -578,7 +612,7 @@ export default function Dashboard() {
                         <div className="flex items-start gap-4">
                             <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-white/10 relative">
                                 <Image
-                                    src={getImageUrl(user?.avatarUrl)}
+                                    src={getImageUrl(creator?.user?.avatarUrl)}
                                     alt="Avatar"
                                     fill
                                     className="object-cover"
