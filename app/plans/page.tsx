@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Check, Star, ShieldCheck, Zap, X } from 'lucide-react';
+import { Check, Star, ShieldCheck, Zap, X, Upload, Loader2, Copy } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { API_BASE_URL } from '../../lib/constants';
 
@@ -28,6 +28,11 @@ export default function PlansPage() {
     const [selectedPlanId, setSelectedPlanId] = useState<string>('SUPER_STAR');
     const [selectedDurationIndex, setSelectedDurationIndex] = useState<{ [key: string]: number }>({});
     const [processing, setProcessing] = useState(false);
+
+    // Payment Modal State
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [slipFile, setSlipFile] = useState<File | null>(null);
+    const [uploading, setUploading] = useState(false);
 
     useEffect(() => {
         fetchPlans();
@@ -60,14 +65,60 @@ export default function PlansPage() {
         const plan = plans.find(p => p.id === selectedPlanId);
         if (!plan) return;
 
+        // Open modal instead of direct payment
+        setShowPaymentModal(true);
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setSlipFile(e.target.files[0]);
+        }
+    };
+
+    const confirmPayment = async () => {
+        const plan = plans.find(p => p.id === selectedPlanId);
+        if (!plan) return;
+
         const priceIndex = selectedDurationIndex[selectedPlanId] || 0;
         const priceOption = plan.prices[priceIndex];
 
-        if (!confirm(`ยืนยันการสมัครแพ็กเกจ ${plan.name} (${priceOption.duration}) ราคา ${priceOption.price} บาท?`)) return;
+        if (!slipFile) {
+            toast.error("กรุณาอัพโหลดสลิปการโอนเงิน");
+            return;
+        }
 
-        setProcessing(true);
+        setUploading(true);
         try {
             const token = localStorage.getItem("token");
+
+            // 1. Get Presigned URL
+            const presignRes = await fetch(`${API_BASE_URL}/files/presign-url`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    fileName: slipFile.name,
+                    fileType: slipFile.type
+                })
+            });
+
+            if (!presignRes.ok) throw new Error("Failed to get upload URL");
+            const { uploadUrl, publicUrl } = await presignRes.json();
+
+            // 2. Upload File
+            const uploadRes = await fetch(uploadUrl, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": slipFile.type
+                },
+                body: slipFile
+            });
+
+            if (!uploadRes.ok) throw new Error("Failed to upload slip");
+
+            // 3. Create Subscription
             const res = await fetch(`${API_BASE_URL}/payments/subscribe`, {
                 method: "POST",
                 headers: {
@@ -77,21 +128,24 @@ export default function PlansPage() {
                 body: JSON.stringify({
                     planId: plan.id,
                     durationDays: priceOption.days,
-                    price: priceOption.price
+                    price: priceOption.price,
+                    slipUrl: publicUrl
                 })
             });
 
             if (res.ok) {
-                toast.success("สมัครสมาชิกสำเร็จ! (Mock Payment)");
+                toast.success("ส่งหลักฐานการชำระเงินเรียบร้อย! กรุณารอแอดมินตรวจสอบ");
+                setShowPaymentModal(false);
                 router.push("/dashboard");
             } else {
                 const err = await res.json();
                 toast.error(`เกิดข้อผิดพลาด: ${err.message}`);
             }
         } catch (error) {
-            toast.error("เกิดข้อผิดพลาดในการเชื่อมต่อ");
+            console.error(error);
+            toast.error("เกิดข้อผิดพลาดในการทำรายการ");
         } finally {
-            setProcessing(false);
+            setUploading(false);
         }
     };
 
@@ -222,13 +276,94 @@ export default function PlansPage() {
                             >
                                 {processing ? 'กำลังดำเนินการ...' : (
                                     <>
-                                        <ShieldCheck size={20} /> ชำระเงินด้วยบัตรเครดิต/เดบิต
+                                        <ShieldCheck size={20} /> ชำระเงินผ่าน Qr Code
                                     </>
                                 )}
                             </button>
                             <button className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-green-500/30 transition transform hover:-translate-y-0.5 hidden sm:flex">
                                 <Zap size={20} /> ชำระเงินด้วยคริปโต
                             </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* QR Payment Modal */}
+                {showPaymentModal && selectedPlan && selectedPrice && (
+                    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+                        <div className="bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl scale-100 animate-in zoom-in-95 duration-200">
+                            <div className="p-6 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center">
+                                <h3 className="text-xl font-bold text-zinc-900 dark:text-white">ชำระเงินผ่าน QR Code</h3>
+                                <button
+                                    onClick={() => setShowPaymentModal(false)}
+                                    className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition"
+                                >
+                                    <X size={20} className="text-zinc-500" />
+                                </button>
+                            </div>
+
+                            <div className="p-6 space-y-6">
+                                <div className="text-center">
+                                    <p className="text-zinc-500 mb-2">ยอดชำระทั้งหมด</p>
+                                    <div className="text-4xl font-bold text-blue-600 mb-4">{selectedPrice.price.toFixed(2)} บาท</div>
+                                    <div className="bg-zinc-50 dark:bg-zinc-800 p-4 rounded-xl inline-block border-2 border-dashed border-zinc-200 dark:border-zinc-700 relative group">
+                                        {/* Placeholder for QR Code */}
+                                        <div className="w-64 h-64 bg-white flex items-center justify-center">
+                                            <img
+                                                src="/payment-qr-placeholder.png"
+                                                alt="Payment QR Code"
+                                                className="max-w-full max-h-full object-contain"
+                                                onError={(e) => {
+                                                    // Fallback if image not found
+                                                    e.currentTarget.style.display = 'none';
+                                                    e.currentTarget.parentElement!.innerHTML = '<span class="text-zinc-400 text-sm">QR Code Placeholder</span>';
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                    <p className="text-xs text-zinc-400 mt-2">สแกนเพื่อชำระเงิน</p>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                                        อัพโหลดหลักฐานการโอนเงิน (สลิป)
+                                    </label>
+                                    <div className="border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-xl p-4 text-center hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition cursor-pointer relative">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleFileChange}
+                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                        />
+                                        {slipFile ? (
+                                            <div className="flex items-center justify-center gap-2 text-green-600">
+                                                <Check size={20} />
+                                                <span className="text-sm font-medium truncate max-w-[200px]">{slipFile.name}</span>
+                                            </div>
+                                        ) : (
+                                            <div className="flex flex-col items-center gap-2 text-zinc-500">
+                                                <Upload size={24} />
+                                                <span className="text-sm">คลิกเพื่ออัพโหลดสลิป</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={confirmPayment}
+                                    disabled={uploading || !slipFile}
+                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-blue-500/30 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {uploading ? (
+                                        <>
+                                            <Loader2 size={20} className="animate-spin" /> กำลังตรวจสอบ...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <ShieldCheck size={20} /> แจ้งชำระเงิน
+                                        </>
+                                    )}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}
