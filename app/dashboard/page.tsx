@@ -7,8 +7,7 @@ import { getImageUrl } from "../../lib/images";
 import { uploadS3File } from "../../lib/upload";
 import { API_BASE_URL } from "../../lib/constants";
 
-
-import { LogOut, Plus, Image as ImageIcon, Send, Edit, Save, Upload, MapPin, Ruler, DollarSign, User as UserIcon, Phone, Instagram, Hash, Car, Train, Check, MoreHorizontal, Heart, MessageCircle, Share2, Camera, Trash2 } from "lucide-react";
+import { LogOut, Plus, Image as ImageIcon, Send, Edit, Save, Upload, MapPin, Ruler, DollarSign, User as UserIcon, Phone, Instagram, Hash, Car, Train, Check, MoreHorizontal, Heart, MessageCircle, Share2, Camera, Trash2, Users, Building, ShieldCheck } from "lucide-react";
 
 // Checkbox Component for easy selection
 const CheckboxField = ({ label, checked, onChange, icon: Icon }: any) => (
@@ -45,12 +44,343 @@ const InputField = ({ label, value, onChange, placeholder, type = "text", icon: 
     </div>
 );
 
+// --- AGENCY DASHBOARD COMPONENT ---
+const AgencyDashboard = ({ user, onLogout }: any) => {
+    const [agency, setAgency] = useState<any>(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [form, setForm] = useState({
+        name: "",
+        description: "",
+        location: "",
+        lineId: "",
+        phone: "",
+        website: "",
+    });
+
+    useEffect(() => {
+        fetchMyAgency();
+    }, []);
+
+    const fetchMyAgency = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${API_BASE_URL}/agencies/me`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setAgency(data);
+                setForm({
+                    name: data.name || "",
+                    description: data.description || "",
+                    location: data.location || "",
+                    lineId: data.lineId || "",
+                    phone: data.phone || "",
+                    website: data.website || "",
+                });
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleUpdate = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${API_BASE_URL}/agencies/me`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                body: JSON.stringify(form)
+            });
+            if (res.ok) {
+                const updated = await res.json();
+                setAgency(updated);
+                setIsEditing(false);
+                alert("บันทึกข้อมูลสำเร็จ");
+            }
+        } catch (error) {
+            alert("บันทึกไม่สำเร็จ");
+        }
+    };
+
+    const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files?.[0]) return;
+        try {
+            const url = await uploadS3File(e.target.files[0]);
+            const token = localStorage.getItem("token");
+            await fetch(`${API_BASE_URL}/agencies/me`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                body: JSON.stringify({ bannerUrl: url })
+            });
+            setAgency({ ...agency, bannerUrl: url });
+        } catch (error) {
+            alert("Upload failed");
+        }
+    };
+
+    const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files?.[0]) return;
+        try {
+            const url = await uploadS3File(e.target.files[0]);
+            const token = localStorage.getItem("token");
+            await fetch(`${API_BASE_URL}/agencies/me`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                body: JSON.stringify({ logoUrl: url })
+            });
+            setAgency({ ...agency, logoUrl: url });
+        } catch (error) {
+            alert("Upload failed");
+        }
+    };
+
+    const submitKYC = async () => {
+        if (!confirm("ยืนยันการส่งเอกสารตรวจสอบตัวตน (จำลอง)?")) return;
+        try {
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${API_BASE_URL}/agencies/me/kyc`, {
+                method: "POST", headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const updated = await res.json();
+                setAgency(updated);
+                alert("ส่งเรื่องตรวจสอบแล้ว รอแอดมินอนุมัติ");
+            }
+        } catch (e) { alert("Error"); }
+    };
+
+    if (loading) return <div>Loading Agency...</div>;
+
+    return (
+        <div className="min-h-screen bg-zinc-50 dark:bg-[#020617] pb-24">
+            {/* Header / Banner */}
+            <div className="bg-[#1e1b4b] text-white p-6 pb-8 rounded-b-[40px] shadow-2xl mb-8 relative overflow-hidden h-[300px]">
+                {agency?.bannerUrl ? (
+                    <div className="absolute inset-0 w-full h-full z-0">
+                        <Image src={getImageUrl(agency.bannerUrl)} alt="Banner" fill className="object-cover opacity-60" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#1e1b4b] to-transparent" />
+                    </div>
+                ) : (
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-900 to-purple-900 opacity-50" />
+                )}
+
+                <div className="relative z-10 h-full flex flex-col justify-between">
+                    <div className="flex justify-between items-center">
+                        <h1 className="text-xl font-bold flex items-center gap-2"><Building size={20} /> Agency Manager</h1>
+                        <button onClick={onLogout} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition backdrop-blur-md">
+                            <LogOut size={20} />
+                        </button>
+                    </div>
+
+                    <div className="flex items-end gap-6 pb-4">
+                        <div className="w-24 h-24 rounded-2xl bg-white p-1 relative group cursor-pointer shadow-lg">
+                            <div className="w-full h-full rounded-xl bg-gray-100 overflow-hidden relative">
+                                {agency?.logoUrl ? (
+                                    <Image src={getImageUrl(agency.logoUrl)} fill className="object-cover" alt="Logo" />
+                                ) : (
+                                    <div className="flex items-center justify-center h-full text-gray-400"><ImageIcon /></div>
+                                )}
+                                <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition text-white text-xs cursor-pointer">
+                                    เปลี่ยนโลโก้
+                                    <input type="file" hidden onChange={handleLogoUpload} />
+                                </label>
+                            </div>
+                        </div>
+                        <div className="flex-1">
+                            <h2 className="text-3xl font-bold flex items-center gap-2">
+                                {agency?.name || "ตั้งชื่อสังกัดของคุณ"}
+                                {agency?.isVerified && <ShieldCheck className="text-blue-400" size={24} />}
+                            </h2>
+                            <p className="text-white/80 max-w-lg truncate">{agency?.description || "ใส่คำอธิบายสังกัด..."}</p>
+                        </div>
+                        {/* Edit Cover Trigger */}
+                        <label className="absolute top-6 right-16 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full text-xs cursor-pointer backdrop-blur transition">
+                            เปลี่ยนปก
+                            <input type="file" hidden onChange={handleBannerUpload} />
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div className="container mx-auto max-w-4xl px-4 -mt-10 relative z-20">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Sidebar / Stats */}
+                    <div className="space-y-6">
+                        <div className="bg-white dark:bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/5">
+                            <h3 className="text-gray-500 dark:text-gray-400 text-sm font-bold uppercase mb-4">สถิติสังกัด</h3>
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <span className="flex items-center gap-2 text-white"><Users size={16} /> เด็กในสังกัด</span>
+                                    <span className="font-bold text-2xl text-[#F84E6E]">{agency?.creators?.length || 0}</span>
+                                </div>
+                                <div className="h-px bg-white/10" />
+                                <button
+                                    onClick={() => setIsEditing(!isEditing)}
+                                    className="w-full py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white border border-white/10 transition flex items-center justify-center gap-2"
+                                >
+                                    <Edit size={16} /> แก้ไขข้อมูลร้าน
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Main Content */}
+                    <div className="md:col-span-2 space-y-6">
+                        {isEditing ? (
+                            <div className="bg-white dark:bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/5 animate-in fade-in slide-in-from-bottom-4">
+                                <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2"><Edit className="text-[#F84E6E]" /> แก้ไขข้อมูลสังกัด</h3>
+                                <div className="space-y-4">
+                                    <InputField label="ชื่อสังกัด" value={form.name} onChange={(e: any) => setForm({ ...form, name: e.target.value })} />
+                                    <div className="space-y-1">
+                                        <label className="text-xs font-medium text-white/70 ml-1">คำอธิบาย</label>
+                                        <textarea
+                                            value={form.description}
+                                            onChange={(e) => setForm({ ...form, description: e.target.value })}
+                                            className="w-full bg-black/20 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] min-h-[100px]"
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <InputField label="จังหวัด / โซน" value={form.location} onChange={(e: any) => setForm({ ...form, location: e.target.value })} icon={MapPin} />
+                                        <InputField label="Line ID" value={form.lineId} onChange={(e: any) => setForm({ ...form, lineId: e.target.value })} icon={Hash} />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <InputField label="เบอร์โทรศัพท์" value={form.phone} onChange={(e: any) => setForm({ ...form, phone: e.target.value })} icon={Phone} />
+                                        <InputField label="เว็บไซต์" value={form.website} onChange={(e: any) => setForm({ ...form, website: e.target.value })} icon={Share2} />
+                                    </div>
+
+                                    <button onClick={handleUpdate} className="w-full bg-[#F84E6E] text-white py-3 rounded-xl font-bold hover:brightness-110 shadow-lg shadow-pink-500/20 mt-4">
+                                        บันทึกการเปลี่ยนแปลง
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="bg-white dark:bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/5">
+                                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><Users className="text-[#F84E6E]" /> รายชื่อเด็กในสังกัด</h3>
+
+                                {/* Tabs or Sections */}
+                                <div className="space-y-6">
+                                    {/* KYC ALERT */}
+                                    {!agency?.isVerified && (
+                                        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-4">
+                                            <h4 className="text-red-500 font-bold mb-2 flex items-center gap-2"><ShieldCheck size={18} /> สังกัดยังไม่ได้รับการยืนยัน (Unverified)</h4>
+                                            <p className="text-white/70 text-sm mb-4">คุณยังไม่สามารถรับสมาชิกเข้าสังกัดได้ จนกว่าจะผ่านการตรวจสอบตัวตน</p>
+
+                                            {agency?.kycStatus === 'PENDING' ? (
+                                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-500/20 text-yellow-500 rounded-lg text-sm font-bold animate-pulse">
+                                                    ⏳ กำลังรอการตรวจสอบจากแอดมิน...
+                                                </div>
+                                            ) : (
+                                                <button
+                                                    onClick={submitKYC}
+                                                    className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-bold shadow-lg"
+                                                >
+                                                    ส่งเอกสารยืนยันตัวตน (KYC)
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {/* PENDING REQUESTS */}
+                                    {agency?.creators?.filter((c: any) => c.agencyJoinStatus === 'PENDING').length > 0 && (
+                                        <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4">
+                                            <h4 className="text-yellow-500 font-bold mb-3 flex items-center gap-2">⚠️ รอการอนุมัติเข้าร่วม ({agency.creators.filter((c: any) => c.agencyJoinStatus === 'PENDING').length})</h4>
+                                            <div className="grid grid-cols-1 gap-3">
+                                                {agency.creators.filter((c: any) => c.agencyJoinStatus === 'PENDING').map((model: any) => (
+                                                    <div key={model._id} className="flex items-center justify-between p-3 rounded-lg bg-black/20">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-10 h-10 rounded-full bg-gray-800 overflow-hidden relative">
+                                                                {(model.images?.[0] || model.user?.avatarUrl) && (
+                                                                    <Image src={getImageUrl(model.images?.[0] || model.user?.avatarUrl)} fill className="object-cover" alt="" />
+                                                                )}
+                                                            </div>
+                                                            <div>
+                                                                <h4 className="font-bold text-white text-sm">{model.displayName}</h4>
+                                                                <p className="text-xs text-white/50">ขอเข้าร่วมเมื่อ: {new Date(model.updatedAt || Date.now()).toLocaleDateString()}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <button
+                                                                disabled={!agency.isVerified}
+                                                                onClick={async () => {
+                                                                    if (!confirm("ยืนยันรับน้องเข้าสังกัด?")) return;
+                                                                    try {
+                                                                        const token = localStorage.getItem("token");
+                                                                        await fetch(`${API_BASE_URL}/agencies/requests/${model._id}/approve`, {
+                                                                            method: "POST", headers: { "Authorization": `Bearer ${token}` }
+                                                                        });
+                                                                        fetchMyAgency(); // Refresh
+                                                                    } catch (e) { alert("Error"); }
+                                                                }}
+                                                                className={`p-2 rounded-lg text-white ${!agency.isVerified ? 'bg-gray-600 cursor-not-allowed opacity-50' : 'bg-green-500 hover:bg-green-600'}`}
+                                                            >
+                                                                <Check size={16} />
+                                                            </button>
+                                                            <button
+                                                                onClick={async () => {
+                                                                    if (!confirm("ปฏิเสธคำขอ?")) return;
+                                                                    try {
+                                                                        const token = localStorage.getItem("token");
+                                                                        await fetch(`${API_BASE_URL}/agencies/requests/${model._id}/reject`, {
+                                                                            method: "POST", headers: { "Authorization": `Bearer ${token}` }
+                                                                        });
+                                                                        fetchMyAgency(); // Refresh
+                                                                    } catch (e) { alert("Error"); }
+                                                                }}
+                                                                className="p-2 bg-red-500 hover:bg-red-600 rounded-lg text-white"
+                                                            >
+                                                                <LogOut size={16} />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* APPROVED LIST */}
+                                    <div>
+                                        <h4 className="text-white/70 font-bold mb-3 text-sm uppercase">สมาชิกในสังกัด ({agency?.creators?.filter((c: any) => c.agencyJoinStatus === 'APPROVED').length || 0})</h4>
+                                        {agency?.creators?.filter((c: any) => c.agencyJoinStatus === 'APPROVED').length > 0 ? (
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                {agency.creators.filter((c: any) => c.agencyJoinStatus === 'APPROVED').map((model: any) => (
+                                                    <div key={model._id} className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition">
+                                                        <div className="w-12 h-12 rounded-full bg-gray-800 overflow-hidden relative">
+                                                            {(model.images?.[0] || model.user?.avatarUrl) && (
+                                                                <Image src={getImageUrl(model.images?.[0] || model.user?.avatarUrl)} fill className="object-cover" alt="" />
+                                                            )}
+                                                        </div>
+                                                        <div>
+                                                            <h4 className="font-bold text-white text-sm">{model.displayName}</h4>
+                                                            <p className="text-xs text-white/50">สมาชิก</p>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="text-center py-6 text-white/30 border border-dashed border-white/10 rounded-xl">ไม่มีสมาชิกที่อนุมัติแล้ว</div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 export default function Dashboard() {
     const router = useRouter();
     const [user, setUser] = useState<any>(null);
     const [creator, setCreator] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({ posts: 0, likes: 0, views: 0 });
+    const [agencies, setAgencies] = useState<any[]>([]); // List of available agencies
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // New Post State
@@ -81,6 +411,7 @@ export default function Dashboard() {
         phone: string;
         transport: string;
         parking: boolean;
+        agency: string; // Agency ID
     }>({
         displayName: "",
         bio: "",
@@ -99,7 +430,8 @@ export default function Dashboard() {
         instagram: "",
         phone: "",
         transport: "",
-        parking: false
+        parking: false,
+        agency: ""
     });
 
     const [myPosts, setMyPosts] = useState<any[]>([]);
@@ -114,15 +446,36 @@ export default function Dashboard() {
         }
 
         const parsedUser = JSON.parse(storedUser);
-        if (parsedUser.role !== "CREATOR") {
-            alert("หน้านี้สำหรับ Creator เท่านั้น");
+        if (parsedUser.role !== "CREATOR" && parsedUser.role !== "AGENCY") {
+            alert("หน้านี้สำหรับ Creator และ Agency เท่านั้น");
             router.push("/");
             return;
         }
 
         setUser(parsedUser);
-        fetchCreatorProfile(token);
+
+        // If Agency, we don't need to fetch creator profile strictly, but let's keep it safe
+        if (parsedUser.role === "CREATOR") {
+            fetchCreatorProfile(token);
+        } else {
+            setLoading(false); // For agency, we are ready
+        }
+
+        // fetchAgencies is for joining agency, mostly for Creator. But no harm calling it.
+        fetchAgencies();
     }, [router]);
+
+    const fetchAgencies = async () => {
+        try {
+            const res = await fetch(`${API_BASE_URL}/agencies`);
+            if (res.ok) {
+                const data = await res.json();
+                setAgencies(data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch agencies", error);
+        }
+    };
 
     const fetchCreatorProfile = async (token: string) => {
         try {
@@ -151,7 +504,8 @@ export default function Dashboard() {
                     instagram: data.instagram || "",
                     phone: data.phone || "",
                     transport: data.transport || "",
-                    parking: data.parking || false
+                    parking: data.parking || false,
+                    agency: data.agency || ""
                 });
                 setMyPosts(data.posts || []);
                 setStats({
@@ -368,15 +722,19 @@ export default function Dashboard() {
         }
     };
 
-    console.log("creator:", creator)
-
     if (loading) return <div className="min-h-screen flex items-center justify-center dark:bg-black text-white">Loading...</div>;
 
+    // --- RENDER AGENCY VIEW ---
+    if (user?.role === "AGENCY") {
+        return <AgencyDashboard user={user} onLogout={handleLogout} />;
+    }
+
+    // --- RENDER CREATOR VIEW (Original Logic) ---
+    // Make sure we have a user before rendering anything else, though loading checks handle most of it
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-[#020617] pb-24">
             {/* Header */}
             <div className="bg-[#1e1b4b] text-white p-6 pb-8 rounded-b-[40px] shadow-2xl mb-8 relative overflow-hidden">
-                {/* Decorative bg */}
                 {/* Decorative bg or Banner */}
                 {creator?.bannerUrl ? (
                     <div className="absolute inset-0 w-full h-full z-0">
@@ -458,6 +816,32 @@ export default function Dashboard() {
                                             <option value="สาวสอง" className="bg-[#1e1b4b]">สาวสอง (Ladyboy)</option>
                                             <option value="ทอม" className="bg-[#1e1b4b]">ทอม (Tom)</option>
                                         </select>
+                                    </div>
+                                    <div className="col-span-2 space-y-1.5">
+                                        <label className="text-xs font-medium text-white/70 ml-1 flex items-center gap-1"><UserIcon size={12} /> สังกัด (Agency)</label>
+                                        <div className="space-y-2">
+                                            {/* Status Badge */}
+                                            {creator?.agencyJoinStatus === 'PENDING' && (
+                                                <div className="bg-yellow-500/20 text-yellow-500 text-xs px-3 py-2 rounded-lg border border-yellow-500/30 flex items-center gap-2">
+                                                    <div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" />
+                                                    รอการอนุมัติจากสังกัด... (คุณยังไม่ถูกแสดงในหน้าสังกัด)
+                                                </div>
+                                            )}
+
+                                            <select
+                                                value={editForm.agency}
+                                                onChange={(e) => setEditForm({ ...editForm, agency: e.target.value })}
+                                                className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] focus:border-transparent transition text-sm appearance-none"
+                                            >
+                                                <option value="" className="bg-[#1e1b4b] text-white/50">อิสระ (Freelance)</option>
+                                                {agencies.map((agency: any) => (
+                                                    <option key={agency._id} value={agency._id} className="bg-[#1e1b4b]">
+                                                        {agency.name}
+                                                        {creator?.agency === agency._id && creator?.agencyJoinStatus === 'PENDING' ? ' (รออนุมัติ)' : ''}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-3 gap-3">

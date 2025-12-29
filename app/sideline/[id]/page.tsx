@@ -41,6 +41,7 @@ interface CreatorDetail {
     isVerified: boolean;
     reviews: any[];
     posts: any[];
+    images?: string[];
 }
 
 export default function SidelineDetailPage() {
@@ -51,8 +52,14 @@ export default function SidelineDetailPage() {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     const mockImages = ["1.png", "2.png", "3.png", "4.png"];
-    const displayImages = creator?.posts?.length
-        ? creator.posts.flatMap(p => p.media.map((m: any) => getImageUrl(m.url)))
+
+    // Priority: Gallery Images -> Post Images -> Mock
+    const galleryImages = creator?.images?.map(img => getImageUrl(img)) || [];
+    const postImages = creator?.posts?.flatMap(p => p.media.map((m: any) => getImageUrl(m.url))) || [];
+    const availableImages = [...galleryImages, ...postImages];
+
+    const displayImages = availableImages.length > 0
+        ? availableImages
         : mockImages.map(img => `/mock/creators/${img}`);
 
     useEffect(() => {

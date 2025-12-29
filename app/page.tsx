@@ -2,12 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { MessageCircle, ChevronRight, Search } from "lucide-react";
+import { MessageCircle, ChevronRight, Search, Building2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { API_BASE_URL } from "../lib/constants";
 import { getImageUrl } from "../lib/images";
-
-
 
 interface Creator {
   _id: string;
@@ -24,13 +22,22 @@ interface Creator {
   isSuperStar: boolean;
 }
 
+interface Agency {
+  _id: string;
+  name: string;
+  logoUrl?: string;
+  creators?: any[];
+}
+
 export default function Home() {
   const [creators, setCreators] = useState<Creator[]>([]);
+  const [agencies, setAgencies] = useState<Agency[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchCreators();
+    fetchAgencies();
   }, []);
 
   const fetchCreators = async (search = "") => {
@@ -46,6 +53,18 @@ export default function Home() {
       console.error("Failed to fetch creators:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAgencies = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/agencies`);
+      if (res.ok) {
+        const data = await res.json();
+        setAgencies(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch agencies:", error);
     }
   };
 
@@ -103,34 +122,46 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Top Agencies (Mock) */}
+      {/* Top Agencies */}
       <section className="mb-8 px-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold">Top Agencies Fiwfan</h2>
+          <h2 className="text-lg font-bold border-l-4 border-[#F84E6E] pl-3">Top Agencies Fiwfan</h2>
           <Link href="/agency" className="text-xs text-pink-500 flex items-center">
             ดูทั้งหมด <ChevronRight size={14} />
           </Link>
         </div>
-        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="flex-shrink-0 w-64 h-24 bg-[#1e1b4b]/50 rounded-xl border border-white/5 flex items-center p-4 gap-4 relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-6 h-6 bg-yellow-500 rounded-tl-xl rounded-br-xl text-black font-bold flex items-center justify-center text-xs z-10">
-                {i}
-              </div>
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl z-10">
-                {['A', 'B', 'C'][i - 1]}
-              </div>
-              <div className="z-10">
-                <div className="font-bold">Agency {i}</div>
-                <div className="text-xs text-white/40">50+ Creators</div>
-              </div>
-            </div>
-          ))}
-        </div>
+
+        {agencies.length === 0 ? (
+          <div className="text-white/40 text-sm text-center py-4 bg-white/5 rounded-xl border border-white/5">
+            ยังไม่มีข้อมูลสังกัด
+          </div>
+        ) : (
+          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+            {agencies.map((agency, i) => (
+              <Link href={`/agency/${agency._id}`} key={agency._id} className="flex-shrink-0 w-64 h-24 bg-[#1e1b4b]/50 hover:bg-[#1e1b4b] transition rounded-xl border border-white/5 flex items-center p-4 gap-4 relative overflow-hidden group">
+                <div className="absolute top-0 left-0 w-6 h-6 bg-yellow-500 rounded-tl-xl rounded-br-xl text-black font-bold flex items-center justify-center text-xs z-10 shadow-lg">
+                  {i + 1}
+                </div>
+                <div className="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center text-white font-bold text-xl z-10 overflow-hidden relative border-2 border-white/10 group-hover:border-[#F84E6E] transition">
+                  {agency.logoUrl ? (
+                    <Image src={getImageUrl(agency.logoUrl)} fill className="object-cover" alt={agency.name} />
+                  ) : (
+                    <Building2 size={24} className="text-white/50" />
+                  )}
+                </div>
+                <div className="z-10 overflow-hidden">
+                  <div className="font-bold truncate text-white group-hover:text-[#F84E6E] transition">{agency.name}</div>
+                  <div className="text-xs text-white/40">{agency.creators ? agency.creators.length : 0} Creators</div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Creator Feed Grid */}
       <section className="px-4">
+        <h2 className="text-lg font-bold border-l-4 border-[#F84E6E] pl-3 mb-4">Superstar Fiwfan</h2>
         {loading ? (
           <div className="text-center py-20 text-white/50">Loading...</div>
         ) : creators.length === 0 ? (
