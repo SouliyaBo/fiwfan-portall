@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Check, Star, ShieldCheck, Zap, X } from 'lucide-react';
-import { API_BASE_URL } from '../lib/constants';
+import { toast } from 'react-toastify';
+import { API_BASE_URL } from '../../lib/constants';
 
 interface PlanPrice {
     duration: string;
@@ -62,7 +63,7 @@ export default function PlansPage() {
         const priceIndex = selectedDurationIndex[selectedPlanId] || 0;
         const priceOption = plan.prices[priceIndex];
 
-        if (!confirm(`ยืนยันการสมัครแพ็กเกจ ${plan.name} (${priceOption.duration}) ราคา ${priceOption.price} THB?`)) return;
+        if (!confirm(`ยืนยันการสมัครแพ็กเกจ ${plan.name} (${priceOption.duration}) ราคา ${priceOption.price} บาท?`)) return;
 
         setProcessing(true);
         try {
@@ -81,14 +82,14 @@ export default function PlansPage() {
             });
 
             if (res.ok) {
-                alert("สมัครสมาชิกสำเร็จ! (Mock Payment)");
+                toast.success("สมัครสมาชิกสำเร็จ! (Mock Payment)");
                 router.push("/dashboard");
             } else {
                 const err = await res.json();
-                alert(`เกิดข้อผิดพลาด: ${err.message}`);
+                toast.error(`เกิดข้อผิดพลาด: ${err.message}`);
             }
         } catch (error) {
-            alert("Connection error");
+            toast.error("เกิดข้อผิดพลาดในการเชื่อมต่อ");
         } finally {
             setProcessing(false);
         }
@@ -103,7 +104,7 @@ export default function PlansPage() {
         }
     };
 
-    if (loading) return <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-[#020617] text-white">Loading Plans...</div>;
+    if (loading) return <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-[#020617] text-white">กำลังโหลดข้อมูล...</div>;
 
     const selectedPlan = plans.find(p => p.id === selectedPlanId);
     const selectedPrice = selectedPlan ? selectedPlan.prices[selectedDurationIndex[selectedPlan.id] || 0] : null;
@@ -112,11 +113,11 @@ export default function PlansPage() {
         <div className="min-h-screen bg-zinc-50 dark:bg-[#020617] py-12 px-4">
             <div className="container mx-auto max-w-6xl">
                 <div className="mb-12">
-                    <h1 className="text-3xl font-bold text-zinc-900 dark:text-white mb-2">Choose the right plan for boost your fans!</h1>
-                    <p className="text-red-500 font-medium">You are one step ahead to go live, Profiles remain hidden without activation. Pick a plan and make your profile go public Now.</p>
+                    <h1 className="text-3xl font-bold text-zinc-900 dark:text-white mb-2">เลือกแพ็กเกจที่ใช่ เพื่อดันยอดแฟนคลับของคุณ!</h1>
+                    <p className="text-red-500 font-medium">คุณเข้าใกล้การมีรายได้ไปอีกขั้น โปรไฟล์ของคุณจะยังไม่แสดงผลจนกว่าจะเปิดใช้งาน เลือกแพ็กเกจและเปิดโปรไฟล์ของคุณให้เป็นสาธารณะได้เลย!</p>
                 </div>
 
-                <h2 className="text-xl font-bold text-zinc-700 dark:text-zinc-300 mb-6 uppercase tracking-wider">Featured Plans</h2>
+                <h2 className="text-xl font-bold text-zinc-700 dark:text-zinc-300 mb-6 uppercase tracking-wider">แพ็กเกจแนะนำ</h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
                     {plans.map((plan) => {
@@ -141,9 +142,14 @@ export default function PlansPage() {
                                         ))}
                                         {/* Mock negative features for non-top plans if needed based on description */}
                                         {plan.id === 'STAR' && (
-                                            <li className="flex items-start gap-2 text-sm text-zinc-400">
-                                                <X size={16} className="text-red-400 mt-0.5 shrink-0" /> ไม่มีวิดีโอ / รีล
-                                            </li>
+                                            <>
+                                                <li className="flex items-start gap-2 text-sm text-zinc-400">
+                                                    <X size={16} className="text-red-400 mt-0.5 shrink-0" /> ไม่มีวิดีโอ / รีล
+                                                </li>
+                                                <li className="flex items-start gap-2 text-sm text-zinc-400">
+                                                    <Check size={16} className="text-green-500 mt-0.5 shrink-0" /> การมองเห็นเพิ่มขึ้น 100%
+                                                </li>
+                                            </>
                                         )}
                                         {plan.id === 'POPULAR' && (
                                             <>
@@ -159,7 +165,7 @@ export default function PlansPage() {
 
                                     <div className={`space-y-3 p-4 rounded-xl ${colors.bg}`}>
                                         {plan.prices.map((price, idx) => {
-                                            const isPriceSelected = (selectedDurationIndex[plan.id] || 0) === idx;
+                                            const isPriceSelected = isSelected && (selectedDurationIndex[plan.id] || 0) === idx;
                                             return (
                                                 <div
                                                     key={idx}
@@ -173,11 +179,11 @@ export default function PlansPage() {
                                                         {isPriceSelected && <div className="w-2 h-2 bg-blue-500 rounded-full" />}
                                                     </div>
                                                     <span className="text-sm font-medium text-zinc-700">
-                                                        {price.duration} <span className="text-zinc-900 font-bold ml-1">{price.price} THB</span>
+                                                        {price.duration} <span className="text-zinc-900 font-bold ml-1">{price.price} บาท</span>
                                                     </span>
                                                     {isPriceSelected && idx > 0 && (
                                                         <span className="text-[10px] text-green-600 bg-green-100 px-1.5 py-0.5 rounded ml-auto">
-                                                            Save {Math.round((plan.prices[0].price * (price.days / 7)) - price.price)} THB
+                                                            ประหยัด {Math.round((plan.prices[0].price * (price.days / 7)) - price.price)} บาท
                                                         </span>
                                                     )}
                                                 </div>
@@ -194,19 +200,19 @@ export default function PlansPage() {
                 {selectedPrice && (
                     <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between sticky bottom-6 shadow-2xl animate-in slide-in-from-bottom-6">
                         <div className="mb-4 md:mb-0">
-                            <h4 className="text-sm text-zinc-500 font-bold uppercase mb-1">PLAN DETAILS</h4>
+                            <h4 className="text-sm text-zinc-500 font-bold uppercase mb-1">รายละเอียดแพ็กเกจ</h4>
                             <div className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
                                 {selectedPlan?.name} <span className="text-zinc-400 font-normal text-sm">{selectedPrice.duration}</span>
                             </div>
                             <div className="text-xs text-zinc-500 mt-1">
-                                Valid until {new Date(Date.now() + selectedPrice.days * 24 * 60 * 60 * 1000).toLocaleDateString()}
+                                ใช้งานได้จนถึง {new Date(Date.now() + selectedPrice.days * 24 * 60 * 60 * 1000).toLocaleDateString()}
                             </div>
                         </div>
 
                         <div className="flex items-center gap-6">
                             <div className="text-right hidden md:block">
-                                <span className="text-zinc-500 text-sm font-bold mr-2">Total</span>
-                                <span className="text-2xl font-bold text-blue-600">{selectedPrice.price.toFixed(2)} THB</span>
+                                <span className="text-zinc-500 text-sm font-bold mr-2">รวมทั้งหมด</span>
+                                <span className="text-2xl font-bold text-blue-600">{selectedPrice.price.toFixed(2)} บาท</span>
                             </div>
 
                             <button
@@ -214,14 +220,14 @@ export default function PlansPage() {
                                 disabled={processing}
                                 className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-blue-500/30 transition transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {processing ? 'Processing...' : (
+                                {processing ? 'กำลังดำเนินการ...' : (
                                     <>
-                                        <ShieldCheck size={20} /> Pay with Credit/Debit Card
+                                        <ShieldCheck size={20} /> ชำระเงินด้วยบัตรเครดิต/เดบิต
                                     </>
                                 )}
                             </button>
                             <button className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-green-500/30 transition transform hover:-translate-y-0.5 hidden sm:flex">
-                                <Zap size={20} /> Pay with Crypto
+                                <Zap size={20} /> ชำระเงินด้วยคริปโต
                             </button>
                         </div>
                     </div>

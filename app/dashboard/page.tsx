@@ -6,6 +6,7 @@ import Image from "next/image";
 import { getImageUrl } from "../../lib/images";
 import { uploadS3File } from "../../lib/upload";
 import { API_BASE_URL } from "../../lib/constants";
+import { toast } from 'react-toastify';
 
 import { LogOut, Plus, Image as ImageIcon, Send, Edit, Save, Upload, MapPin, Ruler, DollarSign, User as UserIcon, Phone, Instagram, Hash, Car, Train, Check, MoreHorizontal, Heart, MessageCircle, Share2, Camera, Trash2, Users, Building, ShieldCheck, Zap } from "lucide-react";
 
@@ -99,10 +100,10 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                 const updated = await res.json();
                 setAgency(updated);
                 setIsEditing(false);
-                alert("บันทึกข้อมูลสำเร็จ");
+                toast.success("บันทึกข้อมูลสำเร็จ");
             }
         } catch (error) {
-            alert("บันทึกไม่สำเร็จ");
+            toast.error("บันทึกไม่สำเร็จ");
         }
     };
 
@@ -118,7 +119,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
             });
             setAgency({ ...agency, bannerUrl: url });
         } catch (error) {
-            alert("Upload failed");
+            toast.error("Upload failed");
         }
     };
 
@@ -134,7 +135,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
             });
             setAgency({ ...agency, logoUrl: url });
         } catch (error) {
-            alert("Upload failed");
+            toast.error("Upload failed");
         }
     };
 
@@ -148,9 +149,9 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
             if (res.ok) {
                 const updated = await res.json();
                 setAgency(updated);
-                alert("ส่งเรื่องตรวจสอบแล้ว รอแอดมินอนุมัติ");
+                toast.info("ส่งเรื่องตรวจสอบแล้ว รอแอดมินอนุมัติ");
             }
-        } catch (e) { alert("Error"); }
+        } catch (e) { toast.error("Error"); }
     };
 
     if (loading) return <div>Loading Agency...</div>;
@@ -328,7 +329,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                                                                             method: "POST", headers: { "Authorization": `Bearer ${token}` }
                                                                         });
                                                                         fetchMyAgency(); // Refresh
-                                                                    } catch (e) { alert("Error"); }
+                                                                    } catch (e) { toast.error("Error"); }
                                                                 }}
                                                                 className={`p-2 rounded-lg text-white ${!agency.isVerified ? 'bg-gray-600 cursor-not-allowed opacity-50' : 'bg-green-500 hover:bg-green-600'}`}
                                                             >
@@ -343,7 +344,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                                                                             method: "POST", headers: { "Authorization": `Bearer ${token}` }
                                                                         });
                                                                         fetchMyAgency(); // Refresh
-                                                                    } catch (e) { alert("Error"); }
+                                                                    } catch (e) { toast.error("Error"); }
                                                                 }}
                                                                 className="p-2 bg-red-500 hover:bg-red-600 rounded-lg text-white"
                                                             >
@@ -463,7 +464,7 @@ export default function Dashboard() {
 
         const parsedUser = JSON.parse(storedUser);
         if (parsedUser.role !== "CREATOR" && parsedUser.role !== "AGENCY") {
-            alert("หน้านี้สำหรับ Creator และ Agency เท่านั้น");
+            toast.warn("หน้านี้สำหรับ Creator และ Agency เท่านั้น");
             router.push("/");
             return;
         }
@@ -492,8 +493,6 @@ export default function Dashboard() {
                 if (sub && sub.status === 'ACTIVE') {
                     setHasSubscription(true);
                 } else {
-                    // Redirect logic or just state?
-                    // Let's set state and maybe separate UI for "No Plan"
                     setHasSubscription(false);
                 }
             }
@@ -575,7 +574,7 @@ export default function Dashboard() {
 
     const handlePostSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!selectedFile && !previewUrl) return alert("กรุณาเลือกรูปภาพ");
+        if (!selectedFile && !previewUrl) return toast.warn("กรุณาเลือกรูปภาพ");
 
         setIsPosting(true);
         try {
@@ -586,7 +585,7 @@ export default function Dashboard() {
                 try {
                     imageUrl = await uploadS3File(selectedFile);
                 } catch (err: any) {
-                    alert(err.message || "Upload failed");
+                    toast.error(err.message || "Upload failed");
                     setIsPosting(false);
                     return;
                 }
@@ -610,13 +609,19 @@ export default function Dashboard() {
                 setCaption("");
                 setSelectedFile(null);
                 setPreviewUrl("");
-                alert("โพสต์เรียบร้อยแล้ว!");
+                toast.success("โพสต์เรียบร้อยแล้ว!");
             } else {
-                alert("เกิดข้อผิดพลาดในการโพสต์");
+                const err = await res.json();
+                if (err.code === 'SUBSCRIPTION_REQUIRED') {
+                    toast.error("กรุณาซื้อแพ็กเกจก่อนทำการโพสต์");
+                    router.push('/plans');
+                } else {
+                    toast.error("เกิดข้อผิดพลาดในการโพสต์");
+                }
             }
         } catch (error) {
             console.error(error);
-            alert("เกิดข้อผิดพลาด");
+            toast.error("เกิดข้อผิดพลาด");
         } finally {
             setIsPosting(false);
         }
@@ -640,11 +645,11 @@ export default function Dashboard() {
                 setUser({ ...user, avatarUrl: url });
                 const storageUser = JSON.parse(localStorage.getItem("user") || "{}");
                 localStorage.setItem("user", JSON.stringify({ ...storageUser, avatarUrl: url }));
-                alert("อัปเดตรูปโปรไฟล์สำเร็จ");
+                toast.success("อัปเดตรูปโปรไฟล์สำเร็จ");
             }
         } catch (error) {
             console.error(error);
-            alert("อัปโหลดไม่สำเร็จ");
+            toast.error("อัปโหลดไม่สำเร็จ");
         }
     };
 
@@ -663,11 +668,11 @@ export default function Dashboard() {
 
             if (res.ok) {
                 setCreator({ ...creator, bannerUrl: url });
-                alert("อัปเดตปกสำเร็จ");
+                toast.success("อัปเดตปกสำเร็จ");
             }
         } catch (error) {
             console.error(error);
-            alert("อัปโหลดไม่สำเร็จ");
+            toast.error("อัปโหลดไม่สำเร็จ");
         }
     };
 
@@ -676,13 +681,11 @@ export default function Dashboard() {
         const files = Array.from(e.target.files);
 
         try {
-            alert(`กำลังอัปโหลด ${files.length} รูป... กรุณารอสักครู่`);
+            toast.info(`กำลังอัปโหลด ${files.length} รูป... กรุณารอสักครู่`);
             const uploadPromises = files.map(file => uploadS3File(file));
             const distinctUrls = await Promise.all(uploadPromises);
 
             const token = localStorage.getItem("token");
-            // Fetch current to append or just send new array? logic implies append usually for gallery
-            // But API updateCreatorProfile is $set. Let's append client side and set.
             const currentImages = creator?.images || [];
             const newImages = [...currentImages, ...distinctUrls];
 
@@ -694,11 +697,18 @@ export default function Dashboard() {
 
             if (res.ok) {
                 setCreator({ ...creator, images: newImages });
-                alert("อัปโหลดรูปผลงานสำเร็จ");
+                toast.success("อัปโหลดรูปผลงานสำเร็จ");
+            } else {
+                const err = await res.json();
+                if (err.code === 'SUBSCRIPTION_REQUIRED') {
+                    toast.error("กรุณาซื้อแพ็กเกจก่อนอัปโหลดรูปผลงาน");
+                } else {
+                    toast.error("อัปโหลดไม่สำเร็จ");
+                }
             }
         } catch (error) {
             console.error(error);
-            alert("อัปโหลดบางรูปไม่สำเร็จ");
+            toast.error("อัปโหลดบางรูปไม่สำเร็จ");
         }
     };
 
@@ -718,11 +728,11 @@ export default function Dashboard() {
 
             if (res.ok) {
                 setCreator({ ...creator, images: newImages });
-                // alert("ลบรูปภาพสำเร็จ");
+                toast.success("ลบรูปภาพสำเร็จ");
             }
         } catch (error) {
             console.error(error);
-            alert("เกิดข้อผิดพลาดในการลบรูปภาพ");
+            toast.error("เกิดข้อผิดพลาดในการลบรูปภาพ");
         }
     };
 
@@ -731,7 +741,6 @@ export default function Dashboard() {
             const token = localStorage.getItem("token");
             const payload = {
                 ...editForm,
-                // languages is already an array
                 services: editForm.services.split(",").map((s: string) => s.trim()).filter((s: string) => s),
                 interests: editForm.interests.split(",").map((s: string) => s.trim()).filter((s: string) => s),
             };
@@ -749,13 +758,13 @@ export default function Dashboard() {
                 const updated = await res.json();
                 setCreator(updated);
                 setIsEditing(false);
-                alert("บันทึกข้อมูลแล้ว");
+                toast.success("บันทึกข้อมูลแล้ว");
             } else {
-                alert("บันทึกไม่สำเร็จ");
+                toast.error("บันทึกไม่สำเร็จ");
             }
         } catch (error) {
             console.error(error);
-            alert("เกิดข้อผิดพลาด");
+            toast.error("เกิดข้อผิดพลาด");
         }
     };
 
@@ -766,8 +775,7 @@ export default function Dashboard() {
         return <AgencyDashboard user={user} onLogout={handleLogout} />;
     }
 
-    // --- RENDER CREATOR VIEW (Original Logic) ---
-    // Make sure we have a user before rendering anything else, though loading checks handle most of it
+    // --- RENDER CREATOR VIEW ---
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-[#020617] pb-24">
             {/* Header */}
@@ -797,42 +805,176 @@ export default function Dashboard() {
                             <LogOut size={20} />
                         </button>
                     </div>
+
+                    <div className="flex items-center gap-6">
+                        <div className="w-24 h-24 rounded-full bg-white p-1 relative group cursor-pointer shadow-lg animate-in zoom-in-50 duration-500">
+                            <div className="w-full h-full rounded-full bg-gray-100 overflow-hidden relative">
+                                {(creator?.images?.[0] || user?.avatarUrl) ? (
+                                    <Image
+                                        src={getImageUrl(creator?.images?.[0] || user?.avatarUrl)}
+                                        alt="Profile"
+                                        fill
+                                        className="object-cover"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full bg-gradient-to-br from-pink-500 to-violet-600 flex items-center justify-center text-white text-2xl font-bold">
+                                        {user?.username?.[0]?.toUpperCase()}
+                                    </div>
+                                )}
+                                <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition text-white text-xs cursor-pointer rounded-full">
+                                    เปลี่ยนรูป
+                                    <input type="file" hidden onChange={handleAvatarUpload} />
+                                </label>
+                            </div>
+                            <div className="absolute bottom-0 right-0 bg-green-500 w-6 h-6 rounded-full border-2 border-[#1e1b4b] flex items-center justify-center">
+                                <Check size={12} strokeWidth={4} />
+                            </div>
+                        </div>
+
+                        <div>
+                            <h2 className="text-3xl font-bold">{creator?.displayName || user?.username}</h2>
+                            <p className="text-white/70 text-sm max-w-xs truncate">{creator?.bio || "ยังไม่มีคำอธิบายตัวตน"}</p>
+
+                            {/* Tags or Badges */}
+                            <div className="flex gap-2 mt-3">
+                                <span className="px-2 py-1 bg-white/10 rounded text-[10px] backdrop-blur font-medium">AGE: {creator?.age || "-"}</span>
+                                <span className="px-2 py-1 bg-white/10 rounded text-[10px] backdrop-blur font-medium flex items-center gap-1"><MapPin size={10} /> {creator?.location || "-"}</span>
+                                {creator?.isVerified && <span className="px-2 py-1 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded text-[10px] backdrop-blur font-medium flex items-center gap-1"><ShieldCheck size={10} /> Verified</span>}
+                            </div>
+                        </div>
+
+                        {/* Banner Edit Trigger (Absolute) */}
+                        <label className="absolute bottom-0 right-0 mb-8 mr-0 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full text-xs cursor-pointer backdrop-blur transition flex items-center gap-2">
+                            <Camera size={14} /> เปลี่ยนปก
+                            <input type="file" hidden onChange={handleBannerUpload} />
+                        </label>
+                    </div>
                 </div>
             </div>
 
-            <div className="container mx-auto max-w-2xl px-4 -mt-16 relative z-20">
-                {/* Profile Editor Card */}
+            <div className="container mx-auto max-w-2xl px-4 -mt-10 relative z-20">
+                {/* Stats Cards */}
+                <div className="grid grid-cols-3 gap-4 mb-8">
+                    <div className="bg-white dark:bg-[#1e1b4b]/80 backdrop-blur p-4 rounded-2xl shadow-lg border border-white/5 text-center">
+                        <h3 className="text-gray-400 text-xs font-bold uppercase mb-1">Posts</h3>
+                        <p className="text-2xl font-bold text-white">{stats.posts}</p>
+                    </div>
+                    <div className="bg-white dark:bg-[#1e1b4b]/80 backdrop-blur p-4 rounded-2xl shadow-lg border border-white/5 text-center">
+                        <h3 className="text-gray-400 text-xs font-bold uppercase mb-1">Likes</h3>
+                        <p className="text-2xl font-bold text-white">{stats.likes}</p>
+                    </div>
+                    <div className="bg-white dark:bg-[#1e1b4b]/80 backdrop-blur p-4 rounded-2xl shadow-lg border border-white/5 text-center">
+                        <h3 className="text-gray-400 text-xs font-bold uppercase mb-1">Views</h3>
+                        <p className="text-2xl font-bold text-white">{stats.views}</p>
+                    </div>
+                </div>
+
                 {isEditing ? (
-                    <div className="bg-[#1e1b4b]/95 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-2xl mb-8 animate-in fade-in slide-in-from-bottom-8 duration-500">
-                        <div className="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
-                            <h2 className="font-bold text-xl text-white flex items-center gap-2"><Edit size={20} className="text-[#F84E6E]" /> แก้ไขโปรไฟล์</h2>
-                            <button onClick={() => setIsEditing(false)} className="text-white/50 hover:text-white text-sm">ยกเลิก</button>
+                    <div className="bg-white dark:bg-[#1e1b4b]/80 backdrop-blur rounded-3xl p-6 shadow-xl border border-white/5 animate-in fade-in slide-in-from-bottom-8">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-xl font-bold text-white flex items-center gap-2"><Edit className="text-[#F84E6E]" /> แก้ไขโปรไฟล์</h3>
+                            <button onClick={() => setIsEditing(false)} className="text-sm text-gray-400 hover:text-white">ยกเลิก</button>
                         </div>
 
-                        <div className="space-y-8">
-                            {/* 0. Banner & Gallery Header */}
-                            <section className="space-y-4">
-                                <h3 className="text-[#F84E6E] font-bold text-sm uppercase tracking-wider flex items-center gap-2"><ImageIcon size={14} /> รูปปก (Banner)</h3>
-                                <div className="relative w-full aspect-[3/1] bg-black/20 rounded-xl overflow-hidden border border-white/10 group">
-                                    {user?.avatarUrl ? (
-                                        <Image src={getImageUrl(user?.avatarUrl)} alt="Banner" fill className="object-cover" />
-                                    ) : (
-                                        <div className="flex items-center justify-center h-full text-white/30 text-sm">ยังไม่มีรูปปก</div>
-                                    )}
-                                    <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition cursor-pointer">
-                                        <div className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full flex items-center gap-2 text-white text-sm font-bold hover:bg-white/20 border border-white/10">
-                                            <Camera size={16} /> เปลี่ยนรูปปก
-                                        </div>
-                                        <input type="file" hidden accept="image/*" onChange={handleBannerUpload} />
-                                    </label>
+                        <div className="space-y-5">
+                            <InputField label="ชื่อที่ใช้แสดง (Display Name)" value={editForm.displayName} onChange={(e: any) => setEditForm({ ...editForm, displayName: e.target.value })} />
+
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-medium text-white/70 ml-1">คำอธิบายตัวเอง (Bio)</label>
+                                <textarea
+                                    value={editForm.bio}
+                                    onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
+                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] min-h-[100px] text-sm"
+                                    placeholder="แนะนำตัวเองสั้นๆ..."
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <InputField label="อายุ" type="number" value={editForm.age} onChange={(e: any) => setEditForm({ ...editForm, age: parseInt(e.target.value) })} />
+                                <InputField label="เรทราคา (เริ่มต้น)" type="number" value={editForm.price} onChange={(e: any) => setEditForm({ ...editForm, price: parseInt(e.target.value) })} icon={DollarSign} />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <InputField label="จังหวัด / โซน" value={editForm.location} onChange={(e: any) => setEditForm({ ...editForm, location: e.target.value })} icon={MapPin} />
+                                <InputField label="สัดส่วน (อก-เอว-สะโพก)" value={editForm.proportions} onChange={(e: any) => setEditForm({ ...editForm, proportions: e.target.value })} icon={Ruler} />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <InputField label="ส่วนสูง (cm)" value={editForm.height} onChange={(e: any) => setEditForm({ ...editForm, height: e.target.value })} />
+                                <InputField label="น้ำหนัก (kg)" value={editForm.weight} onChange={(e: any) => setEditForm({ ...editForm, weight: e.target.value })} />
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-medium text-white/70 ml-1">งานที่รับ (Services)</label>
+                                <input
+                                    value={editForm.services}
+                                    onChange={(e) => setEditForm({ ...editForm, services: e.target.value })}
+                                    placeholder="เช่น ทานข้าว, ถ่ายแบบ, งานเอ็น..."
+                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm"
+                                />
+                                <p className="text-[10px] text-white/40 ml-1">คั่นด้วยเครื่องหมายจุลภาค (,)</p>
+                            </div>
+
+                            {/* Agency Integration */}
+                            <div className="space-y-1.5 pt-2 border-t border-white/5 mt-4">
+                                <label className="text-xs font-medium text-white/70 ml-1 flex items-center gap-1"><Building size={12} /> สังกัด (Agency)</label>
+                                <select
+                                    value={editForm.agency}
+                                    onChange={(e) => setEditForm({ ...editForm, agency: e.target.value })}
+                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none"
+                                >
+                                    <option value="" className="bg-slate-900 text-white">-- ไม่มีสังกัด / อิสระ --</option>
+                                    {agencies.map((agency) => (
+                                        <option key={agency._id} value={agency._id} className="bg-slate-900 text-white">
+                                            {agency.name} {agency.isVerified ? '✅' : ''}
+                                        </option>
+                                    ))}
+                                </select>
+                                <p className="text-[10px] text-yellow-500/80 ml-1">การเปลี่ยนสังกัดจะต้องรอการอนุมัติจากหัวหน้าสังกัดใหม่</p>
+                            </div>
+
+                            <button onClick={handleProfileUpdate} className="w-full bg-[#F84E6E] text-white py-3 rounded-xl font-bold hover:brightness-110 shadow-lg shadow-pink-500/20 mt-4 text-sm">
+                                บันทึกการเปลี่ยนแปลง
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="space-y-6">
+                        {/* Action Buttons */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <button
+                                onClick={() => setIsEditing(true)}
+                                className="bg-white dark:bg-[#1e1b4b]/50 backdrop-blur border border-white/10 hover:bg-white/5 text-white py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-lg"
+                            >
+                                <Edit size={18} className="text-[#F84E6E]" /> แก้ไขข้อมูล
+                            </button>
+                            <button className="bg-white dark:bg-[#1e1b4b]/50 backdrop-blur border border-white/10 hover:bg-white/5 text-white py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-lg">
+                                <Share2 size={18} className="text-blue-400" /> แชร์โปรไฟล์
+                            </button>
+                        </div>
+
+                        {/* Subscription Status - Only show if hasSubscription is true or false logic needed? */}
+                        {/* Actually we blocked posting, so maybe show a badge if active */}
+                        {hasSubscription && (
+                            <div className="bg-gradient-to-r from-yellow-600/20 to-yellow-400/20 border border-yellow-500/30 rounded-xl p-4 flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-yellow-500/20 rounded-full text-yellow-400">
+                                        <Zap size={20} fill="currentColor" />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-yellow-400 font-bold text-sm">Active Subscription</h4>
+                                        <p className="text-yellow-200/60 text-xs">คุณสามารถโพสต์งานได้ปกติ</p>
+                                    </div>
                                 </div>
-                            </section>
+                                {/* <button className="text-xs bg-yellow-500 text-black font-bold px-3 py-1.5 rounded-lg">View Plan</button> */}
+                            </div>
+                        )}
 
-                            <div className="h-px bg-white/10" />
-
+                        {/* New Post Input */}
+                        <div className="bg-white dark:bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-4 shadow-xl border border-white/5">
                             {/* Subscription Barrier */}
                             {!hasSubscription && (
-                                <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-6 text-center animate-pulse">
+                                <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-6 text-center animate-pulse mb-4">
                                     <h3 className="text-yellow-500 font-bold text-lg mb-2 flex items-center justify-center gap-2">
                                         <Zap /> กรุณาเลือกแพ็กเกจเพื่อเปิดใช้งานโปรไฟล์
                                     </h3>
@@ -846,351 +988,157 @@ export default function Dashboard() {
                                 </div>
                             )}
 
-                            {/* 1. Identity */}
-                            <section className="space-y-4">
-                                <h3 className="text-[#F84E6E] font-bold text-sm uppercase tracking-wider flex items-center gap-2"><UserIcon size={14} /> ข้อมูลส่วนตัว</h3>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <InputField
-                                        label="ชื่อที่แสดง (Display Name)"
-                                        value={editForm.displayName}
-                                        onChange={(e: any) => setEditForm({ ...editForm, displayName: e.target.value })}
-                                        placeholder="ชื่อของคุณ..."
-                                    />
-                                    <div className="space-y-1.5">
-                                        <label className="text-xs font-medium text-white/70 ml-1">เพศ</label>
-                                        <select
-                                            value={editForm.gender}
-                                            onChange={(e) => setEditForm({ ...editForm, gender: e.target.value })}
-                                            className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] focus:border-transparent transition text-sm appearance-none"
-                                        >
-                                            <option value="" className="bg-[#1e1b4b] text-white/50">เลือกเพศ...</option>
-                                            <option value="ผู้หญิง" className="bg-[#1e1b4b]">ผู้หญิง (Female)</option>
-                                            <option value="ผู้ชาย" className="bg-[#1e1b4b]">ผู้ชาย (Male)</option>
-                                            <option value="สาวสอง" className="bg-[#1e1b4b]">สาวสอง (Ladyboy)</option>
-                                            <option value="ทอม" className="bg-[#1e1b4b]">ทอม (Tom)</option>
-                                        </select>
-                                    </div>
-                                    <div className="col-span-2 space-y-1.5">
-                                        <label className="text-xs font-medium text-white/70 ml-1 flex items-center gap-1"><UserIcon size={12} /> สังกัด (Agency)</label>
-                                        <div className="space-y-2">
-                                            {/* Status Badge */}
-                                            {creator?.agencyJoinStatus === 'PENDING' && (
-                                                <div className="bg-yellow-500/20 text-yellow-500 text-xs px-3 py-2 rounded-lg border border-yellow-500/30 flex items-center gap-2">
-                                                    <div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" />
-                                                    รอการอนุมัติจากสังกัด... (คุณยังไม่ถูกแสดงในหน้าสังกัด)
-                                                </div>
-                                            )}
-
-                                            <select
-                                                value={editForm.agency}
-                                                onChange={(e) => setEditForm({ ...editForm, agency: e.target.value })}
-                                                className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] focus:border-transparent transition text-sm appearance-none"
-                                            >
-                                                <option value="" className="bg-[#1e1b4b] text-white/50">อิสระ (Freelance)</option>
-                                                {agencies.map((agency: any) => (
-                                                    <option key={agency._id} value={agency._id} className="bg-[#1e1b4b]">
-                                                        {agency.name}
-                                                        {creator?.agency === agency._id && creator?.agencyJoinStatus === 'PENDING' ? ' (รออนุมัติ)' : ''}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                    </div>
+                            <div className="flex gap-4">
+                                <div className="w-10 h-10 rounded-full bg-gray-700 overflow-hidden flex-shrink-0 relative">
+                                    {(creator?.images?.[0] || user?.avatarUrl) ? (
+                                        <Image src={getImageUrl(creator?.images?.[0] || user?.avatarUrl)} fill className="object-cover" alt="" />
+                                    ) : (
+                                        <div className="w-full h-full bg-gray-600" />
+                                    )}
                                 </div>
-                                <div className="grid grid-cols-3 gap-3">
-                                    <InputField label="อายุ" type="number" value={editForm.age} onChange={(e: any) => setEditForm({ ...editForm, age: e.target.value })} />
-                                    <InputField label="สูง (ซม.)" value={editForm.height} onChange={(e: any) => setEditForm({ ...editForm, height: e.target.value })} />
-                                    <InputField label="น้ำหนัก (กก.)" value={editForm.weight} onChange={(e: any) => setEditForm({ ...editForm, weight: e.target.value })} />
-                                </div>
-                                <InputField label="สัดส่วน (อก-เอว-สะโพก)" value={editForm.proportions} onChange={(e: any) => setEditForm({ ...editForm, proportions: e.target.value })} placeholder="34-24-35" icon={Ruler} />
-                            </section>
-
-                            <div className="h-px bg-white/10" />
-
-                            {/* 2. Contact & Location */}
-                            <section className="space-y-4">
-                                <h3 className="text-[#F84E6E] font-bold text-sm uppercase tracking-wider flex items-center gap-2"><MapPin size={14} /> การติดต่อ Google Maps & Location</h3>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <InputField label="Line ID" value={editForm.lineId} onChange={(e: any) => setEditForm({ ...editForm, lineId: e.target.value })} icon={Hash} />
-                                    <InputField label="เบอร์โทรศัพท์" value={editForm.phone} onChange={(e: any) => setEditForm({ ...editForm, phone: e.target.value })} icon={Phone} />
-                                </div>
-                                <InputField label="Instagram" value={editForm.instagram} onChange={(e: any) => setEditForm({ ...editForm, instagram: e.target.value })} icon={Instagram} placeholder="@username" />
-
-                                <div className="grid grid-cols-2 gap-4">
-                                    <InputField label="โซน / ย่าน" value={editForm.location} onChange={(e: any) => setEditForm({ ...editForm, location: e.target.value })} placeholder="เช่น รัชดา, ห้วยขวาง" icon={MapPin} />
-                                    <InputField label="การเดินทาง (BTS/MRT)" value={editForm.transport} onChange={(e: any) => setEditForm({ ...editForm, transport: e.target.value })} placeholder="BTS อโศก..." icon={Train} />
-                                </div>
-                                <CheckboxField label="มีที่จอดรถพร้อมบริการ" checked={editForm.parking} onChange={(val: boolean) => setEditForm({ ...editForm, parking: val })} icon={Car} />
-                            </section>
-
-                            <div className="h-px bg-white/10" />
-
-                            {/* 3. Services & Price */}
-                            <section className="space-y-4">
-                                <h3 className="text-[#F84E6E] font-bold text-sm uppercase tracking-wider flex items-center gap-2"><DollarSign size={14} /> งานและราคา</h3>
-                                <InputField label="เรทราคาเริ่มต้น (บาท)" type="number" value={editForm.price} onChange={(e: any) => setEditForm({ ...editForm, price: Number(e.target.value) })} icon={DollarSign} />
-
-                                <div>
-                                    <label className="text-xs font-medium text-white/70 ml-1 mb-2 block">ภาษาที่สื่อสารได้</label>
-                                    <div className="flex flex-wrap gap-2">
-                                        {["ไทย", "อังกฤษ", "จีน", "ญี่ปุ่น", "เกาหลี"].map((lang) => (
-                                            <button
-                                                key={lang}
-                                                onClick={() => {
-                                                    const current = editForm.languages || [];
-                                                    const newLangs = current.includes(lang) ? current.filter(l => l !== lang) : [...current, lang];
-                                                    setEditForm({ ...editForm, languages: newLangs });
-                                                }}
-                                                className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition ${editForm.languages?.includes(lang) ? "bg-[#F84E6E] border-[#F84E6E] text-white" : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10"}`}
-                                            >
-                                                {lang}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div className="space-y-4">
-                                    <div className="space-y-1">
-                                        <label className="text-xs font-medium text-white/70 ml-1">บริการของคุณ (คั่นด้วยจุลภาค)</label>
-                                        <textarea
-                                            className="w-full bg-black/20 border border-white/10 rounded-xl py-3 px-4 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] focus:border-transparent transition text-sm min-h-[80px]"
-                                            placeholder="ฟิลแฟน, ทานข้าว, ดูหนัง..."
-                                            value={editForm.services}
-                                            onChange={e => setEditForm({ ...editForm, services: e.target.value })}
+                                <div className="flex-1">
+                                    <form onSubmit={handlePostSubmit}>
+                                        <input
+                                            type="text"
+                                            value={caption}
+                                            onChange={(e) => setCaption(e.target.value)}
+                                            placeholder="วันนี้ทำอะไรอยู่? บอกแฟนคลับหน่อย..."
+                                            className="w-full bg-transparent text-white placeholder-white/40 focus:outline-none mb-3 py-2"
+                                            disabled={!hasSubscription}
                                         />
-                                    </div>
-                                    <div className="space-y-1">
-                                        <label className="text-xs font-medium text-white/70 ml-1">เกี่ยวกับฉัน (Bio)</label>
-                                        <textarea
-                                            className="w-full bg-black/20 border border-white/10 rounded-xl py-3 px-4 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] focus:border-transparent transition text-sm min-h-[100px]"
-                                            placeholder="เขียนแนะนำตัวให้น่าสนใจ..."
-                                            value={editForm.bio}
-                                            onChange={e => setEditForm({ ...editForm, bio: e.target.value })}
-                                        />
-                                    </div>
-                                    <InputField
-                                        label="เวลาสะดวก (Availability)"
-                                        value={editForm.availability}
-                                        onChange={(e: any) => setEditForm({ ...editForm, availability: e.target.value })}
-                                        placeholder="10:00 - 22:00 น."
-                                    />
-                                </div>
-                            </section>
 
-                            <div className="h-px bg-white/10" />
-
-                            {/* 4. Gallery */}
-                            <section className="space-y-4">
-                                <h3 className="text-[#F84E6E] font-bold text-sm uppercase tracking-wider flex items-center gap-2"><ImageIcon size={14} /> แกลเลอรี่ผลงาน (Gallery)</h3>
-                                <div className="grid grid-cols-4 gap-2">
-                                    {creator?.images?.map((img: string, i: number) => (
-                                        <div key={i} className="aspect-square relative rounded-lg overflow-hidden bg-white/5 group">
-                                            <Image src={getImageUrl(img)} fill className="object-cover" alt="" />
-                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                                        {/* Image Preview */}
+                                        {previewUrl && (
+                                            <div className="relative w-full h-48 rounded-xl overflow-hidden mb-3">
+                                                <Image src={previewUrl} fill className="object-cover" alt="Preview" />
                                                 <button
-                                                    onClick={() => handleGalleryDelete(i)}
-                                                    className="p-2 bg-red-500/80 hover:bg-red-500 text-white rounded-full transition"
+                                                    type="button"
+                                                    onClick={() => { setSelectedFile(null); setPreviewUrl(""); }}
+                                                    className="absolute top-2 right-2 bg-black/50 p-1 rounded-full text-white hover:bg-black/70"
                                                 >
-                                                    <Trash2 size={16} />
+                                                    <LogOut size={16} />
                                                 </button>
                                             </div>
+                                        )}
+
+                                        <div className="flex justify-between items-center border-t border-white/10 pt-3">
+                                            <label className={`flex items-center gap-2 text-sm text-[#F84E6E] font-medium hover:text-pink-400 cursor-pointer ${!hasSubscription ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                                <ImageIcon size={18} />
+                                                เพิ่มรูปภาพ
+                                                <input type="file" accept="image/*" hidden onChange={handleFileSelect} disabled={!hasSubscription} />
+                                            </label>
+                                            <button
+                                                type="submit"
+                                                disabled={(!caption && !selectedFile) || isPosting || !hasSubscription}
+                                                className="bg-[#F84E6E] text-white px-6 py-2 rounded-full font-bold text-sm shadow-lg shadow-pink-500/20 disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-110 transition flex items-center gap-2"
+                                            >
+                                                {isPosting ? 'Posting...' : <><Send size={16} /> โพสต์เลย</>}
+                                            </button>
                                         </div>
-                                    ))}
-                                    <label className="aspect-square bg-white/5 rounded-lg border border-white/10 flex flex-col items-center justify-center text-white/50 hover:bg-white/10 hover:text-white transition cursor-pointer gap-2">
-                                        <Plus size={24} />
-                                        <span className="text-xs">เพิ่มรูป</span>
-                                        <input type="file" hidden multiple accept="image/*" onChange={handleGalleryUpload} />
-                                    </label>
-                                </div>
-                            </section>
-
-                            <div className="pt-4 flex gap-3 sticky bottom-4 z-20">
-                                <button onClick={handleProfileUpdate} className="flex-1 bg-[#F84E6E] text-white py-4 rounded-xl text-sm font-bold hover:brightness-110 transition shadow-lg shadow-pink-500/30 flex items-center justify-center gap-2">
-                                    <Save size={18} /> บันทึกโปรไฟล์
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                ) : (
-                    // VIEW MODE UI (Simplified for brevity as user focuses on Input experience)
-                    <div className="bg-white dark:bg-[#1e1b4b]/50 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-white/5 mb-8 flex items-center gap-6">
-                        <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-pink-500 to-yellow-500 p-[3px] shadow-xl flex-shrink-0 relative group cursor-pointer">
-                            <div className="w-full h-full rounded-full bg-black overflow-hidden relative">
-                                <Image
-                                    src={getImageUrl(creator?.user?.avatarUrl)}
-                                    alt="Profile"
-                                    fill
-                                    className="object-cover group-hover:scale-110 transition duration-500"
-                                />
-                                <label className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition duration-300 cursor-pointer">
-                                    <Camera className="text-white drop-shadow-md" size={32} />
-                                    <input type="file" hidden accept="image/*" onChange={handleAvatarUpload} />
-                                </label>
-                            </div>
-                        </div>
-                        <div className="flex-1">
-                            <h2 className="font-bold text-2xl text-white">{creator?.displayName || "Your Name"}</h2>
-                            <p className="text-white/60 text-sm">@{user?.username}</p>
-                            <div className="flex gap-2 mt-3">
-                                <button onClick={() => setIsEditing(true)} className="bg-[#F84E6E] text-white px-5 py-2 rounded-full text-sm font-bold hover:shadow-lg hover:shadow-pink-500/20 transition flex items-center gap-2">
-                                    <Edit size={16} /> แก้ไขโปรไฟล์
-                                </button>
-                                <button onClick={() => router.push(`/sideline/${creator?.user}`)} className="bg-white/10 text-white px-5 py-2 rounded-full text-sm font-medium hover:bg-white/20 transition">
-                                    ดูหน้าโปรไฟล์จริง
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* Create Post Section */}
-                {!isEditing && (
-                    <div className="bg-[#1e1b4b]/50 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-white/5 mb-8">
-                        <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-white/10 relative">
-                                <Image
-                                    src={getImageUrl(creator?.user?.avatarUrl)}
-                                    alt="Avatar"
-                                    fill
-                                    className="object-cover"
-                                />
-                            </div>
-                            <div className="flex-1">
-                                <textarea
-                                    value={caption}
-                                    onChange={(e) => setCaption(e.target.value)}
-                                    placeholder="วันนี้ทำอะไรอยู่? บอกผู้ติดตามของคุณสิ..."
-                                    className="w-full bg-transparent text-white placeholder-white/40 text-base resize-none focus:outline-none min-h-[80px]"
-                                />
-
-                                {previewUrl && (
-                                    <div className="relative w-full h-64 rounded-2xl overflow-hidden mb-4 bg-black/40 border border-white/10 group">
-                                        <Image
-                                            src={previewUrl}
-                                            alt="Preview"
-                                            fill
-                                            className="object-contain"
-                                        />
-                                        <button
-                                            onClick={() => {
-                                                setPreviewUrl("");
-                                                setSelectedFile(null);
-                                            }}
-                                            className="absolute top-2 right-2 p-1.5 bg-black/60 text-white rounded-full hover:bg-black/80 transition opacity-0 group-hover:opacity-100"
-                                        >
-                                            <LogOut size={16} className="rotate-45" />
-                                        </button>
-                                    </div>
-                                )}
-
-                                <div className="flex justify-between items-center pt-4 border-t border-white/10">
-                                    <div className="flex gap-2">
-                                        <input
-                                            type="file"
-                                            ref={fileInputRef}
-                                            hidden
-                                            accept="image/*"
-                                            onChange={handleFileSelect}
-                                        />
-                                        <button
-                                            onClick={() => fileInputRef.current?.click()}
-                                            className="p-2 text-[#F84E6E] hover:bg-[#F84E6E]/10 rounded-full transition flex items-center gap-2"
-                                        >
-                                            <ImageIcon size={20} />
-                                            <span className="text-sm font-medium">รูปภาพ</span>
-                                        </button>
-                                    </div>
-                                    <button
-                                        onClick={handlePostSubmit}
-                                        disabled={isPosting || (!caption.trim() && !selectedFile)}
-                                        className="bg-[#F84E6E] text-white px-6 py-2 rounded-full font-bold text-sm hover:shadow-lg hover:shadow-pink-500/20 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                                    >
-                                        {isPosting ? "กำลังโพสต์..." : <>โพสต์ <Send size={16} /></>}
-                                    </button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                )}
-            </div>
 
-            {/* Posts Feed */}
-            <div className="mt-8 space-y-6">
-                {myPosts.length > 0 ? (
-                    myPosts.map((post: any) => (
-                        <div key={post._id} className="bg-white dark:bg-zinc-900 rounded-2xl shadow border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-                            {/* Header */}
-                            <div className="p-4 flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="relative w-10 h-10 rounded-full overflow-hidden border border-zinc-200 dark:border-zinc-700">
-                                        <Image
-                                            src={getImageUrl(creator?.user?.avatarUrl)}
-                                            alt={creator?.displayName || "User"}
-                                            fill
-                                            className="object-cover"
-                                        />
-                                    </div>
-                                    <div>
-                                        <div className="font-bold text-zinc-900 dark:text-white flex items-center gap-1">
-                                            {creator?.displayName}
-                                            {creator?.isVerified && <Check className="text-blue-500" size={14} />}
+                        {/* Recent Posts Feed */}
+                        <div className="space-y-4">
+                            <h3 className="text-white font-bold text-lg flex items-center gap-2"><ImageIcon size={20} className="text-[#F84E6E]" /> โพสต์ล่าสุดของคุณ</h3>
+
+                            {myPosts.length > 0 ? (
+                                myPosts.map((post) => (
+                                    <div key={post._id} className="bg-white dark:bg-[#1e1b4b]/80 backdrop-blur rounded-2xl overflow-hidden shadow-xl border border-white/5">
+                                        <div className="p-4 flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-full bg-gray-700 overflow-hidden relative">
+                                                <Image
+                                                    src={getImageUrl(creator?.images?.[0] || user?.avatarUrl)}
+                                                    fill className="object-cover" alt=""
+                                                />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-white text-sm">{creator?.displayName}</h4>
+                                                <p className="text-xs text-white/40">{new Date(post.createdAt).toLocaleString()}</p>
+                                            </div>
+                                            <button className="ml-auto text-white/30 hover:text-white"><MoreHorizontal size={20} /></button>
                                         </div>
-                                        <div className="text-xs text-zinc-500 dark:text-zinc-400">
-                                            {new Date(post.createdAt).toLocaleDateString("th-TH", {
-                                                year: 'numeric',
-                                                month: 'long',
-                                                day: 'numeric'
-                                            })}
+
+                                        {post.media && post.media.length > 0 && (
+                                            <div className="relative aspect-[4/5] w-full bg-black">
+                                                <Image src={getImageUrl(post.media[0].url)} fill className="object-contain" alt="Post content" />
+                                            </div>
+                                        )}
+
+                                        <div className="p-4">
+                                            <div className="flex items-center gap-4 mb-3">
+                                                <button className="text-white hover:text-[#F84E6E] transition"><Heart size={24} /></button>
+                                                <button className="text-white hover:text-blue-400 transition"><MessageCircle size={24} /></button>
+                                                <button className="text-white hover:text-green-400 transition ml-auto"><Share2 size={24} /></button>
+                                            </div>
+                                            <p className="text-white text-sm">
+                                                <span className="font-bold mr-2">{creator?.displayName}</span>
+                                                {post.caption}
+                                            </p>
                                         </div>
                                     </div>
+                                ))
+                            ) : (
+                                <div className="text-center py-12 bg-white/5 rounded-2xl border border-white/5 border-dashed">
+                                    <p className="text-white/30">ยังไม่มีโพสต์ เริ่มต้นโพสต์แรกของคุณเลย!</p>
                                 </div>
-                                <button className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
-                                    <MoreHorizontal size={20} />
-                                </button>
-                            </div>
+                            )}
+                        </div>
 
-                            {/* Content */}
-                            <div className="px-4 pb-2">
-                                <p className="text-zinc-700 dark:text-zinc-300 whitespace-pre-line">{post.caption}</p>
-                            </div>
+                        <div className="h-px bg-white/10" />
 
-                            {/* Media */}
-                            {post.media && post.media.length > 0 && (
-                                <div className="relative w-full aspect-video bg-black mt-2">
-                                    <Image
-                                        src={getImageUrl(post.media[0].url)}
-                                        alt="Post content"
-                                        fill
-                                        className="object-contain"
-                                    />
+                        {/* 1. Identity */}
+                        <section className="space-y-4">
+                            <h3 className="text-[#F84E6E] font-bold text-sm uppercase tracking-wider flex items-center gap-2"><UserIcon size={14} /> ข้อมูลส่วนตัว</h3>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-black/20 p-3 rounded-xl border border-white/5">
+                                    <span className="text-white/40 text-xs block mb-1">อายุ</span>
+                                    <span className="text-white font-medium">{creator?.age || "-"} ปี</span>
+                                </div>
+                                <div className="bg-black/20 p-3 rounded-xl border border-white/5">
+                                    <span className="text-white/40 text-xs block mb-1">ส่วนสูง / น้ำหนัก</span>
+                                    <span className="text-white font-medium">{creator?.height || "-"} cm / {creator?.weight || "-"} kg</span>
+                                </div>
+                                <div className="bg-black/20 p-3 rounded-xl border border-white/5 col-span-2">
+                                    <span className="text-white/40 text-xs block mb-1">สัดส่วน</span>
+                                    <span className="text-white font-medium">{creator?.proportions || "-"}</span>
+                                </div>
+                            </div>
+                        </section>
+
+                        {/* 2. Gallery */}
+                        <section className="space-y-4">
+                            <h3 className="text-[#F84E6E] font-bold text-sm uppercase tracking-wider flex items-center gap-2"><ImageIcon size={14} /> รูปผลงาน (Gallery)</h3>
+                            {/* Subscription Barrier for Gallery */}
+                            {!hasSubscription && (
+                                <div className="text-center py-4 px-2 border border-yellow-500/30 bg-yellow-500/10 rounded-xl mb-2">
+                                    <p className="text-yellow-500 text-xs">คุณต้องมีแพ็กเกจจึงจะสามารถอัปโหลดรูปผลงานได้</p>
                                 </div>
                             )}
 
-                            {/* Actions */}
-                            <div className="p-4 flex items-center justify-between border-t border-zinc-100 dark:border-zinc-800 mt-2">
-                                <div className="flex items-center gap-4">
-                                    <button className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-400 hover:text-pink-500 transition">
-                                        <Heart size={20} />
-                                        <span className="text-sm font-medium">Coming Soon</span>
-                                    </button>
-                                    <button className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-400 hover:text-blue-500 transition">
-                                        <MessageCircle size={20} />
-                                        <span className="text-sm font-medium">Comment</span>
-                                    </button>
-                                </div>
-                                <button className="text-zinc-600 dark:text-zinc-400 hover:text-green-500 transition">
-                                    <Share2 size={20} />
-                                </button>
+                            <div className="grid grid-cols-3 gap-2">
+                                {creator?.images?.map((img: string, idx: number) => (
+                                    <div key={idx} className="aspect-square rounded-lg overflow-hidden relative group">
+                                        <Image src={getImageUrl(img)} fill className="object-cover" alt={`Gallery ${idx}`} />
+                                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                                            <button
+                                                onClick={() => handleGalleryDelete(idx)}
+                                                className="bg-red-500 p-2 rounded-full text-white hover:bg-red-600"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                                <label className={`aspect-square rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 border-dashed flex flex-col items-center justify-center gap-2 cursor-pointer transition ${!hasSubscription ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                    <Plus className="text-white/30" />
+                                    <span className="text-[10px] text-white/30 font-medium">เพิ่มรูป</span>
+                                    <input type="file" multiple accept="image/*" hidden onChange={handleGalleryUpload} disabled={!hasSubscription} />
+                                </label>
                             </div>
-                        </div>
-                    ))
-                ) : (
-                    <div className="text-center py-20 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border-2 border-dashed border-zinc-200 dark:border-zinc-800">
-                        <div className="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <ImageIcon size={32} className="text-zinc-400" />
-                        </div>
-                        <h3 className="text-lg font-medium text-zinc-900 dark:text-white mb-1">ยังไม่มีโพสต์</h3>
-                        <p className="text-zinc-500 dark:text-zinc-400">เริ่มแบ่งปันเรื่องราวของคุณกับแฟนคลับเลย!</p>
+                        </section>
                     </div>
                 )}
             </div>
