@@ -7,7 +7,7 @@ import { getImageUrl } from "../../lib/images";
 import { uploadS3File } from "../../lib/upload";
 import { API_BASE_URL } from "../../lib/constants";
 
-import { LogOut, Plus, Image as ImageIcon, Send, Edit, Save, Upload, MapPin, Ruler, DollarSign, User as UserIcon, Phone, Instagram, Hash, Car, Train, Check, MoreHorizontal, Heart, MessageCircle, Share2, Camera, Trash2, Users, Building, ShieldCheck } from "lucide-react";
+import { LogOut, Plus, Image as ImageIcon, Send, Edit, Save, Upload, MapPin, Ruler, DollarSign, User as UserIcon, Phone, Instagram, Hash, Car, Train, Check, MoreHorizontal, Heart, MessageCircle, Share2, Camera, Trash2, Users, Building, ShieldCheck, Zap } from "lucide-react";
 
 // Checkbox Component for easy selection
 const CheckboxField = ({ label, checked, onChange, icon: Icon }: any) => (
@@ -273,6 +273,21 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                                                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-500/20 text-yellow-500 rounded-lg text-sm font-bold animate-pulse">
                                                     ⏳ กำลังรอการตรวจสอบจากแอดมิน...
                                                 </div>
+                                            ) : agency?.kycStatus === 'REJECTED' ? (
+                                                <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-4 mb-3">
+                                                    <h5 className="text-red-400 font-bold text-sm mb-1 flex items-center gap-2">
+                                                        <ShieldCheck size={16} className="rotate-180" /> คำขอถูกปฏิเสธ (Rejected)
+                                                    </h5>
+                                                    <p className="text-white/80 text-sm mb-3">
+                                                        เหตุผล: <span className="text-white font-medium">{agency.rejectionReason || "ไม่ระบุเหตุผล"}</span>
+                                                    </p>
+                                                    <button
+                                                        onClick={submitKYC}
+                                                        className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-sm font-bold shadow-lg transition"
+                                                    >
+                                                        ส่งเอกสารยืนยันตัวตนใหม่ (Resubmit KYC)
+                                                    </button>
+                                                </div>
                                             ) : (
                                                 <button
                                                     onClick={submitKYC}
@@ -435,6 +450,7 @@ export default function Dashboard() {
     });
 
     const [myPosts, setMyPosts] = useState<any[]>([]);
+    const [hasSubscription, setHasSubscription] = useState<boolean>(false);
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -457,6 +473,7 @@ export default function Dashboard() {
         // If Agency, we don't need to fetch creator profile strictly, but let's keep it safe
         if (parsedUser.role === "CREATOR") {
             fetchCreatorProfile(token);
+            checkSubscription(token);
         } else {
             setLoading(false); // For agency, we are ready
         }
@@ -464,6 +481,26 @@ export default function Dashboard() {
         // fetchAgencies is for joining agency, mostly for Creator. But no harm calling it.
         fetchAgencies();
     }, [router]);
+
+    const checkSubscription = async (token: string) => {
+        try {
+            const res = await fetch(`${API_BASE_URL}/payments/me`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const sub = await res.json();
+                if (sub && sub.status === 'ACTIVE') {
+                    setHasSubscription(true);
+                } else {
+                    // Redirect logic or just state?
+                    // Let's set state and maybe separate UI for "No Plan"
+                    setHasSubscription(false);
+                }
+            }
+        } catch (error) {
+            console.error("Failed to check subscription");
+        }
+    };
 
     const fetchAgencies = async () => {
         try {
@@ -792,6 +829,22 @@ export default function Dashboard() {
                             </section>
 
                             <div className="h-px bg-white/10" />
+
+                            {/* Subscription Barrier */}
+                            {!hasSubscription && (
+                                <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-6 text-center animate-pulse">
+                                    <h3 className="text-yellow-500 font-bold text-lg mb-2 flex items-center justify-center gap-2">
+                                        <Zap /> กรุณาเลือกแพ็กเกจเพื่อเปิดใช้งานโปรไฟล์
+                                    </h3>
+                                    <p className="text-white/70 mb-4">คุณต้องมีแพ็กเกจที่ใช้งานอยู่เพื่อโพสต์รูปและแสดงผลในหน้าค้นหา</p>
+                                    <button
+                                        onClick={() => router.push('/plans')}
+                                        className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-6 py-2 rounded-full shadow-lg transition"
+                                    >
+                                        เลือกแพ็กเกจ (Start Now)
+                                    </button>
+                                </div>
+                            )}
 
                             {/* 1. Identity */}
                             <section className="space-y-4">
