@@ -431,15 +431,27 @@ const UserDashboard = ({ user, onLogout }: any) => {
         try {
             const url = await uploadS3File(e.target.files[0]);
             const token = localStorage.getItem("token");
-            await fetch(`${API_BASE_URL}/users/me`, {
+            const res = await fetch(`${API_BASE_URL}/users/me`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
                 body: JSON.stringify({ avatarUrl: url })
             });
-            // Update local state and storage
-            // In a real app we might want to lift state up or use context, but forcing reload or just assuming success is okay for now
-            window.location.reload();
+
+            if (res.ok) {
+                const updated = await res.json();
+                toast.success("อัปเดตรูปโปรไฟล์สำเร็จ");
+
+                // Update local storage
+                const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+                localStorage.setItem("user", JSON.stringify({ ...storedUser, avatarUrl: url }));
+
+                // Reload to reflect changes
+                window.location.reload();
+            } else {
+                toast.error("อัปเดตไม่สำเร็จ");
+            }
         } catch (error) {
+            console.error(error);
             toast.error("Upload failed");
         }
     };
