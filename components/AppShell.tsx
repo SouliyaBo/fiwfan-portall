@@ -46,9 +46,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                             <span>เข้าร่วมบนโทรเลข</span>
                         </a>
                     )}
-                    <button className="w-9 h-9 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 transition">
-                        <Search size={18} className="text-white/70" />
-                    </button>
                     <Link href="/auth?mode=register" className="hidden md:block px-4 py-1.5 bg-[#F84E6E] hover:bg-[#d63d5b] text-white text-sm font-bold rounded-full transition shadow-[0_0_15px_rgba(248,78,110,0.3)]">
                         สมัครสมาชิก
                     </Link>

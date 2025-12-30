@@ -62,10 +62,6 @@ export default function AgencyPage() {
                             <button className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-full flex items-center gap-2 backdrop-blur-sm transition">
                                 <Send size={18} /> เข้าร่วมบนโทรเลข
                             </button>
-                            <div className="relative">
-                                <input type="text" placeholder="Search" className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full placeholder-white/70 outline-none focus:bg-white/30 transition w-32 md:w-48" />
-                                <Search className="absolute right-3 top-2.5 text-white/70" size={16} />
-                            </div>
                             <Link href="/auth?mode=register" className="bg-[#d94459] hover:brightness-110 px-4 py-2 rounded-md font-bold shadow-md transition">
                                 สมัครสมาชิก
                             </Link>

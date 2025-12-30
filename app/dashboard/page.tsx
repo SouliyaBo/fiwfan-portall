@@ -8,7 +8,7 @@ import { uploadS3File } from "../../lib/upload";
 import { API_BASE_URL } from "../../lib/constants";
 import { toast } from 'react-toastify';
 
-import { LogOut, Plus, Image as ImageIcon, Send, Edit, Save, Upload, MapPin, Ruler, DollarSign, User as UserIcon, Phone, Instagram, Hash, Car, Train, Check, MoreHorizontal, Heart, MessageCircle, Share2, Camera, Trash2, Users, Building, ShieldCheck, Zap } from "lucide-react";
+import { LogOut, Plus, Image as ImageIcon, Send, Edit, Save, Upload, MapPin, Ruler, DollarSign, User as UserIcon, Phone, Instagram, Hash, Car, Train, Check, MoreHorizontal, Heart, MessageCircle, Share2, Camera, Trash2, Users, Building, ShieldCheck, Zap, Star, Eye, ChevronRight, ChevronLeft } from "lucide-react";
 
 // Checkbox Component for easy selection
 const CheckboxField = ({ label, checked, onChange, icon: Icon }: any) => (
@@ -390,8 +390,16 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
     );
 };
 
-// --- USER DASHBOARD COMPONENT ---
 const UserDashboard = ({ user, onLogout }: any) => {
+    const router = useRouter();
+    const [activeTab, setActiveTab] = useState("dashboard"); // dashboard, info, reviews, favorites
+    const [stats, setStats] = useState({ profilesSeen: 0, myReviews: 0, myFavorites: 0 });
+    const [reviews, setReviews] = useState<any[]>([]);
+    const [favorites, setFavorites] = useState<any[]>([]);
+    const [history, setHistory] = useState<any[]>([]);
+    const [loading, setLoading] = useState(false);
+
+    // Profile Form
     const [form, setForm] = useState({
         displayName: user.displayName || "",
         age: user.age || "",
@@ -399,7 +407,82 @@ const UserDashboard = ({ user, onLogout }: any) => {
         province: user.province || "กรุงเทพมหานคร",
         location: user.location || ""
     });
-    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        fetchDashboardStats();
+        if (activeTab === 'reviews') fetchMyReviews();
+        if (activeTab === 'favorites') fetchMyFavorites();
+        if (activeTab === 'history') fetchMyHistory();
+    }, [activeTab]);
+
+    const fetchDashboardStats = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${API_BASE_URL}/users/me/dashboard`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setStats(data);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const fetchMyReviews = async () => {
+        try {
+            setLoading(true);
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${API_BASE_URL}/users/me/reviews`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setReviews(data);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchMyHistory = async () => {
+        try {
+            setLoading(true);
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${API_BASE_URL}/users/history`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setHistory(data);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchMyFavorites = async () => {
+        try {
+            setLoading(true);
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${API_BASE_URL}/users/favorites`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setFavorites(data);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleUpdate = async () => {
         try {
@@ -413,11 +496,8 @@ const UserDashboard = ({ user, onLogout }: any) => {
             if (res.ok) {
                 const updated = await res.json();
                 toast.success("บันทึกข้อมูลสำเร็จ");
-                // Update local storage user to reflect changes
                 const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
                 localStorage.setItem("user", JSON.stringify({ ...storedUser, ...updated }));
-            } else {
-                toast.error("บันทึกไม่สำเร็จ");
             }
         } catch (e) {
             toast.error("Error");
@@ -440,82 +520,266 @@ const UserDashboard = ({ user, onLogout }: any) => {
             if (res.ok) {
                 const updated = await res.json();
                 toast.success("อัปเดตรูปโปรไฟล์สำเร็จ");
-
-                // Update local storage
                 const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
                 localStorage.setItem("user", JSON.stringify({ ...storedUser, avatarUrl: url }));
-
-                // Reload to reflect changes
                 window.location.reload();
-            } else {
-                toast.error("อัปเดตไม่สำเร็จ");
             }
         } catch (error) {
-            console.error(error);
             toast.error("Upload failed");
         }
     };
 
+    const SidebarItem = ({ id, label, icon: Icon }: any) => (
+        <button
+            onClick={() => setActiveTab(id)}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition ${activeTab === id ? 'bg-[#F84E6E]/10 text-[#F84E6E]' : 'text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/5'}`}
+        >
+            <Icon size={18} />
+            {label}
+        </button>
+    );
+
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-[#020617] pb-24">
-            <div className="bg-[#1e1b4b] text-white p-6 pb-8 rounded-b-[40px] shadow-2xl mb-8 relative overflow-hidden h-[250px]">
-                <div className="relative z-10 h-full flex flex-col justify-between">
-                    <div className="flex justify-between items-center">
-                        <h1 className="text-xl font-bold flex items-center gap-2"><UserIcon size={20} /> User Profile</h1>
-                        <button onClick={onLogout} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition backdrop-blur-md">
-                            <LogOut size={20} />
-                        </button>
+        <div className="min-h-screen bg-gray-50 dark:bg-[#020617]">
+            <div className="container mx-auto px-4 py-8">
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                    {/* Sidebar */}
+                    <div className="lg:col-span-1">
+                        <div className="bg-white dark:bg-[#1e1b4b]/50 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-white/5">
+                            <div className="flex flex-col items-center mb-8">
+                                <div className="w-24 h-24 rounded-full bg-gray-100 relative mb-4 group cursor-pointer overflow-hidden border-4 border-white shadow-lg">
+                                    {user.avatarUrl ? (
+                                        <Image src={getImageUrl(user.avatarUrl)} fill className="object-cover" alt="Avatar" />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-gray-400"><UserIcon size={40} /></div>
+                                    )}
+                                    <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition text-white text-xs font-medium cursor-pointer">
+                                        Change
+                                        <input type="file" hidden onChange={handleAvatarUpload} />
+                                    </label>
+                                </div>
+                                <h2 className="font-bold text-lg dark:text-white">{user.displayName}</h2>
+                                <p className="text-sm text-gray-500">Visitor</p>
+                            </div>
+
+                            <nav className="space-y-1">
+                                <SidebarItem id="dashboard" label="แดชบอร์ด" icon={Zap} />
+                                <SidebarItem id="info" label="ข้อมูลส่วนตัว" icon={UserIcon} />
+                                <SidebarItem id="reviews" label="รีวิวของฉัน" icon={Star} />
+                                <SidebarItem id="favorites" label="รายการโปรด" icon={Heart} />
+                                <button onClick={() => window.open('https://t.me/fiwfanchannel', '_blank')} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/5 transition">
+                                    <Send size={18} /> เข้าร่วมบน Telegram
+                                </button>
+                                <button onClick={onLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 transition mt-4">
+                                    <LogOut size={18} /> ออกจากระบบ
+                                </button>
+                            </nav>
+                        </div>
                     </div>
-                    <div className="flex items-end gap-6 pb-4">
-                        <div className="w-24 h-24 rounded-2xl bg-white p-1 relative group cursor-pointer shadow-lg">
-                            <div className="w-full h-full rounded-xl bg-gray-100 overflow-hidden relative">
-                                {user?.avatarUrl ? (
-                                    <Image src={getImageUrl(user.avatarUrl)} fill className="object-cover" alt="Avatar" />
+
+                    {/* Content */}
+                    <div className="lg:col-span-3">
+                        {activeTab === 'dashboard' && (
+                            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                <div className="bg-white dark:bg-[#1e1b4b]/50 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-white/5">
+                                    <h2 className="font-bold text-xl mb-2 dark:text-white">My Dashboard</h2>
+                                    <p className="text-gray-500 text-sm">Welcome back! Here&apos;s your Fiwfan activity overview</p>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div
+                                        onClick={() => setActiveTab('history')}
+                                        className="bg-white dark:bg-[#1e1b4b]/50 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-white/5 flex flex-col justify-between h-[140px] cursor-pointer hover:bg-white/5 transition"
+                                    >
+                                        <div className="flex justify-between items-start">
+                                            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Profiles Seen</span>
+                                            <Eye size={18} className="text-[#F84E6E]" />
+                                        </div>
+                                        <div className="flex justify-between items-end">
+                                            <span className="text-3xl font-bold dark:text-white">{stats.profilesSeen}</span>
+                                            <MoreHorizontal size={18} className="text-gray-400" />
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        onClick={() => setActiveTab('reviews')}
+                                        className="bg-white dark:bg-[#1e1b4b]/50 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-white/5 flex flex-col justify-between h-[140px] cursor-pointer hover:bg-white/5 transition"
+                                    >
+                                        <div className="flex justify-between items-start">
+                                            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">My Reviews</span>
+                                            <Star size={18} className="text-orange-400" />
+                                        </div>
+                                        <div className="flex justify-between items-end">
+                                            <span className="text-3xl font-bold dark:text-white">{stats.myReviews}</span>
+                                            <MoreHorizontal size={18} className="text-gray-400" />
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        onClick={() => setActiveTab('favorites')}
+                                        className="bg-white dark:bg-[#1e1b4b]/50 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-white/5 flex flex-col justify-between h-[140px] cursor-pointer hover:bg-white/5 transition"
+                                    >
+                                        <div className="flex justify-between items-start">
+                                            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">My Favorites</span>
+                                            <Heart size={18} className="text-pink-500" />
+                                        </div>
+                                        <div className="flex justify-between items-end">
+                                            <span className="text-3xl font-bold dark:text-white">{stats.myFavorites}</span>
+                                            <MoreHorizontal size={18} className="text-gray-400" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col md:flex-row items-center justify-between bg-[#1e1b4b] rounded-3xl p-8 text-white relative overflow-hidden">
+                                    <div className="relative z-10 max-w-lg">
+                                        <h2 className="text-3xl font-bold mb-4">Get quick search as per preference</h2>
+                                        <h3 className="text-xl font-bold mb-4 opacity-90">Get notified for recent added profiles.</h3>
+                                        <p className="text-yellow-400 text-sm mb-6">Set your preferences to get the notification and customized updates.</p>
+                                        <button className="bg-white text-[#1e1b4b] px-8 py-3 rounded-xl font-bold hover:bg-gray-100 transition">
+                                            Activate Now
+                                        </button>
+                                    </div>
+                                    <div className="hidden md:block relative z-10">
+                                        {/* Illustration placeholder */}
+                                        <div className="w-64 h-48 bg-white/10 rounded-2xl flex items-center justify-center">
+                                            <Zap size={64} className="text-white/20" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'info' && (
+                            <div className="bg-white dark:bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/5 animate-in fade-in slide-in-from-bottom-4">
+                                <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-6 flex items-center gap-2"><Edit className="text-[#F84E6E]" /> แก้ไขข้อมูลส่วนตัว</h3>
+                                <div className="space-y-4">
+                                    <InputField label="ชื่อที่ใช้แสดง" value={form.displayName} onChange={(e: any) => setForm({ ...form, displayName: e.target.value })} icon={UserIcon} />
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <InputField label="อายุ" type="number" value={form.age} onChange={(e: any) => setForm({ ...form, age: Number(e.target.value) })} />
+                                        <div className="space-y-1.5">
+                                            <label className="text-xs font-medium text-gray-500 dark:text-white/70 ml-1">เพศ</label>
+                                            <select
+                                                value={form.gender}
+                                                onChange={(e) => setForm({ ...form, gender: e.target.value })}
+                                                className="w-full bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-xl py-2.5 px-4 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none"
+                                            >
+                                                <option value="Male">ชาย (Male)</option>
+                                                <option value="Female">หญิง (Female)</option>
+                                                <option value="LGBTQ">LGBTQ+</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <InputField label="จังหวัด" value={form.province} onChange={(e: any) => setForm({ ...form, province: e.target.value })} icon={MapPin} />
+                                        <InputField label="สถานที่ (ระบุโซน)" value={form.location} onChange={(e: any) => setForm({ ...form, location: e.target.value })} icon={MapPin} />
+                                    </div>
+
+                                    <button onClick={handleUpdate} disabled={loading} className="w-full bg-[#F84E6E] text-white py-3 rounded-xl font-bold hover:brightness-110 shadow-lg shadow-pink-500/20 mt-4">
+                                        {loading ? "กำลังบันทึก..." : "บันทึกการเปลี่ยนแปลง"}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'reviews' && (
+                            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+                                <h2 className="font-bold text-xl dark:text-white">รีวิวของฉัน ({reviews.length})</h2>
+                                {reviews.length > 0 ? (
+                                    <div className="grid gap-4">
+                                        {reviews.map((review: any) => (
+                                            <div key={review._id} className="bg-white dark:bg-[#1e1b4b]/50 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-white/5">
+                                                <div className="flex justify-between mb-4">
+                                                    <div>
+                                                        <h4 className="font-bold text-gray-800 dark:text-white">To: {review.creator?.displayName}</h4>
+                                                        <div className="flex items-center gap-1 text-yellow-500 text-sm mt-1">
+                                                            <Star size={14} fill="currentColor" /> {review.rating?.toFixed(1)}
+                                                        </div>
+                                                    </div>
+                                                    <span className="text-xs text-gray-400">{new Date(review.createdAt).toLocaleDateString()}</span>
+                                                </div>
+                                                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">&quot;{review.comment}&quot;</p>
+                                                {review.images && review.images.length > 0 && (
+                                                    <div className="flex gap-2 mt-2">
+                                                        {review.images.map((img: string, i: number) => (
+                                                            <div key={i} className="w-16 h-16 rounded-lg overflow-hidden relative">
+                                                                <Image src={getImageUrl(img)} fill className="object-cover" alt="" />
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
                                 ) : (
-                                    <div className="flex items-center justify-center h-full text-gray-400"><UserIcon /></div>
+                                    <div className="text-center py-12 text-gray-400 bg-white/5 rounded-2xl border border-dashed border-white/10">
+                                        ยังไม่มีรีวิว
+                                    </div>
                                 )}
-                                <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition text-white text-xs cursor-pointer">
-                                    เปลี่ยนรูป
-                                    <input type="file" hidden onChange={handleAvatarUpload} />
-                                </label>
                             </div>
-                        </div>
-                        <div>
-                            <h2 className="text-3xl font-bold">{user.displayName || "นักท่องเที่ยว"}</h2>
-                            <p className="text-white/70">{user.email}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                        )}
 
-            <div className="container mx-auto max-w-2xl px-4">
-                <div className="bg-white dark:bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/5">
-                    <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2"><Edit className="text-[#F84E6E]" /> แก้ไขข้อมูลส่วนตัว</h3>
-                    <div className="space-y-4">
-                        <InputField label="ชื่อที่ใช้แสดง" value={form.displayName} onChange={(e: any) => setForm({ ...form, displayName: e.target.value })} icon={UserIcon} />
-                        <div className="grid grid-cols-2 gap-4">
-                            <InputField label="อายุ" type="number" value={form.age} onChange={(e: any) => setForm({ ...form, age: Number(e.target.value) })} />
-                            <div className="space-y-1.5">
-                                <label className="text-xs font-medium text-white/70 ml-1">เพศ</label>
-                                <select
-                                    value={form.gender}
-                                    onChange={(e) => setForm({ ...form, gender: e.target.value })}
-                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none"
-                                >
-                                    <option value="Male">ชาย (Male)</option>
-                                    <option value="Female">หญิง (Female)</option>
-                                    <option value="LGBTQ">LGBTQ+</option>
-                                </select>
+                        {activeTab === 'favorites' && (
+                            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+                                <h2 className="font-bold text-xl dark:text-white">รายการโปรด ({favorites.length})</h2>
+                                {favorites.length > 0 ? (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        {favorites.map((creator: any) => (
+                                            <div key={creator._id} onClick={() => router.push(`/sideline/${creator._id}`)} className="bg-white dark:bg-[#1e1b4b]/50 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-white/5 cursor-pointer hover:bg-white/5 transition flex items-center gap-4">
+                                                <div className="w-16 h-16 rounded-full bg-gray-800 overflow-hidden relative border border-white/10">
+                                                    {(creator.images?.[0] || creator.user?.avatarUrl) && (
+                                                        <Image src={getImageUrl(creator.images?.[0] || creator.user?.avatarUrl)} fill className="object-cover" alt="" />
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-bold text-gray-800 dark:text-white">{creator.displayName}</h4>
+                                                    <p className="text-xs text-[#F84E6E]">Favorite</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-12 text-gray-400 bg-white/5 rounded-2xl border border-dashed border-white/10">
+                                        ไม่มีรายการโปรด
+                                    </div>
+                                )}
                             </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <InputField label="จังหวัด" value={form.province} onChange={(e: any) => setForm({ ...form, province: e.target.value })} icon={MapPin} />
-                            <InputField label="สถานที่ (ระบุโซน)" value={form.location} onChange={(e: any) => setForm({ ...form, location: e.target.value })} icon={MapPin} />
-                        </div>
+                        )}
 
-                        <button onClick={handleUpdate} disabled={loading} className="w-full bg-[#F84E6E] text-white py-3 rounded-xl font-bold hover:brightness-110 shadow-lg shadow-pink-500/20 mt-4">
-                            {loading ? "กำลังบันทึก..." : "บันทึกการเปลี่ยนแปลง"}
-                        </button>
+                        {activeTab === 'history' && (
+                            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+                                <h2 className="font-bold text-xl dark:text-white">ประวัติการเข้าชม ({history.length})</h2>
+                                {history.length > 0 ? (
+                                    <div className="space-y-4">
+                                        {history.map((item: any, i: number) => {
+                                            // Item might be null if creator deleted, handle gracefully
+                                            const creator = item.creator;
+                                            if (!creator) return null;
+
+                                            return (
+                                                <div key={i} onClick={() => router.push(`/sideline/${creator._id}`)} className="bg-white dark:bg-[#1e1b4b]/50 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-white/5 cursor-pointer hover:bg-white/5 transition flex justify-between items-center">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="w-12 h-12 rounded-lg bg-gray-800 overflow-hidden relative">
+                                                            {(creator.images?.[0] || creator.user?.avatarUrl) && (
+                                                                <Image src={getImageUrl(creator.images?.[0] || creator.user?.avatarUrl)} fill className="object-cover" alt="" />
+                                                            )}
+                                                        </div>
+                                                        <div>
+                                                            <h4 className="font-bold text-gray-800 dark:text-white">{creator.displayName}</h4>
+                                                            <p className="text-xs text-gray-500">Viewed {new Date(item.viewedAt).toLocaleDateString()}</p>
+                                                        </div>
+                                                    </div>
+                                                    <ChevronRight size={18} className="text-gray-400" />
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-12 text-gray-400 bg-white/5 rounded-2xl border border-dashed border-white/10">
+                                        ไม่พบประวัติการเข้าชม
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

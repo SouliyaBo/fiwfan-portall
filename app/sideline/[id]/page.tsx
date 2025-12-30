@@ -152,11 +152,74 @@ export default function SidelineDetailPage() {
         ? availableImages
         : mockImages.map(img => `/mock/creators/${img}`);
 
+    const [isFavorited, setIsFavorited] = useState(false);
+
     useEffect(() => {
         if (params.id) {
             fetchCreator(params.id as string);
+            recordView(params.id as string);
+            checkIfFavorited(params.id as string);
         }
     }, [params.id]);
+
+    const recordView = async (id: string) => {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        try {
+            await fetch(`${API_BASE_URL}/users/views`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                body: JSON.stringify({ creatorId: id })
+            });
+        } catch (error) {
+            console.error("Failed to record view", error);
+        }
+    };
+
+    const checkIfFavorited = async (id: string) => {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        // Ideally we should have an endpoint to check this specific status or return it in getCreator
+        // For now, let's fetch user profile to check favorites list
+        try {
+            const res = await fetch(`${API_BASE_URL}/users/me`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const user = await res.json();
+                if (user.favorites && user.favorites.includes(id)) {
+                    setIsFavorited(true);
+                }
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const toggleFavorite = async () => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            toast.error("กรุณาเข้าสู่ระบบ");
+            router.push("/auth");
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/users/favorites`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                body: JSON.stringify({ creatorId: creator?.id || params.id })
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                setIsFavorited(data.isFavorited);
+                toast.success(data.isFavorited ? "เพิ่มในรายการโปรดแล้ว" : "นำออกจากรายการโปรดแล้ว");
+            }
+        } catch (error) {
+            toast.error("Error toggling favorite");
+        }
+    };
 
     const fetchCreator = async (id: string) => {
         try {
@@ -303,8 +366,11 @@ export default function SidelineDetailPage() {
                                     <MessageCircle className="fill-white" /> {creator.lineId || creator.user.lineId || "Add Line"}
                                 </a>
                                 <div className="flex gap-3">
-                                    <button className="flex-1 border border-zinc-200 dark:border-white/10 hover:bg-zinc-50 dark:hover:bg-white/5 py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition">
-                                        <Heart size={18} /> Add to favourite
+                                    <button
+                                        onClick={toggleFavorite}
+                                        className={`flex-1 border border-zinc-200 dark:border-white/10 hover:bg-zinc-50 dark:hover:bg-white/5 py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition ${isFavorited ? 'text-[#F84E6E] border-[#F84E6E]/30 bg-[#F84E6E]/5' : ''}`}
+                                    >
+                                        <Heart size={18} fill={isFavorited ? "currentColor" : "none"} /> {isFavorited ? "Favourite" : "Add to favourite"}
                                     </button>
                                     <button className="px-4 border border-zinc-200 dark:border-white/10 hover:bg-zinc-50 dark:hover:bg-white/5 rounded-xl flex items-center justify-center transition">
                                         <Share2 size={18} />
