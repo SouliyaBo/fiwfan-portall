@@ -7,6 +7,9 @@ import { MessageCircle, Star, MapPin, Share2, ArrowLeft, ChevronLeft, ChevronRig
 import { useParams, useRouter } from "next/navigation";
 import { API_BASE_URL } from "../../../lib/constants";
 import { getImageUrl } from "../../../lib/images";
+import { uploadS3File } from "../../../lib/upload";
+import { toast } from 'react-toastify';
+import { User, X, Image as ImageIcon } from "lucide-react";
 
 
 
@@ -42,6 +45,10 @@ interface CreatorDetail {
     reviews: any[];
     posts: any[];
     images?: string[];
+    activeSubscription?: {
+        planType: string;
+        status: string;
+    };
 }
 
 export default function SidelineDetailPage() {
@@ -50,6 +57,89 @@ export default function SidelineDetailPage() {
     const [creator, setCreator] = useState<CreatorDetail | null>(null);
     const [loading, setLoading] = useState(true);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+    // Review State
+    const [isReviewOpen, setIsReviewOpen] = useState(false);
+    const [reviewForm, setReviewForm] = useState({
+        title: "",
+        rating: 5,
+        accuracyRating: 5,
+        serviceRating: 5,
+        valueRating: 5,
+        comment: "",
+        images: [] as string[]
+    });
+    const [reviewImages, setReviewImages] = useState<File[]>([]);
+    const [submittingReview, setSubmittingReview] = useState(false);
+
+    const handleReviewSubmit = async () => {
+        try {
+            setSubmittingReview(true);
+            const token = localStorage.getItem("token");
+            if (!token) {
+                toast.error("กรุณาเข้าสู่ระบบก่อนรีวิว");
+                router.push("/auth");
+                return;
+            }
+
+            // Upload images
+            const imageUrls: string[] = [];
+            for (const file of reviewImages) {
+                const url = await uploadS3File(file);
+                imageUrls.push(url);
+            }
+
+            const res = await fetch(`${API_BASE_URL}/reviews`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                body: JSON.stringify({
+                    creatorId: creator?.id || params.id,
+                    ...reviewForm,
+                    images: imageUrls
+                })
+            });
+
+            if (res.ok) {
+                toast.success("ส่งรีวิวเรียบร้อยแล้ว");
+                setIsReviewOpen(false);
+                setReviewForm({ title: "", rating: 5, accuracyRating: 5, serviceRating: 5, valueRating: 5, comment: "", images: [] });
+                setReviewImages([]);
+                fetchCreator(params.id as string); // Refresh to see new review
+            } else {
+                toast.error("ส่งรีวิวไม่สำเร็จ");
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error("Error submitting review");
+        } finally {
+            setSubmittingReview(false);
+        }
+    };
+
+    const getBadgeStyle = (planType?: string) => {
+        switch (planType) {
+            case 'SUPER_STAR':
+                return "bg-gradient-to-r from-amber-400 to-yellow-600 text-white shadow-yellow-500/50";
+            case 'STAR':
+                return "bg-gradient-to-r from-blue-400 to-indigo-600 text-white shadow-blue-500/50";
+            case 'POPULAR':
+                return "bg-gradient-to-r from-teal-400 to-emerald-600 text-white shadow-teal-500/50";
+            default:
+                return null;
+        }
+    };
+
+    const getBadgeLabel = (planType?: string) => {
+        switch (planType) {
+            case 'SUPER_STAR': return 'SUPER STAR';
+            case 'STAR': return 'STAR';
+            case 'POPULAR': return 'POPULAR';
+            default: return null;
+        }
+    };
+
+    const badgeStyle = getBadgeStyle(creator?.activeSubscription?.planType);
+    const badgeLabel = getBadgeLabel(creator?.activeSubscription?.planType);
 
     const mockImages = ["1.png", "2.png", "3.png", "4.png"];
 
@@ -149,7 +239,11 @@ export default function SidelineDetailPage() {
                                 <div className="space-y-1">
                                     <div className="flex justify-between items-start">
                                         <h1 className="text-3xl font-bold">{creator.displayName}</h1>
-                                        <div className="bg-[#F84E6E] text-white text-xs font-bold px-2 py-1 rounded shadow-lg shadow-pink-500/50">SUPER STAR</div>
+                                        {badgeLabel && (
+                                            <div className={`${badgeStyle} text-xs font-bold px-2 py-1 rounded shadow-lg`}>
+                                                {badgeLabel}
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="flex flex-col gap-1 text-sm text-zinc-500 dark:text-zinc-400">
                                         {creator.lineId && <div className="flex items-center gap-2">Line: <span className="text-zinc-900 dark:text-white font-medium">{creator.lineId}</span></div>}
@@ -233,6 +327,161 @@ export default function SidelineDetailPage() {
                     </div>
                 </div>
             </div>
+
+            {/* REVIEWS SECTION */}
+            <div className="container mx-auto max-w-4xl px-4 mt-12 mb-20">
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-bold flex items-center gap-3">
+                        <Star className="text-yellow-400 fill-yellow-400" />
+                        รีวิวจากเพื่อนๆ ({creator?.reviews?.length || 0})
+                    </h2>
+                    <button
+                        onClick={() => setIsReviewOpen(true)}
+                        className="bg-[#F84E6E] hover:bg-[#d43f5b] text-white px-6 py-2 rounded-full font-bold shadow-lg shadow-pink-500/20 transition hover:scale-105 active:scale-95"
+                    >
+                        + เพิ่มความคิดเห็น
+                    </button>
+                </div>
+
+                <div className="space-y-6">
+                    {creator?.reviews?.length === 0 ? (
+                        <div className="text-center py-10 bg-zinc-50 dark:bg-white/5 rounded-2xl text-zinc-400 border border-zinc-200 dark:border-white/5">
+                            ยังไม่มีรีวิว เป็นคนแรกที่รีวิวน้องเลย!
+                        </div>
+                    ) : (
+                        creator?.reviews?.map((review: any, i: number) => (
+                            <div key={i} className="bg-white dark:bg-[#1e1b4b]/50 backdrop-blur border border-zinc-200 dark:border-white/5 p-6 rounded-2xl shadow-sm">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-white/10 overflow-hidden relative">
+                                            {review.user?.avatarUrl ? (
+                                                <Image src={getImageUrl(review.user.avatarUrl)} fill className="object-cover" alt="User" />
+                                            ) : (
+                                                <div className="flex items-center justify-center h-full text-zinc-400"><User size={20} /></div>
+                                            )}
+                                        </div>
+                                        <div>
+                                            <div className="font-bold text-sm text-zinc-900 dark:text-white">{review.user?.displayName || "Anonymous"}</div>
+                                            <div className="text-xs text-zinc-500">{new Date(review.createdAt).toLocaleDateString()}</div>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-1 bg-yellow-400/10 text-yellow-600 dark:text-yellow-400 px-2 py-1 rounded-lg">
+                                        <Star size={14} className="fill-current" />
+                                        <span className="font-bold">{review.rating}</span>
+                                    </div>
+                                </div>
+
+                                <h3 className="font-bold text-lg mb-2 text-zinc-800 dark:text-zinc-200">{review.title}</h3>
+                                <p className="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed mb-4">{review.comment}</p>
+
+                                {review.images && review.images.length > 0 && (
+                                    <div className="flex gap-2 overflow-x-auto pb-2">
+                                        {review.images.map((img: string, idx: number) => (
+                                            <div key={idx} className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border border-white/10">
+                                                <Image src={getImageUrl(img)} fill className="object-cover" alt="Review img" />
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* Detailed Ratings (Optional display) */}
+                                <div className="flex gap-4 mt-4 pt-4 border-t border-zinc-100 dark:border-white/5 text-xs text-zinc-500">
+                                    <span className="flex items-center gap-1">ตรงปก: <b className="text-zinc-700 dark:text-zinc-300">{review.accuracyRating}</b></span>
+                                    <span className="flex items-center gap-1">บริการ: <b className="text-zinc-700 dark:text-zinc-300">{review.serviceRating}</b></span>
+                                    <span className="flex items-center gap-1">คุ้มค่า: <b className="text-zinc-700 dark:text-zinc-300">{review.valueRating}</b></span>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+            </div>
+
+            {/* REVIEW MODAL */}
+            {isReviewOpen && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+                    <div className="bg-white dark:bg-[#0f172a] w-full max-w-lg rounded-3xl shadow-2xl p-6 relative max-h-[90vh] overflow-y-auto">
+                        <button
+                            onClick={() => setIsReviewOpen(false)}
+                            className="absolute top-4 right-4 p-2 bg-zinc-100 dark:bg-white/10 rounded-full hover:bg-zinc-200 dark:hover:bg-white/20 transition"
+                        >
+                            <X size={20} />
+                        </button>
+
+                        <h3 className="text-xl font-bold mb-6 text-center">เขียนรีวิวให้น้อง</h3>
+
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium mb-1 dark:text-zinc-300">หัวข้อรีวิว</label>
+                                <input
+                                    value={reviewForm.title}
+                                    onChange={e => setReviewForm({ ...reviewForm, title: e.target.value })}
+                                    className="w-full bg-zinc-50 dark:bg-black/30 border border-zinc-200 dark:border-white/10 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[#F84E6E]"
+                                    placeholder="เช่น น้องน่ารักมากครับ..."
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-3 gap-2">
+                                {[
+                                    { label: "ตรงปก", key: "accuracyRating" },
+                                    { label: "บริการ", key: "serviceRating" },
+                                    { label: "คุ้มค่า", key: "valueRating" },
+                                ].map((field) => (
+                                    <div key={field.key} className="bg-zinc-50 dark:bg-white/5 p-3 rounded-xl text-center">
+                                        <div className="text-xs text-zinc-500 mb-1">{field.label}</div>
+                                        <div className="flex justify-center gap-1">
+                                            {[1, 2, 3, 4, 5].map((star) => (
+                                                <button
+                                                    key={star}
+                                                    onClick={() => setReviewForm({ ...reviewForm, [field.key]: star, rating: (reviewForm.rating + star) / 2 /* Approximate logic */ })}
+                                                    className={`${(reviewForm as any)[field.key] >= star ? 'text-yellow-400' : 'text-zinc-300 dark:text-zinc-600'}`}
+                                                >
+                                                    <Star size={16} className="fill-current" />
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium mb-1 dark:text-zinc-300">ความประทับใจ</label>
+                                <textarea
+                                    value={reviewForm.comment}
+                                    onChange={e => setReviewForm({ ...reviewForm, comment: e.target.value })}
+                                    className="w-full bg-zinc-50 dark:bg-black/30 border border-zinc-200 dark:border-white/10 rounded-xl p-3 h-32 focus:outline-none focus:ring-2 focus:ring-[#F84E6E]"
+                                    placeholder="เล่าประสบการณ์..."
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium mb-2 dark:text-zinc-300">รูปประกอบ (ถ้ามี)</label>
+                                <div className="flex gap-2">
+                                    <label className="w-20 h-20 flex flex-col items-center justify-center bg-zinc-50 dark:bg-white/5 border border-dashed border-zinc-300 dark:border-white/20 rounded-xl cursor-pointer hover:bg-zinc-100 transition">
+                                        <ImageIcon size={20} className="text-zinc-400" />
+                                        <span className="text-[10px] text-zinc-400 mt-1">Add</span>
+                                        <input type="file" multiple hidden onChange={(e) => {
+                                            if (e.target.files) setReviewImages(Array.from(e.target.files));
+                                        }} />
+                                    </label>
+                                    {reviewImages.map((file, i) => (
+                                        <div key={i} className="w-20 h-20 relative rounded-xl overflow-hidden border border-zinc-200 dark:border-white/10">
+                                            <Image src={URL.createObjectURL(file)} fill className="object-cover" alt="prev" />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={handleReviewSubmit}
+                                disabled={submittingReview}
+                                className="w-full bg-[#F84E6E] hover:bg-[#d43f5b] text-white py-4 rounded-xl font-bold shadow-lg shadow-pink-500/20 mt-4 disabled:opacity-50"
+                            >
+                                {submittingReview ? "กำลังส่งรีวิว..." : "โพสต์รีวิว"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

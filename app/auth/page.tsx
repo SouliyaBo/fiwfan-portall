@@ -21,10 +21,10 @@ const registerSchema = z.object({
     password: z.string().min(6, { message: "Password must be at least 6 characters" }),
     confirmPassword: z.string(),
     birthDate: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Invalid date" }),
-    role: z.enum(["MEMBER", "CREATOR"]), // MEMBER = Tourist, CREATOR = Provider
+    role: z.enum(["USER", "CREATOR"]), // USER = Tourist, CREATOR = Provider
     creatorType: z.enum(["INDIVIDUAL", "AGENCY"]).optional(),
-    acceptTerms: z.literal(true, { errorMap: () => ({ message: "You must accept the terms" }) }),
-    ageConfirm: z.literal(true, { errorMap: () => ({ message: "You must be 20+" }) }),
+    acceptTerms: z.boolean().refine(val => val === true, { message: "You must accept the terms" }),
+    ageConfirm: z.boolean().refine(val => val === true, { message: "You must be 20+" }),
 }).refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
@@ -41,7 +41,7 @@ function AuthForm() {
     const [mode, setMode] = useState<"login" | "register">(initialMode);
 
     // Watch role to conditionally show creatorType
-    const [selectedRole, setSelectedRole] = useState<"MEMBER" | "CREATOR">("MEMBER");
+    const [selectedRole, setSelectedRole] = useState<"USER" | "CREATOR">("USER");
 
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
@@ -55,7 +55,7 @@ function AuthForm() {
     const registerForm = useForm<z.infer<typeof registerSchema>>({
         resolver: zodResolver(registerSchema),
         defaultValues: {
-            role: "MEMBER",
+            role: "USER",
             creatorType: "INDIVIDUAL",
         }
     });
@@ -65,6 +65,7 @@ function AuthForm() {
     useEffect(() => {
         if (roleWatch) setSelectedRole(roleWatch);
     }, [roleWatch]);
+
 
     // Check if user is already logged in
     useEffect(() => {
@@ -121,8 +122,14 @@ function AuthForm() {
             const result = await res.json();
             if (!res.ok) throw new Error(result.error || "Registration failed");
 
-            // Auto login logic could go here
-            router.push("/auth?mode=login");
+            // Auto login logic
+            if (result.token && result.user) {
+                localStorage.setItem("token", result.token);
+                localStorage.setItem("user", JSON.stringify(result.user));
+                router.push("/dashboard");
+            } else {
+                router.push("/auth?mode=login");
+            }
         } catch (err: any) {
             setError(err.message);
         } finally {
@@ -213,7 +220,7 @@ function AuthForm() {
                                 <label className="flex items-center gap-2 cursor-pointer">
                                     <input
                                         type="radio"
-                                        value="MEMBER"
+                                        value="USER"
                                         {...registerForm.register("role")}
                                         className="w-4 h-4 text-pink-600 focus:ring-pink-500 border-gray-300"
                                     />

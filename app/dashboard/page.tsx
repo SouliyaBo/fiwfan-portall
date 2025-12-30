@@ -390,6 +390,127 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
     );
 };
 
+// --- USER DASHBOARD COMPONENT ---
+const UserDashboard = ({ user, onLogout }: any) => {
+    const [form, setForm] = useState({
+        displayName: user.displayName || "",
+        age: user.age || "",
+        gender: user.gender || "Male",
+        province: user.province || "กรุงเทพมหานคร",
+        location: user.location || ""
+    });
+    const [loading, setLoading] = useState(false);
+
+    const handleUpdate = async () => {
+        try {
+            setLoading(true);
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${API_BASE_URL}/users/me`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                body: JSON.stringify(form)
+            });
+            if (res.ok) {
+                const updated = await res.json();
+                toast.success("บันทึกข้อมูลสำเร็จ");
+                // Update local storage user to reflect changes
+                const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+                localStorage.setItem("user", JSON.stringify({ ...storedUser, ...updated }));
+            } else {
+                toast.error("บันทึกไม่สำเร็จ");
+            }
+        } catch (e) {
+            toast.error("Error");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files?.[0]) return;
+        try {
+            const url = await uploadS3File(e.target.files[0]);
+            const token = localStorage.getItem("token");
+            await fetch(`${API_BASE_URL}/users/me`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                body: JSON.stringify({ avatarUrl: url })
+            });
+            // Update local state and storage
+            // In a real app we might want to lift state up or use context, but forcing reload or just assuming success is okay for now
+            window.location.reload();
+        } catch (error) {
+            toast.error("Upload failed");
+        }
+    };
+
+    return (
+        <div className="min-h-screen bg-zinc-50 dark:bg-[#020617] pb-24">
+            <div className="bg-[#1e1b4b] text-white p-6 pb-8 rounded-b-[40px] shadow-2xl mb-8 relative overflow-hidden h-[250px]">
+                <div className="relative z-10 h-full flex flex-col justify-between">
+                    <div className="flex justify-between items-center">
+                        <h1 className="text-xl font-bold flex items-center gap-2"><UserIcon size={20} /> User Profile</h1>
+                        <button onClick={onLogout} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition backdrop-blur-md">
+                            <LogOut size={20} />
+                        </button>
+                    </div>
+                    <div className="flex items-end gap-6 pb-4">
+                        <div className="w-24 h-24 rounded-2xl bg-white p-1 relative group cursor-pointer shadow-lg">
+                            <div className="w-full h-full rounded-xl bg-gray-100 overflow-hidden relative">
+                                {user?.avatarUrl ? (
+                                    <Image src={getImageUrl(user.avatarUrl)} fill className="object-cover" alt="Avatar" />
+                                ) : (
+                                    <div className="flex items-center justify-center h-full text-gray-400"><UserIcon /></div>
+                                )}
+                                <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition text-white text-xs cursor-pointer">
+                                    เปลี่ยนรูป
+                                    <input type="file" hidden onChange={handleAvatarUpload} />
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <h2 className="text-3xl font-bold">{user.displayName || "นักท่องเที่ยว"}</h2>
+                            <p className="text-white/70">{user.email}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="container mx-auto max-w-2xl px-4">
+                <div className="bg-white dark:bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/5">
+                    <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2"><Edit className="text-[#F84E6E]" /> แก้ไขข้อมูลส่วนตัว</h3>
+                    <div className="space-y-4">
+                        <InputField label="ชื่อที่ใช้แสดง" value={form.displayName} onChange={(e: any) => setForm({ ...form, displayName: e.target.value })} icon={UserIcon} />
+                        <div className="grid grid-cols-2 gap-4">
+                            <InputField label="อายุ" type="number" value={form.age} onChange={(e: any) => setForm({ ...form, age: Number(e.target.value) })} />
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-medium text-white/70 ml-1">เพศ</label>
+                                <select
+                                    value={form.gender}
+                                    onChange={(e) => setForm({ ...form, gender: e.target.value })}
+                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none"
+                                >
+                                    <option value="Male">ชาย (Male)</option>
+                                    <option value="Female">หญิง (Female)</option>
+                                    <option value="LGBTQ">LGBTQ+</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <InputField label="จังหวัด" value={form.province} onChange={(e: any) => setForm({ ...form, province: e.target.value })} icon={MapPin} />
+                            <InputField label="สถานที่ (ระบุโซน)" value={form.location} onChange={(e: any) => setForm({ ...form, location: e.target.value })} icon={MapPin} />
+                        </div>
+
+                        <button onClick={handleUpdate} disabled={loading} className="w-full bg-[#F84E6E] text-white py-3 rounded-xl font-bold hover:brightness-110 shadow-lg shadow-pink-500/20 mt-4">
+                            {loading ? "กำลังบันทึก..." : "บันทึกการเปลี่ยนแปลง"}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 export default function Dashboard() {
     const router = useRouter();
     const [user, setUser] = useState<any>(null);
@@ -463,8 +584,8 @@ export default function Dashboard() {
         }
 
         const parsedUser = JSON.parse(storedUser);
-        if (parsedUser.role !== "CREATOR" && parsedUser.role !== "AGENCY") {
-            toast.warn("หน้านี้สำหรับ Creator และ Agency เท่านั้น");
+        if (parsedUser.role !== "CREATOR" && parsedUser.role !== "AGENCY" && parsedUser.role !== "USER") {
+            toast.warn("Unknown Role");
             router.push("/");
             return;
         }
@@ -773,6 +894,11 @@ export default function Dashboard() {
     // --- RENDER AGENCY VIEW ---
     if (user?.role === "AGENCY") {
         return <AgencyDashboard user={user} onLogout={handleLogout} />;
+    }
+
+    // --- RENDER USER VIEW ---
+    if (user?.role === "USER") {
+        return <UserDashboard user={user} onLogout={handleLogout} />;
     }
 
     // --- RENDER CREATOR VIEW ---

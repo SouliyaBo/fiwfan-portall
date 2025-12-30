@@ -1,11 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Menu, Search, MapPin, Users, Award, MessageCircle, Send, LogOut, ChevronRight, X } from "lucide-react";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [telegramUrl, setTelegramUrl] = useState("");
+
+    // Fetch telegram link from settings
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                // Determine API URL based on environment or hardcoded if simple
+                const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+                const res = await fetch(`${API_URL}/settings?key=telegram_url`);
+                const data = await res.json();
+                if (data && data.value) {
+                    setTelegramUrl(data.value);
+                }
+            } catch (error) {
+                console.error("Failed to fetch settings", error);
+            }
+        };
+        fetchSettings();
+    }, []);
 
     return (
         <div className="min-h-screen bg-[#020617] text-white font-sans selection:bg-pink-500/30">
@@ -21,10 +40,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 </div>
 
                 <div className="flex items-center gap-4">
-                    <a href="https://t.me/fiwfan" target="_blank" rel="noopener noreferrer" className="hidden md:flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition">
-                        <Send size={16} />
-                        <span>เข้าร่วมบนโทรเลข</span>
-                    </a>
+                    {telegramUrl && (
+                        <a href={telegramUrl} target="_blank" rel="noopener noreferrer" className="hidden md:flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition">
+                            <Send size={16} />
+                            <span>เข้าร่วมบนโทรเลข</span>
+                        </a>
+                    )}
                     <button className="w-9 h-9 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 transition">
                         <Search size={18} className="text-white/70" />
                     </button>
@@ -86,10 +107,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                                 <MessageCircle size={20} className="text-pink-400" />
                                 <span className="font-medium">Profile</span>
                             </Link>
-                            <a href="#" className="flex items-center gap-3 p-3 text-white/80 hover:bg-white/5 rounded-lg transition">
-                                <Send size={20} className="text-blue-400" />
-                                <span>เข้าร่วมบนโทรเลข</span>
-                            </a>
+                            {telegramUrl && (
+                                <a href={telegramUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 text-white/80 hover:bg-white/5 rounded-lg transition">
+                                    <Send size={20} className="text-blue-400" />
+                                    <span>เข้าร่วมบนโทรเลข</span>
+                                </a>
+                            )}
                         </nav>
 
                         <div className="mt-auto border-t border-white/10 pt-6 flex flex-col gap-4">
