@@ -8,7 +8,7 @@ import { uploadS3File } from "../../lib/upload";
 import { API_BASE_URL } from "../../lib/constants";
 import { toast } from 'react-toastify';
 
-import { LogOut, Plus, Image as ImageIcon, Send, Edit, Save, Upload, MapPin, Ruler, DollarSign, User as UserIcon, Phone, Instagram, Hash, Car, Train, Check, MoreHorizontal, Heart, MessageCircle, Share2, Camera, Trash2, Users, Building, ShieldCheck, Zap, Star, Eye, ChevronRight, ChevronLeft } from "lucide-react";
+import { LogOut, Plus, Image as ImageIcon, Send, Edit, Save, Upload, MapPin, Ruler, DollarSign, User as UserIcon, Phone, Instagram, Hash, Car, Train, Check, MoreHorizontal, Heart, MessageCircle, Share2, Camera, Trash2, Users, Building, ShieldCheck, Zap, Star, Eye, ChevronRight, ChevronLeft, Settings, Scissors } from "lucide-react";
 
 // Checkbox Component for easy selection
 const CheckboxField = ({ label, checked, onChange, icon: Icon }: any) => (
@@ -390,6 +390,16 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
     );
 };
 
+const GENDER_OPTIONS = ["Male", "Female", "LGBTQ+", "Other"];
+const SERVICE_TYPES = [
+    "Sideline", "N-Kid", "Tour Guide", "Travel", "Rental Girlfriend",
+    "Virtual Exciting Call", "Massage", "Naked Maid", "Dinner Date", "Long Term"
+];
+const SERVICE_TAGS = [
+    "Smooching", "BDSM", "Blowjob", "Cum in mouth", "Swallow", "Rimming",
+    "Foot Fetish", "Striptease", "Overnight", "Loli", "Outcall", "Roleplay Cosplay"
+];
+
 const UserDashboard = ({ user, onLogout }: any) => {
     const router = useRouter();
     const [activeTab, setActiveTab] = useState("dashboard"); // dashboard, info, reviews, favorites
@@ -406,6 +416,19 @@ const UserDashboard = ({ user, onLogout }: any) => {
         gender: user.gender || "Male",
         province: user.province || "กรุงเทพมหานคร",
         location: user.location || ""
+    });
+
+    const [preferences, setPreferences] = useState(user.preferences || {
+        genders: [],
+        provinces: [],
+        ageRange: { min: 20, max: 60 },
+        heightRange: { min: 140, max: 200 },
+        weightRange: { min: 35, max: 120 },
+        chestRange: { min: 30, max: 50 },
+        waistRange: { min: 20, max: 40 },
+        buttsRange: { min: 30, max: 50 },
+        serviceTypes: [],
+        serviceTags: []
     });
 
     useEffect(() => {
@@ -529,6 +552,28 @@ const UserDashboard = ({ user, onLogout }: any) => {
         }
     };
 
+    const handleSavePreferences = async () => {
+        try {
+            setLoading(true);
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${API_BASE_URL}/users/me/preferences`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                body: JSON.stringify({ preferences })
+            });
+            if (res.ok) {
+                const updated = await res.json();
+                toast.success("บันทึกการตั้งค่าสำเร็จ");
+                const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+                localStorage.setItem("user", JSON.stringify({ ...storedUser, ...updated }));
+            }
+        } catch (e) {
+            toast.error("Error saving preferences");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const SidebarItem = ({ id, label, icon: Icon }: any) => (
         <button
             onClick={() => setActiveTab(id)}
@@ -567,6 +612,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                 <SidebarItem id="info" label="ข้อมูลส่วนตัว" icon={UserIcon} />
                                 <SidebarItem id="reviews" label="รีวิวของฉัน" icon={Star} />
                                 <SidebarItem id="favorites" label="รายการโปรด" icon={Heart} />
+                                <SidebarItem id="preferences" label="ตั้งค่าฟิลเตอร์" icon={Settings} />
                                 <button onClick={() => window.open('https://t.me/fiwfanchannel', '_blank')} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/5 transition">
                                     <Send size={18} /> เข้าร่วมบน Telegram
                                 </button>
@@ -630,7 +676,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                     </div>
                                 </div>
 
-                                <div className="flex flex-col md:flex-row items-center justify-between bg-[#1e1b4b] rounded-3xl p-8 text-white relative overflow-hidden">
+                                <div onClick={() => setActiveTab('preferences')} className="flex flex-col md:flex-row items-center justify-between bg-[#1e1b4b] rounded-3xl p-8 text-white relative overflow-hidden cursor-pointer">
                                     <div className="relative z-10 max-w-lg">
                                         <h2 className="text-3xl font-bold mb-4">Get quick search as per preference</h2>
                                         <h3 className="text-xl font-bold mb-4 opacity-90">Get notified for recent added profiles.</h3>
@@ -778,6 +824,129 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                         ไม่พบประวัติการเข้าชม
                                     </div>
                                 )}
+                            </div>
+                        )}
+
+                        {activeTab === 'preferences' && (
+                            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
+                                <div className="flex justify-between items-center">
+                                    <h2 className="font-bold text-xl dark:text-white underline-offset-8 underline decoration-[#F84E6E]">ตั้งค่าฟิลเตอร์ที่ต้องการ</h2>
+                                    <button
+                                        onClick={handleSavePreferences}
+                                        disabled={loading}
+                                        className="bg-[#F84E6E] text-white px-6 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-[#d43f5b] transition shadow-lg shadow-pink-500/20 disabled:opacity-50"
+                                    >
+                                        <Save size={18} /> {loading ? 'กำลังบันทึก...' : 'บันทึกการตั้งค่า'}
+                                    </button>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    {/* Column 1: Basics & Ranges */}
+                                    <div className="space-y-8">
+                                        <div className="bg-white dark:bg-[#1e1b4b]/50 p-6 rounded-2xl border border-gray-100 dark:border-white/5 space-y-6">
+                                            <h3 className="font-bold text-sm text-[#F84E6E] flex items-center gap-2">
+                                                <Users size={16} /> เพศที่สนใจ
+                                            </h3>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                {GENDER_OPTIONS.map(g => (
+                                                    <CheckboxField
+                                                        key={g}
+                                                        label={g}
+                                                        checked={preferences.genders.includes(g)}
+                                                        onChange={(checked: boolean) => {
+                                                            const newGenders = checked
+                                                                ? [...preferences.genders, g]
+                                                                : preferences.genders.filter((x: string) => x !== g);
+                                                            setPreferences({ ...preferences, genders: newGenders });
+                                                        }}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-white dark:bg-[#1e1b4b]/50 p-6 rounded-2xl border border-gray-100 dark:border-white/5 space-y-6">
+                                            <h3 className="font-bold text-sm text-[#F84E6E] flex items-center gap-2">
+                                                <Scissors size={16} /> ช่วงสัดส่วนและอายุ
+                                            </h3>
+                                            <div className="space-y-4">
+                                                {[
+                                                    { label: "อายุ", key: "ageRange" },
+                                                    { label: "ส่วนสูง", key: "heightRange" },
+                                                    { label: "น้ำหนัก", key: "weightRange" },
+                                                    { label: "หน้าอก", key: "chestRange" },
+                                                    { label: "เอว", key: "waistRange" },
+                                                    { label: "สะโพก", key: "buttsRange" },
+                                                ].map((item: any) => (
+                                                    <div key={item.key} className="grid grid-cols-2 gap-4">
+                                                        <InputField
+                                                            label={`${item.label} (Min)`}
+                                                            type="number"
+                                                            value={preferences[item.key].min}
+                                                            onChange={(e: any) => setPreferences({
+                                                                ...preferences,
+                                                                [item.key]: { ...preferences[item.key], min: parseInt(e.target.value) || 0 }
+                                                            })}
+                                                        />
+                                                        <InputField
+                                                            label={`${item.label} (Max)`}
+                                                            type="number"
+                                                            value={preferences[item.key].max}
+                                                            onChange={(e: any) => setPreferences({
+                                                                ...preferences,
+                                                                [item.key]: { ...preferences[item.key], max: parseInt(e.target.value) || 0 }
+                                                            })}
+                                                        />
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Column 2: Service Types & Tags */}
+                                    <div className="space-y-8">
+                                        <div className="bg-white dark:bg-[#1e1b4b]/50 p-6 rounded-2xl border border-gray-100 dark:border-white/5 space-y-6">
+                                            <h3 className="font-bold text-sm text-[#F84E6E] flex items-center gap-2">
+                                                <Zap size={16} /> ประเภทงาน
+                                            </h3>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                {SERVICE_TYPES.map(s => (
+                                                    <CheckboxField
+                                                        key={s}
+                                                        label={s}
+                                                        checked={preferences.serviceTypes.includes(s)}
+                                                        onChange={(checked: boolean) => {
+                                                            const newTypes = checked
+                                                                ? [...preferences.serviceTypes, s]
+                                                                : preferences.serviceTypes.filter((x: string) => x !== s);
+                                                            setPreferences({ ...preferences, serviceTypes: newTypes });
+                                                        }}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-white dark:bg-[#1e1b4b]/50 p-6 rounded-2xl border border-gray-100 dark:border-white/5 space-y-6">
+                                            <h3 className="font-bold text-sm text-[#F84E6E] flex items-center gap-2">
+                                                <Hash size={16} /> แท็กความต้องการพิเศษ
+                                            </h3>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                {SERVICE_TAGS.map(t => (
+                                                    <CheckboxField
+                                                        key={t}
+                                                        label={t}
+                                                        checked={preferences.serviceTags.includes(t)}
+                                                        onChange={(checked: boolean) => {
+                                                            const newTags = checked
+                                                                ? [...preferences.serviceTags, t]
+                                                                : preferences.serviceTags.filter((x: string) => x !== t);
+                                                            setPreferences({ ...preferences, serviceTags: newTags });
+                                                        }}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         )}
                     </div>

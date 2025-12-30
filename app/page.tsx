@@ -34,17 +34,30 @@ export default function Home() {
   const [agencies, setAgencies] = useState<Agency[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [usePreferences, setUsePreferences] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    fetchCreators();
+    const token = localStorage.getItem("token");
+    if (token) {
+      setIsLoggedIn(true);
+      setUsePreferences(true);
+    }
+    fetchCreators("", token ? true : false);
     fetchAgencies();
   }, []);
 
-  const fetchCreators = async (search = "") => {
+  const fetchCreators = async (search = "", applyPrefs?: boolean) => {
     try {
       setLoading(true);
-      const query = search ? `?location=${search}` : "";
-      const res = await fetch(`${API_BASE_URL}/creators${query}`);
+      const token = localStorage.getItem("token");
+      const headers: any = {};
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      const prefsParam = applyPrefs ?? usePreferences ? "&usePreferences=true" : "";
+      const query = `?location=${search}${prefsParam}`;
+
+      const res = await fetch(`${API_BASE_URL}/creators${query}`, { headers });
       if (res.ok) {
         const data = await res.json();
         setCreators(data);
@@ -161,7 +174,23 @@ export default function Home() {
 
       {/* Creator Feed Grid */}
       <section className="px-4">
-        <h2 className="text-lg font-bold border-l-4 border-[#F84E6E] pl-3 mb-4">Superstar Fiwfan</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold border-l-4 border-[#F84E6E] pl-3">Superstar Fiwfan</h2>
+
+          {isLoggedIn && (
+            <button
+              onClick={() => {
+                const newVal = !usePreferences;
+                setUsePreferences(newVal);
+                fetchCreators(searchTerm, newVal);
+              }}
+              className={`text-xs flex items-center gap-2 px-3 py-1.5 rounded-full transition-all border ${usePreferences ? 'bg-pink-500/10 border-pink-500 text-pink-500' : 'bg-white/5 border-white/10 text-white/50'}`}
+            >
+              <Search size={12} />
+              {usePreferences ? "กรองตามความชอบแล้ว" : "กรองตามความชอบ"}
+            </button>
+          )}
+        </div>
         {loading ? (
           <div className="text-center py-20 text-white/50">Loading...</div>
         ) : creators.length === 0 ? (
