@@ -7,6 +7,14 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'fiwfan-bucket.s3.ap-southeast-1.amazonaws.com',
       },
+      {
+        protocol: 'http',
+        hostname: 'example.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'example.com',
+      },
     ],
   },
 };

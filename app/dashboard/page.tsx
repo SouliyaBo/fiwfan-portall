@@ -434,7 +434,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
         try {
             setLoading(true);
             const token = localStorage.getItem("token");
-            const res = await fetch(`${API_BASE_URL}/users/me/reviews`, {
+            const res = await fetch(`${API_BASE_URL}/reviews/me`, {
                 headers: { "Authorization": `Bearer ${token}` }
             });
             if (res.ok) {

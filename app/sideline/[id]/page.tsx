@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { MessageCircle, Star, MapPin, Share2, ArrowLeft, ChevronLeft, ChevronRight, Check, Flag, Heart, Instagram, Phone, Car, Train } from "lucide-react";
+import { MessageCircle, Star, MapPin, Share2, ArrowLeft, ChevronLeft, ChevronRight, Check, Flag, Heart, Instagram, Phone, Car, Train, Zap } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { API_BASE_URL } from "../../../lib/constants";
 import { getImageUrl } from "../../../lib/images";
@@ -57,6 +57,7 @@ export default function SidelineDetailPage() {
     const [creator, setCreator] = useState<CreatorDetail | null>(null);
     const [loading, setLoading] = useState(true);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [recommendedCreators, setRecommendedCreators] = useState<any[]>([]);
 
     // Review State
     const [isReviewOpen, setIsReviewOpen] = useState(false);
@@ -228,6 +229,8 @@ export default function SidelineDetailPage() {
             if (res.ok) {
                 const data = await res.json();
                 setCreator(data);
+                // Also fetch recommended
+                fetchRecommended(id);
             } else {
                 console.log("Creator not found");
             }
@@ -235,6 +238,18 @@ export default function SidelineDetailPage() {
             console.error("Failed to fetch creator:", error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchRecommended = async (excludeId: string) => {
+        try {
+            const res = await fetch(`${API_BASE_URL}/creators/recommended?excludeId=${excludeId}`);
+            if (res.ok) {
+                const data = await res.json();
+                setRecommendedCreators(data);
+            }
+        } catch (error) {
+            console.error("Error fetching recommended creators:", error);
         }
     };
 
@@ -460,6 +475,63 @@ export default function SidelineDetailPage() {
                         ))
                     )}
                 </div>
+
+                {/* Recommended Section */}
+                {recommendedCreators.length > 0 && (
+                    <div className="mt-20 mb-10">
+                        <div className="flex items-center gap-2 mb-8 border-l-4 border-[#F84E6E] pl-4">
+                            <h2 className="text-2xl font-bold dark:text-white">ค้นพบคู่ที่ยอดเยี่ยมครั้งต่อไปของคุณได้ที่ FiwFan 🔥</h2>
+                        </div>
+
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                            {recommendedCreators.map((item) => (
+                                <div
+                                    key={item._id}
+                                    onClick={() => {
+                                        router.push(`/sideline/${item._id}`);
+                                        window.scrollTo(0, 0);
+                                    }}
+                                    className="group bg-white dark:bg-white/5 rounded-2xl overflow-hidden border border-zinc-200 dark:border-white/5 hover:border-[#F84E6E]/50 transition duration-300 cursor-pointer shadow-sm hover:shadow-xl"
+                                >
+                                    <div className="aspect-[3/4] relative bg-zinc-100 dark:bg-white/5">
+                                        {(item.images?.[0] || item.user?.avatarUrl) ? (
+                                            <Image
+                                                src={getImageUrl(item.images?.[0] || item.user?.avatarUrl)}
+                                                fill
+                                                className="object-cover group-hover:scale-110 transition duration-500"
+                                                alt={item.displayName}
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center">
+                                                <User size={40} className="text-zinc-300" />
+                                            </div>
+                                        )}
+
+                                        {/* Status Badges Overlay */}
+                                        <div className="absolute top-3 left-3 flex flex-col gap-2">
+                                            <div className="bg-red-500 text-white p-1.5 rounded-full shadow-lg">
+                                                <Zap size={14} fill="currentColor" />
+                                            </div>
+                                        </div>
+
+                                        <div className="absolute bottom-3 left-3">
+                                            <div className="bg-green-500 rounded-full p-1 border-2 border-white shadow-lg">
+                                                <Check size={12} className="text-white" strokeWidth={4} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="p-4">
+                                        <h3 className="font-bold text-zinc-800 dark:text-white truncate group-hover:text-[#F84E6E] transition">{item.displayName}</h3>
+                                        <div className="flex items-center gap-1 text-[10px] text-zinc-500 mt-1">
+                                            <MapPin size={10} />
+                                            {item.province || "กรุงเทพมหานคร"}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* REVIEW MODAL */}
