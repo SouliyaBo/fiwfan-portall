@@ -6,6 +6,7 @@ import { MessageCircle, ChevronRight, Search, Building2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { API_BASE_URL } from "../lib/constants";
 import { getImageUrl } from "../lib/images";
+import StoryViewer from "../components/StoryViewer";
 
 interface Creator {
   _id: string;
@@ -32,10 +33,12 @@ interface Agency {
 export default function Home() {
   const [creators, setCreators] = useState<Creator[]>([]);
   const [agencies, setAgencies] = useState<Agency[]>([]);
+  const [stories, setStories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [usePreferences, setUsePreferences] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [selectedStoryCreatorIndex, setSelectedStoryCreatorIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -45,7 +48,30 @@ export default function Home() {
     }
     fetchCreators("", token ? true : false);
     fetchAgencies();
+    fetchStories();
   }, []);
+
+  const fetchStories = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/stories/feed`);
+      if (res.ok) {
+        const data = await res.json();
+        // Group stories by creator
+        const grouped: any = {};
+        data.forEach((s: any) => {
+          if (!s.creator) return;
+          const cid = s.creator._id;
+          if (!grouped[cid]) {
+            grouped[cid] = { ...s.creator, stories: [] };
+          }
+          grouped[cid].stories.push(s);
+        });
+        setStories(Object.values(grouped));
+      }
+    } catch (e) {
+      console.error("Failed to fetch stories", e);
+    }
+  };
 
   const fetchCreators = async (search = "", applyPrefs?: boolean) => {
     try {
@@ -117,19 +143,21 @@ export default function Home() {
       {/* Stories Section (Mock) */}
       <section className="mb-8 pt-4">
         <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide px-4">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="flex-shrink-0 flex flex-col items-center gap-1">
+          {stories.length === 0 ? (
+            <div className="text-white/40 text-xs w-full text-center py-4">ยังไม่มีสตอรี่</div>
+          ) : stories.map((creator: any, index: number) => (
+            <div key={creator._id} className="flex-shrink-0 flex flex-col items-center gap-1 cursor-pointer" onClick={() => setSelectedStoryCreatorIndex(index)}>
               <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-pink-500 to-yellow-500 p-[2px]">
                 <div className="w-full h-full rounded-full bg-gray-800 border-2 border-black overflow-hidden relative">
                   <Image
-                    src={`/mock/creators/${i % 2 === 0 ? '2' : '1'}.png`}
-                    alt={`Story ${i}`}
+                    src={creator.user?.avatarUrl ? getImageUrl(creator.user.avatarUrl) : '/mock/avatar.png'}
+                    alt={creator.displayName}
                     fill
                     className="object-cover"
                   />
                 </div>
               </div>
-              <span className="text-xs text-white/60">User {i}</span>
+              <span className="text-xs text-white/60 truncate w-16 text-center">{creator.displayName}</span>
             </div>
           ))}
         </div>
@@ -209,6 +237,14 @@ export default function Home() {
         <MessageCircle size={32} className="text-white fill-white" />
       </a>
 
+      {/* Story Viewer Modal */}
+      {selectedStoryCreatorIndex !== null && (
+        <StoryViewer
+          creators={stories as any}
+          initialCreatorIndex={selectedStoryCreatorIndex}
+          onClose={() => setSelectedStoryCreatorIndex(null)}
+        />
+      )}
     </div>
   );
 }

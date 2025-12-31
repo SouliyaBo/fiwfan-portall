@@ -1932,7 +1932,6 @@ export default function Dashboard() {
                                         <input
                                             type="file"
                                             accept="image/*,video/*"
-                                            hidden
                                             className="absolute inset-0 cursor-pointer opacity-0"
                                             onChange={handleStoryUpload}
                                             disabled={isStoryUploading}
@@ -1943,18 +1942,18 @@ export default function Dashboard() {
                                     {stories.map((story) => (
                                         <div key={story._id} className="flex-shrink-0 w-24 h-40 rounded-xl bg-gray-900 border border-white/10 relative group overflow-hidden">
                                             {story.mediaType === 'video' ? (
-                                                <video src={getImageUrl(story.mediaUrl)} className="w-full h-full object-cover" />
+                                                <video src={getImageUrl(story.mediaUrl)} className="w-full h-full object-cover" controls playsInline />
                                             ) : (
                                                 <Image src={getImageUrl(story.mediaUrl)} fill className="object-cover" alt="Story" />
                                             )}
 
-                                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center gap-2">
+                                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center gap-2 pointer-events-none">
                                                 <span className="text-[10px] text-white">
                                                     {new Date(story.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                 </span>
                                                 <button
                                                     onClick={() => handleStoryDelete(story._id)}
-                                                    className="p-1.5 bg-red-500/80 rounded-full text-white hover:bg-red-500"
+                                                    className="p-1.5 bg-red-500/80 rounded-full text-white hover:bg-red-500 pointer-events-auto"
                                                 >
                                                     <Trash2 size={12} />
                                                 </button>
