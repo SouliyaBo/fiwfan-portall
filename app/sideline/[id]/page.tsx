@@ -31,6 +31,7 @@ interface CreatorDetail {
     gender?: string;
     proportions?: string;
     price: number;
+    packages?: { price: number; time: string; details: string; }[];
     services?: string[];
     interests?: string[];
     languages?: string[];
@@ -362,8 +363,28 @@ export default function SidelineDetailPage() {
                                 </div>
 
                                 <div className="text-xl font-bold text-zinc-900 dark:text-white">
-                                    {creator.price}.- <span className="text-sm font-normal text-zinc-400">/ 1ชม.</span>
+                                    {creator.price}.- <span className="text-sm font-normal text-zinc-400">/ 1ชม. (ราคาเริ่มต้น)</span>
                                 </div>
+
+                                {/* Service Packages */}
+                                {creator.packages && creator.packages.length > 0 && (
+                                    <div className="space-y-2 pt-2 border-t border-zinc-200 dark:border-white/10 mt-2">
+                                        <h4 className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase">แพ็กเกจแนะนำ</h4>
+                                        <div className="space-y-2">
+                                            {creator.packages.map((pkg, idx) => (
+                                                <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-zinc-50 dark:bg-white/5 border border-zinc-200 dark:border-white/5">
+                                                    <div>
+                                                        <div className="font-bold text-[#F84E6E]">{pkg.price}.- {pkg.time && `/ ${pkg.time}`}</div>
+                                                        <div className="text-xs text-zinc-500 dark:text-zinc-400">{pkg.details}</div>
+                                                    </div>
+                                                    <div className="w-6 h-6 rounded-full bg-[#F84E6E]/10 flex items-center justify-center text-[#F84E6E]">
+                                                        <Check size={14} />
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Promo Banner */}

@@ -1149,6 +1149,7 @@ export default function Dashboard() {
         transport: string;
         parking: boolean;
         agency: string; // Agency ID
+        packages: { price: number; time: string; details: string; }[];
     }>({
         displayName: "",
         bio: "",
@@ -1170,7 +1171,8 @@ export default function Dashboard() {
         phone: "",
         transport: "",
         parking: false,
-        agency: ""
+        agency: "",
+        packages: []
     });
 
     const [myPosts, setMyPosts] = useState<any[]>([]);
@@ -1358,7 +1360,9 @@ export default function Dashboard() {
                     phone: data.phone || "",
                     transport: data.transport || "",
                     parking: data.parking || false,
-                    agency: data.agency || ""
+
+                    agency: data.agency || "",
+                    packages: data.packages || []
                 });
                 setMyPosts(data.posts || []);
                 setStats({
@@ -1785,6 +1789,82 @@ export default function Dashboard() {
                                     className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm"
                                 />
                                 <p className="text-[10px] text-white/40 ml-1">คั่นด้วยเครื่องหมายจุลภาค (,)</p>
+                            </div>
+
+                            {/* Package Management */}
+                            <div className="space-y-3 pt-4 border-t border-white/5">
+                                <label className="text-xs font-medium text-white/70 ml-1 flex items-center gap-1">
+                                    <Zap size={12} /> แพ็กเกจราคา (Service Packages)
+                                </label>
+
+                                <div className="space-y-3">
+                                    {editForm.packages.map((pkg, idx) => (
+                                        <div key={idx} className="bg-black/20 border border-white/10 p-3 rounded-xl flex items-center gap-3">
+                                            <div className="flex-1 grid grid-cols-3 gap-2">
+                                                <div className="col-span-1">
+                                                    <span className="text-[10px] text-white/40 block">ราคา</span>
+                                                    <input
+                                                        type="number"
+                                                        value={pkg.price}
+                                                        onChange={(e) => {
+                                                            const newPackages = [...editForm.packages];
+                                                            newPackages[idx].price = Number(e.target.value);
+                                                            setEditForm({ ...editForm, packages: newPackages });
+                                                        }}
+                                                        className="w-full bg-transparent border-b border-white/10 text-white text-sm focus:outline-none focus:border-[#F84E6E]"
+                                                    />
+                                                </div>
+                                                <div className="col-span-1">
+                                                    <span className="text-[10px] text-white/40 block">เวลา</span>
+                                                    <input
+                                                        type="text"
+                                                        value={pkg.time}
+                                                        onChange={(e) => {
+                                                            const newPackages = [...editForm.packages];
+                                                            newPackages[idx].time = e.target.value;
+                                                            setEditForm({ ...editForm, packages: newPackages });
+                                                        }}
+                                                        placeholder="40 นาที"
+                                                        className="w-full bg-transparent border-b border-white/10 text-white text-sm focus:outline-none focus:border-[#F84E6E]"
+                                                    />
+                                                </div>
+                                                <div className="col-span-1">
+                                                    <span className="text-[10px] text-white/40 block">รายละเอียด</span>
+                                                    <input
+                                                        type="text"
+                                                        value={pkg.details}
+                                                        onChange={(e) => {
+                                                            const newPackages = [...editForm.packages];
+                                                            newPackages[idx].details = e.target.value;
+                                                            setEditForm({ ...editForm, packages: newPackages });
+                                                        }}
+                                                        placeholder="1 น้ำ"
+                                                        className="w-full bg-transparent border-b border-white/10 text-white text-sm focus:outline-none focus:border-[#F84E6E]"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <button
+                                                onClick={() => {
+                                                    const newPackages = editForm.packages.filter((_, i) => i !== idx);
+                                                    setEditForm({ ...editForm, packages: newPackages });
+                                                }}
+                                                className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    ))}
+
+                                    <button
+                                        onClick={() => setEditForm({
+                                            ...editForm,
+                                            packages: [...editForm.packages, { price: 0, time: "", details: "" }]
+                                        })}
+                                        className="w-full py-2 border border-dashed border-white/20 rounded-xl text-white/50 hover:text-white hover:border-white/40 transition text-xs font-bold flex items-center justify-center gap-2"
+                                    >
+                                        <Plus size={14} /> เพิ่มแพ็กเกจ
+                                    </button>
+                                </div>
                             </div>
 
                             {/* Agency Integration */}
