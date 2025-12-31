@@ -5,12 +5,14 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Star, CheckCircle2, MoreHorizontal } from "lucide-react";
 import { API_BASE_URL } from "../../lib/constants";
+import { getImageUrl } from "../../lib/images";
 
 
 
 interface Review {
-    id: string;
+    _id: string;
     creator: {
+        _id?: string;
         displayName?: string;
         isVerified: boolean;
         user: {
@@ -25,7 +27,7 @@ interface Review {
     ratingService: number;
     ratingValue: number;
     comment: string;
-    images?: string; // JSON string
+    images?: string | string[];
     createdAt: string;
 }
 
@@ -87,29 +89,35 @@ export default function CheckHomeworkPage() {
                         reviews.map((post) => {
                             // Parse images safely
                             let reviewImages: string[] = [];
-                            try {
-                                if (post.images) reviewImages = JSON.parse(post.images);
-                            } catch (e) { }
+                            if (post.images) {
+                                if (Array.isArray(post.images)) {
+                                    reviewImages = post.images;
+                                } else {
+                                    try {
+                                        reviewImages = JSON.parse(post.images);
+                                    } catch (e) { }
+                                }
+                            }
 
                             // Safe fallback for avatars
-                            const creatorAvatar = post.creator.user.avatarUrl || "/mock/creators/1.png";
-                            const userAvatar = post.user.avatarUrl || "/mock/creators/2.png";
+                            const creatorAvatar = getImageUrl(post.creator?.user?.avatarUrl);
+                            const userAvatar = getImageUrl(post.user?.avatarUrl);
 
                             return (
-                                <div key={post.id} className="bg-white dark:bg-[#1e1b4b]/50 rounded-2xl shadow-sm border border-zinc-200 dark:border-white/5 overflow-hidden flex flex-col md:flex-row hover:shadow-md transition">
+                                <div key={post._id} className="bg-white dark:bg-[#1e1b4b]/50 rounded-2xl shadow-sm border border-zinc-200 dark:border-white/5 overflow-hidden flex flex-col md:flex-row hover:shadow-md transition">
 
                                     {/* Left: Creator Info (Mobile: Top, Desktop: Left) */}
                                     <div className="relative w-full md:w-64 h-64 md:h-auto group shrink-0">
                                         <Image
                                             src={creatorAvatar}
-                                            alt={post.creator.displayName || "Creator"}
+                                            alt={post.creator?.displayName || "Creator"}
                                             fill
                                             className="object-cover transition duration-300 group-hover:scale-105"
                                         />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
 
                                         <div className="absolute top-2 left-2 flex flex-wrap gap-1">
-                                            {post.creator.isVerified && (
+                                            {post.creator?.isVerified && (
                                                 <span className="bg-[#F84E6E] text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg">
                                                     VERIFIED
                                                 </span>
@@ -117,8 +125,8 @@ export default function CheckHomeworkPage() {
                                         </div>
 
                                         <div className="absolute bottom-3 left-3 right-3 text-white">
-                                            <div className="font-bold text-lg">{post.creator.displayName}</div>
-                                            <Link href="#" className="text-xs text-pink-300 hover:text-pink-200 hover:underline flex items-center gap-1">
+                                            <div className="font-bold text-lg">{post.creator?.displayName}</div>
+                                            <Link href={post.creator?._id ? `/sideline/${post.creator._id}` : "#"} className="text-xs text-pink-300 hover:text-pink-200 hover:underline flex items-center gap-1">
                                                 ดูโปรไฟล์ทั้งหมด &rarr;
                                             </Link>
                                         </div>
@@ -178,7 +186,7 @@ export default function CheckHomeworkPage() {
                                                     {reviewImages.map((img, i) => (
                                                         <div key={i} className="relative w-16 h-16 rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-700 hover:opacity-80 transition cursor-pointer">
                                                             <Image
-                                                                src={`/mock/creators/${img}`} // Assuming local or remote URL
+                                                                src={getImageUrl(img)}
                                                                 alt="Proof"
                                                                 fill
                                                                 className="object-cover"

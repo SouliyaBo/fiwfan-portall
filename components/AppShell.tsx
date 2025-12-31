@@ -7,24 +7,53 @@ import { Menu, Search, MapPin, Users, Award, MessageCircle, Send, LogOut, Chevro
 export default function AppShell({ children }: { children: React.ReactNode }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [telegramUrl, setTelegramUrl] = useState("");
+    const [locations, setLocations] = useState<any[]>([]);
 
-    // Fetch telegram link from settings
+    // Fetch telegram link and locations
     useEffect(() => {
         const fetchSettings = async () => {
             try {
                 // Determine API URL based on environment or hardcoded if simple
                 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
-                const res = await fetch(`${API_URL}/settings?key=telegram_url`);
-                const data = await res.json();
-                if (data && data.value) {
-                    setTelegramUrl(data.value);
-                }
+
+                // Telegram
+                try {
+                    const res = await fetch(`${API_URL}/settings?key=telegram_url`);
+                    const data = await res.json();
+                    if (data && data.value) setTelegramUrl(data.value);
+                } catch (e) { console.error(e); }
+
+                // Locations
+                try {
+                    const res = await fetch(`${API_URL}/settings/locations`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        setLocations(data);
+                    }
+                } catch (e) { console.error(e); }
+
             } catch (error) {
                 console.error("Failed to fetch settings", error);
             }
         };
         fetchSettings();
     }, []);
+
+    const getLocationItems = () => {
+        const bkk = locations.find((l: any) => l.name === "กรุงเทพมหานคร");
+        const others = locations.filter((l: any) => l.name !== "กรุงเทพมหานคร");
+
+        return [
+            {
+                header: "กรุงเทพมหานคร",
+                list: bkk ? bkk.zones : []
+            },
+            {
+                header: "จังหวัดอื่นๆ",
+                list: others.map((l: any) => l.name)
+            }
+        ];
+    };
 
     return (
         <div className="min-h-screen bg-[#020617] text-white font-sans selection:bg-pink-500/30">
@@ -81,10 +110,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                                 icon={<MapPin size={20} className="text-green-500" />}
                                 label="สถานที่"
                                 onNavigate={() => setIsSidebarOpen(false)}
-                                items={[
-                                    { header: "กรุงเทพฯ", list: ["สุขุมวิท", "ลาดพร้าว", "ห้วยขวาง", "บางนา", "รัชดา", "รัชดา17", "ธนบุรี", "สวนหลวง", "เพชรเกษม", "บางกอกน้อย", "พระราม 2", "เกษตร-นวมินทร์", "พระโขนง", "ดอนเมือง", "บางแค", "จตุจักร", "บางเขน", "บางบัวทอง", "พระราม 9", "ลาดกระบัง", "บางกะปิ", "สายไหม", "ประเวศ", "ราชเทวี", "ตากสิน", "ภาษีเจริญ", "พระราม 3", "บางพลัด", "สาธร", "คลองเตย", "ดินแดง", "ราษฎร์บูรณะ", "หลักสี่", "สะพานใหม่", "สุทธิสาร", "สรงประภา"] },
-                                    { header: "คนอื่น", list: ["พัทยา", "เมืองชลบุรี", "เมืองนนทบุรี", "เมืองสมุทรปราการ", "เมืองพิษณุโลก", "เมืองระยอง", "ศรีราชา", "เมืองขอนแก่น", "ปากเก็ต", "เมืองเชียงใหม่", "ปากช่อง", "เมืองบุรีรัมย์", "บางพลี", "พานทอง", "เมืองสุราษฎร์ธานี", "เมืองลพบุรี", "บางบ่อส", "เมืองนครสวรรค์", "วังทองหลาง", "หนองแขม", "สรรพยา", "บางเสาธง", "ธัญบุรี", "พระนครศรีอยุธยา", "เมืองภูเก็ต", "คลองหลวง", "กระทุ่มแบน", "อุบลราชธานี", "หาดใหญ่", "เมืองอุดรธานี", "บ้านบึง", "เมืองปทุมธานี", "ทุ่งสง", "เมืองนราธิวาส", "เมืองสกลนคร", "คลองสามวา", "ทุ่งครุ", "ปทุมวัน", "รังสิต", "เมืองสมุทรสาคร", "ลำลูกกา", "เมืองราชบุรี", "เมืองแพร่", "เมืองสระบุรี", "เมืองลำปาง", "เมืองสุรินทร์", "เมืองอุตรดิตถ์", "เมืองนครราชสีมา"] }
-                                ]}
+                                items={getLocationItems()}
                             />
                             <Link href="/agency" onClick={() => setIsSidebarOpen(false)} className="flex items-center gap-3 p-3 text-white/80 hover:bg-white/5 rounded-lg transition">
                                 <Users size={20} className="text-blue-400" />

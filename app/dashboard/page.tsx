@@ -57,11 +57,28 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
         lineId: "",
         phone: "",
         website: "",
+        province: "",
+        zones: [] as string[]
     });
+    const [availableLocations, setAvailableLocations] = useState<any[]>([]);
+    const [availableZones, setAvailableZones] = useState<string[]>([]);
 
     useEffect(() => {
+        fetchLocations();
         fetchMyAgency();
     }, []);
+
+    const fetchLocations = async () => {
+        try {
+            const res = await fetch(`${API_BASE_URL}/settings/locations`);
+            if (res.ok) {
+                const data = await res.json();
+                setAvailableLocations(data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch locations");
+        }
+    };
 
     const fetchMyAgency = async () => {
         try {
@@ -79,6 +96,8 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                     lineId: data.lineId || "",
                     phone: data.phone || "",
                     website: data.website || "",
+                    province: data.province || "",
+                    zones: data.zones || []
                 });
             }
         } catch (error) {
@@ -244,19 +263,63 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                                             className="w-full bg-black/20 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] min-h-[100px]"
                                         />
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <InputField label="จังหวัด / โซน" value={form.location} onChange={(e: any) => setForm({ ...form, location: e.target.value })} icon={MapPin} />
-                                        <InputField label="Line ID" value={form.lineId} onChange={(e: any) => setForm({ ...form, lineId: e.target.value })} icon={Hash} />
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <InputField label="เบอร์โทรศัพท์" value={form.phone} onChange={(e: any) => setForm({ ...form, phone: e.target.value })} icon={Phone} />
-                                        <InputField label="เว็บไซต์" value={form.website} onChange={(e: any) => setForm({ ...form, website: e.target.value })} icon={Share2} />
-                                    </div>
-
-                                    <button onClick={handleUpdate} className="w-full bg-[#F84E6E] text-white py-3 rounded-xl font-bold hover:brightness-110 shadow-lg shadow-pink-500/20 mt-4">
-                                        บันทึกการเปลี่ยนแปลง
-                                    </button>
                                 </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-medium text-white/70 ml-1">จังหวัด</label>
+                                        <select
+                                            value={form.province}
+                                            onChange={(e) => {
+                                                const prov = e.target.value;
+                                                setForm({ ...form, province: prov, zones: [] });
+                                                const selectedLoc = availableLocations.find((l: any) => l.name === prov);
+                                                setAvailableZones(selectedLoc ? selectedLoc.zones : []);
+                                            }}
+                                            className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none"
+                                        >
+                                            <option value="">เลือกจังหวัด</option>
+                                            {availableLocations.map((loc: any) => (
+                                                <option key={loc.id} value={loc.name}>{loc.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <InputField label="Line ID" value={form.lineId} onChange={(e: any) => setForm({ ...form, lineId: e.target.value })} icon={Hash} />
+                                </div>
+
+                                {/* Zone Selection (Multi-select) */}
+                                {form.province && (
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-medium text-white/70 ml-1">โซนที่คุณรับงาน (เลือกได้หลายโซน)</label>
+                                        <div className="p-4 bg-black/20 rounded-xl border border-white/10 max-h-40 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                            {availableZones.length > 0 ? availableZones.map((zone) => (
+                                                <div
+                                                    key={zone}
+                                                    onClick={() => {
+                                                        const currentZones = form.zones || [];
+                                                        if (currentZones.includes(zone)) {
+                                                            setForm({ ...form, zones: currentZones.filter(z => z !== zone) });
+                                                        } else {
+                                                            setForm({ ...form, zones: [...currentZones, zone] });
+                                                        }
+                                                    }}
+                                                    className={`px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition text-center border ${form.zones?.includes(zone) ? 'bg-[#F84E6E] border-[#F84E6E] text-white' : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'}`}
+                                                >
+                                                    {zone}
+                                                </div>
+                                            )) : (
+                                                <div className="col-span-3 text-center text-white/40 py-2">ไม่มีข้อมูลโซนสำหรับจังหวัดนี้</div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                                <div className="grid grid-cols-2 gap-4">
+                                    <InputField label="เบอร์โทรศัพท์" value={form.phone} onChange={(e: any) => setForm({ ...form, phone: e.target.value })} icon={Phone} />
+                                    <InputField label="เว็บไซต์" value={form.website} onChange={(e: any) => setForm({ ...form, website: e.target.value })} icon={Share2} />
+                                </div>
+
+                                <button onClick={handleUpdate} className="w-full bg-[#F84E6E] text-white py-3 rounded-xl font-bold hover:brightness-110 shadow-lg shadow-pink-500/20 mt-4">
+                                    บันทึกการเปลี่ยนแปลง
+                                </button>
                             </div>
                         ) : (
                             <div className="bg-white dark:bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/5">
@@ -408,14 +471,20 @@ const UserDashboard = ({ user, onLogout }: any) => {
     const [favorites, setFavorites] = useState<any[]>([]);
     const [history, setHistory] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
+    const [telegramUrl, setTelegramUrl] = useState("");
+
+    // Locations
+    const [availableLocations, setAvailableLocations] = useState<any[]>([]);
+    const [availableZones, setAvailableZones] = useState<string[]>([]);
 
     // Profile Form
     const [form, setForm] = useState({
         displayName: user.displayName || "",
         age: user.age || "",
         gender: user.gender || "Male",
-        province: user.province || "กรุงเทพมหานคร",
-        location: user.location || ""
+        province: user.province || "",
+        location: user.location || "",
+        zones: user.zones || [] as string[]
     });
 
     const [preferences, setPreferences] = useState(user.preferences || {
@@ -430,6 +499,37 @@ const UserDashboard = ({ user, onLogout }: any) => {
         serviceTypes: [],
         serviceTags: []
     });
+
+    useEffect(() => {
+        const initData = async () => {
+            // 1. Locations
+            try {
+                const res = await fetch(`${API_BASE_URL}/settings/locations`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setAvailableLocations(data);
+                    if (user.province) {
+                        const loc = data.find((l: any) => l.name === user.province);
+                        if (loc) setAvailableZones(loc.zones);
+                    }
+                }
+            } catch (e) { console.error(e); }
+
+            // 2. Telegram URL
+            try {
+                // Determine API URL based on environment or hardcoded if simple
+                const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+                const res = await fetch(`${API_URL}/settings?key=telegram_url`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setTelegramUrl(data.value || "");
+                }
+            } catch (error) {
+                console.error("Failed to fetch settings", error);
+            }
+        };
+        initData();
+    }, []);
 
     useEffect(() => {
         fetchDashboardStats();
@@ -519,7 +619,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
             if (res.ok) {
                 const updated = await res.json();
                 toast.success("บันทึกข้อมูลสำเร็จ");
-                const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+                const storedUser = JSON.parse(localStorage.getItem("user") || "{ }");
                 localStorage.setItem("user", JSON.stringify({ ...storedUser, ...updated }));
             }
         } catch (e) {
@@ -543,7 +643,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
             if (res.ok) {
                 const updated = await res.json();
                 toast.success("อัปเดตรูปโปรไฟล์สำเร็จ");
-                const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+                const storedUser = JSON.parse(localStorage.getItem("user") || "{ }");
                 localStorage.setItem("user", JSON.stringify({ ...storedUser, avatarUrl: url }));
                 window.location.reload();
             }
@@ -564,7 +664,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
             if (res.ok) {
                 const updated = await res.json();
                 toast.success("บันทึกการตั้งค่าสำเร็จ");
-                const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+                const storedUser = JSON.parse(localStorage.getItem("user") || "{ }");
                 localStorage.setItem("user", JSON.stringify({ ...storedUser, ...updated }));
             }
         } catch (e) {
@@ -613,7 +713,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                 <SidebarItem id="reviews" label="รีวิวของฉัน" icon={Star} />
                                 <SidebarItem id="favorites" label="รายการโปรด" icon={Heart} />
                                 <SidebarItem id="preferences" label="ตั้งค่าฟิลเตอร์" icon={Settings} />
-                                <button onClick={() => window.open('https://t.me/fiwfanchannel', '_blank')} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/5 transition">
+                                <button onClick={() => window.open(telegramUrl, '_blank')} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/5 transition">
                                     <Send size={18} /> เข้าร่วมบน Telegram
                                 </button>
                                 <button onClick={onLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 transition mt-4">
@@ -716,9 +816,53 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
-                                        <InputField label="จังหวัด" value={form.province} onChange={(e: any) => setForm({ ...form, province: e.target.value })} icon={MapPin} />
-                                        <InputField label="สถานที่ (ระบุโซน)" value={form.location} onChange={(e: any) => setForm({ ...form, location: e.target.value })} icon={MapPin} />
+                                        <div className="space-y-1.5">
+                                            <label className="text-xs font-medium text-gray-500 dark:text-white/70 ml-1">จังหวัด</label>
+                                            <select
+                                                value={form.province}
+                                                onChange={(e) => {
+                                                    const prov = e.target.value;
+                                                    setForm({ ...form, province: prov, zones: [] });
+                                                    const selectedLoc = availableLocations.find((l: any) => l.name === prov);
+                                                    setAvailableZones(selectedLoc ? selectedLoc.zones : []);
+                                                }}
+                                                className="w-full bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-xl py-2.5 px-4 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none"
+                                            >
+                                                <option value="">เลือกจังหวัด</option>
+                                                {availableLocations.map((loc: any) => (
+                                                    <option key={loc.id} value={loc.name}>{loc.name}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <InputField label="รายละเอียดที่ตั้ง (เช่น ถนน, ซอย)" value={form.location} onChange={(e: any) => setForm({ ...form, location: e.target.value })} icon={MapPin} />
                                     </div>
+
+                                    {/* Zone Selection */}
+                                    {form.province && (
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-medium text-gray-500 dark:text-white/70 ml-1">โซนที่คุณรับงาน (เลือกได้หลายโซน)</label>
+                                            <div className="p-4 bg-gray-50 dark:bg-black/20 rounded-xl border border-gray-200 dark:border-white/10 max-h-40 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                                {availableZones.length > 0 ? availableZones.map((zone) => (
+                                                    <div
+                                                        key={zone}
+                                                        onClick={() => {
+                                                            const currentZones = form.zones || [];
+                                                            if (currentZones.includes(zone)) {
+                                                                setForm({ ...form, zones: currentZones.filter((z: string) => z !== zone) });
+                                                            } else {
+                                                                setForm({ ...form, zones: [...currentZones, zone] });
+                                                            }
+                                                        }}
+                                                        className={`px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition text-center border ${form.zones?.includes(zone) ? 'bg-[#F84E6E] border-[#F84E6E] text-white' : 'bg-white border-gray-200 text-gray-600 dark:bg-white/5 dark:border-white/10 dark:text-white/60 hover:bg-gray-100 dark:hover:bg-white/10'}`}
+                                                    >
+                                                        {zone}
+                                                    </div>
+                                                )) : (
+                                                    <div className="col-span-3 text-center text-gray-400 py-2">ไม่มีข้อมูลโซนสำหรับจังหวัดนี้</div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
 
                                     <button onClick={handleUpdate} disabled={loading} className="w-full bg-[#F84E6E] text-white py-3 rounded-xl font-bold hover:brightness-110 shadow-lg shadow-pink-500/20 mt-4">
                                         {loading ? "กำลังบันทึก..." : "บันทึกการเปลี่ยนแปลง"}
@@ -1082,7 +1226,7 @@ export default function Dashboard() {
     const fetchCreatorProfile = async (token: string) => {
         try {
             const userId = localStorage.getItem("user");
-            const parsedUser = JSON.parse(userId || "{}");
+            const parsedUser = JSON.parse(userId || "{ }");
             const res = await fetch(`${API_BASE_URL}/creators/${parsedUser.id}`);
 
             if (res.ok) {
@@ -1209,7 +1353,7 @@ export default function Dashboard() {
             if (res.ok) {
                 const updated = await res.json();
                 setUser({ ...user, avatarUrl: url });
-                const storageUser = JSON.parse(localStorage.getItem("user") || "{}");
+                const storageUser = JSON.parse(localStorage.getItem("user") || "{ }");
                 localStorage.setItem("user", JSON.stringify({ ...storageUser, avatarUrl: url }));
                 toast.success("อัปเดตรูปโปรไฟล์สำเร็จ");
             }
