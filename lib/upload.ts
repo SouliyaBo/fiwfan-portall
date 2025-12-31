@@ -1,7 +1,7 @@
 import React from "react";
 import { API_BASE_URL } from "./constants";
 
-export const uploadS3File = async (input: File | React.ChangeEvent<HTMLInputElement> | any): Promise<string> => {
+export const uploadS3File = async (input: File | React.ChangeEvent<HTMLInputElement> | any, folder: string = "images"): Promise<string> => {
     try {
         const token = localStorage.getItem("token");
         if (!token) throw new Error("No authentication token found");
@@ -47,7 +47,7 @@ export const uploadS3File = async (input: File | React.ChangeEvent<HTMLInputElem
         const extension = parts[parts.length - 1];
         const newImageName = `${generateName}.${extension}`;
 
-        console.log("Requesting presigned URL for:", newImageName);
+        console.log(`Requesting presigned URL for: ${newImageName} in folder: ${folder}`);
 
         // 5. Get Pre-signed URL
         const presignRes = await fetch(`${API_BASE_URL}/files/presign-url`, {
@@ -58,7 +58,8 @@ export const uploadS3File = async (input: File | React.ChangeEvent<HTMLInputElem
             },
             body: JSON.stringify({
                 fileName: newImageName,
-                fileType: data.type
+                fileType: data.type,
+                folder: folder
             })
         });
 

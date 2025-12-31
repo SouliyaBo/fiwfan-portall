@@ -7,6 +7,7 @@ import { getImageUrl } from "../../lib/images";
 import { uploadS3File } from "../../lib/upload";
 import { API_BASE_URL } from "../../lib/constants";
 import { toast } from 'react-toastify';
+import StoryViewer from "../../components/StoryViewer";
 
 import { LogOut, Plus, Image as ImageIcon, Send, Edit, Save, Upload, MapPin, Ruler, DollarSign, User as UserIcon, Phone, Instagram, Hash, Car, Train, Check, MoreHorizontal, Heart, MessageCircle, Share2, Camera, Trash2, Users, Building, ShieldCheck, Zap, Star, Eye, ChevronRight, ChevronLeft, Settings, Scissors } from "lucide-react";
 
@@ -1112,6 +1113,7 @@ export default function Dashboard() {
     // Stories State
     const [stories, setStories] = useState<any[]>([]);
     const [isStoryUploading, setIsStoryUploading] = useState(false);
+    const [selectedStoryIndex, setSelectedStoryIndex] = useState<number | null>(null);
 
     // New Post State
     const [caption, setCaption] = useState("");
@@ -1269,7 +1271,7 @@ export default function Dashboard() {
         setIsStoryUploading(true);
         try {
             const file = e.target.files[0];
-            const url = await uploadS3File(file);
+            const url = await uploadS3File(file, "stories");
             const token = localStorage.getItem("token");
 
             const mediaType = file.type.startsWith('video') ? 'video' : 'image';
@@ -1940,29 +1942,37 @@ export default function Dashboard() {
 
                                     {/* Story List */}
                                     {stories.map((story) => (
-                                        <div key={story._id} className="flex-shrink-0 w-24 h-40 rounded-xl bg-gray-900 border border-white/10 relative group overflow-hidden">
+                                        <div
+                                            key={story._id}
+                                            className="flex-shrink-0 w-24 h-40 rounded-xl bg-gray-900 border border-white/10 relative group overflow-hidden cursor-pointer"
+                                            onClick={() => {
+                                                const myStoryIndex = stories.findIndex(s => s._id === story._id);
+                                                setSelectedStoryIndex(myStoryIndex);
+                                            }}
+                                        >
                                             {story.mediaType === 'video' ? (
-                                                <video src={getImageUrl(story.mediaUrl)} className="w-full h-full object-cover" controls playsInline />
+                                                <video src={getImageUrl(story.mediaUrl)} className="w-full h-full object-cover" />
                                             ) : (
                                                 <Image src={getImageUrl(story.mediaUrl)} fill className="object-cover" alt="Story" />
                                             )}
 
-                                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center gap-2 pointer-events-none">
-                                                <span className="text-[10px] text-white">
+                                            {/* Time Label */}
+                                            <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 to-transparent">
+                                                <span className="text-[10px] text-white/90 font-medium">
                                                     {new Date(story.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                 </span>
-                                                <button
-                                                    onClick={() => handleStoryDelete(story._id)}
-                                                    className="p-1.5 bg-red-500/80 rounded-full text-white hover:bg-red-500 pointer-events-auto"
-                                                >
-                                                    <Trash2 size={12} />
-                                                </button>
                                             </div>
-                                            {story.mediaType === 'video' && (
-                                                <div className="absolute top-1 right-1">
-                                                    <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                                                </div>
-                                            )}
+
+                                            {/* Delete Button (Top Right) */}
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleStoryDelete(story._id);
+                                                }}
+                                                className="absolute top-1 right-1 p-1 bg-black/40 hover:bg-red-500 backdrop-blur-md rounded-full text-white/70 hover:text-white transition opacity-0 group-hover:opacity-100"
+                                            >
+                                                <Trash2 size={12} />
+                                            </button>
                                         </div>
                                     ))}
                                 </div>
@@ -2071,6 +2081,20 @@ export default function Dashboard() {
                     </div>
                 )}
             </div>
+
+            {/* Story Viewer in Dashboard */}
+            {selectedStoryIndex !== null && (
+                <StoryViewer
+                    creators={[{
+                        _id: creator?._id || "me",
+                        displayName: creator?.displayName || user?.username || "Me",
+                        user: { avatarUrl: user?.avatarUrl, username: user?.username || "Me" },
+                        stories: stories
+                    }]}
+                    initialCreatorIndex={0}
+                    onClose={() => setSelectedStoryIndex(null)}
+                />
+            )}
         </div>
     );
 }
