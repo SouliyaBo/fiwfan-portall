@@ -16,16 +16,19 @@ export const uploadS3File = async (input: File | React.ChangeEvent<HTMLInputElem
             throw new Error("No file provided");
         }
 
-        // 2. Validate Size (Max 5MB)
-        const maxSize = 5 * 1024 * 1024; // 5MB
+        // 2. Validate Size (Max 100MB)
+        const maxSize = 100 * 1024 * 1024; // 100MB
         if (data.size > maxSize) {
-            throw new Error("File size too large. Maximum size is 5MB.");
+            throw new Error("File size too large. Maximum size is 100MB.");
         }
 
         // 3. Validate Type
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        const allowedTypes = [
+            'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
+            'video/mp4', 'video/webm', 'video/quicktime'
+        ];
         if (!allowedTypes.includes(data.type)) {
-            throw new Error("Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.");
+            throw new Error("Invalid file type. Allowed: JPEG, PNG, GIF, WebP, MP4, WebM, MOV.");
         }
 
         // 4. Generate Random Filename

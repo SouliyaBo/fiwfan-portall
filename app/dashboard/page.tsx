@@ -704,7 +704,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                     </label>
                                 </div>
                                 <h2 className="font-bold text-lg dark:text-white">{user.displayName}</h2>
-                                <p className="text-sm text-gray-500">Visitor</p>
+                                <p className="text-sm text-gray-500">{user.role || "User"}</p>
                             </div>
 
                             <nav className="space-y-1">
@@ -1109,11 +1109,18 @@ export default function Dashboard() {
     const [agencies, setAgencies] = useState<any[]>([]); // List of available agencies
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    // Stories State
+    const [stories, setStories] = useState<any[]>([]);
+    const [isStoryUploading, setIsStoryUploading] = useState(false);
+
     // New Post State
     const [caption, setCaption] = useState("");
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState("");
     const [isPosting, setIsPosting] = useState(false);
+
+    const [availableLocations, setAvailableLocations] = useState<any[]>([]);
+    const [availableZones, setAvailableZones] = useState<string[]>([]);
 
     // Profile Edit State
     const [isEditing, setIsEditing] = useState(false);
@@ -1122,7 +1129,9 @@ export default function Dashboard() {
         bio: string;
         price: number;
         age: number;
+        province: string;
         location: string;
+        zones: string[];
         height: string;
         weight: string;
         proportions: string;
@@ -1143,7 +1152,9 @@ export default function Dashboard() {
         bio: "",
         price: 0,
         age: 0,
+        province: "",
         location: "",
+        zones: [],
         height: "",
         weight: "",
         proportions: "",
@@ -1164,33 +1175,48 @@ export default function Dashboard() {
     const [hasSubscription, setHasSubscription] = useState<boolean>(false);
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        const storedUser = localStorage.getItem("user");
+        const init = async () => {
+            const token = localStorage.getItem("token");
+            const storedUser = localStorage.getItem("user");
 
-        if (!token || !storedUser) {
-            router.push("/auth");
-            return;
-        }
+            if (!token || !storedUser) {
+                router.push("/auth");
+                return;
+            }
 
-        const parsedUser = JSON.parse(storedUser);
-        if (parsedUser.role !== "CREATOR" && parsedUser.role !== "AGENCY" && parsedUser.role !== "USER") {
-            toast.warn("Unknown Role");
-            router.push("/");
-            return;
-        }
+            const parsedUser = JSON.parse(storedUser);
+            if (parsedUser.role !== "CREATOR" && parsedUser.role !== "AGENCY" && parsedUser.role !== "USER") {
+                toast.warn("Unknown Role");
+                router.push("/");
+                return;
+            }
 
-        setUser(parsedUser);
+            setUser(parsedUser);
 
-        // If Agency, we don't need to fetch creator profile strictly, but let's keep it safe
-        if (parsedUser.role === "CREATOR") {
-            fetchCreatorProfile(token);
-            checkSubscription(token);
-        } else {
-            setLoading(false); // For agency, we are ready
-        }
+            // Fetch Locations
+            try {
+                const res = await fetch(`${API_BASE_URL}/settings/locations`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setAvailableLocations(data);
+                }
+            } catch (e) {
+                console.error(e);
+            }
 
-        // fetchAgencies is for joining agency, mostly for Creator. But no harm calling it.
-        fetchAgencies();
+            // If Agency, we don't need to fetch creator profile strictly, but let's keep it safe
+            if (parsedUser.role === "CREATOR") {
+                fetchCreatorProfile(token);
+                checkSubscription(token);
+                fetchMyStories();
+            } else {
+                setLoading(false); // For agency, we are ready
+            }
+
+            // fetchAgencies is for joining agency, mostly for Creator. But no harm calling it.
+            fetchAgencies();
+        };
+        init();
     }, [router]);
 
     const checkSubscription = async (token: string) => {
@@ -1223,6 +1249,62 @@ export default function Dashboard() {
         }
     };
 
+    const fetchMyStories = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${API_BASE_URL}/stories/me`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setStories(data);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleStoryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files?.[0]) return;
+        setIsStoryUploading(true);
+        try {
+            const file = e.target.files[0];
+            const url = await uploadS3File(file);
+            const token = localStorage.getItem("token");
+
+            const mediaType = file.type.startsWith('video') ? 'video' : 'image';
+
+            const res = await fetch(`${API_BASE_URL}/stories`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                body: JSON.stringify({ mediaUrl: url, mediaType })
+            });
+
+            if (res.ok) {
+                toast.success("อัปโหลดสตอรี่เรียบร้อย");
+                fetchMyStories();
+            }
+        } catch (error) {
+            toast.error("Upload failed");
+            console.error(error);
+        } finally {
+            setIsStoryUploading(false);
+        }
+    };
+
+    const handleStoryDelete = async (id: string) => {
+        if (!confirm("ต้องการลบสตอรี่นี้?")) return;
+        try {
+            const token = localStorage.getItem("token");
+            await fetch(`${API_BASE_URL}/stories/${id}`, {
+                method: "DELETE",
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            fetchMyStories();
+            toast.success("Deleted");
+        } catch (e) { toast.error("Error"); }
+    };
+
     const fetchCreatorProfile = async (token: string) => {
         try {
             const userId = localStorage.getItem("user");
@@ -1232,12 +1314,35 @@ export default function Dashboard() {
             if (res.ok) {
                 const data = await res.json();
                 setCreator(data);
+
+                // If province exists, load zones
+                let zonesForProvince: string[] = [];
+                if (data.province) {
+                    // We need to access availableLocations but it might not be set yet due to closure.
+                    // Better to rely on fetching it or just wait. 
+                    // Actually, we can fetch locations inside here or just rely on state update cycle?
+                    // Safe way: fetch again or iterate if we had it. Use API call is safer to be sure.
+                    try {
+                        const locRes = await fetch(`${API_BASE_URL}/settings/locations`);
+                        if (locRes.ok) {
+                            const locData = await locRes.json();
+                            // Update available locations just in case
+                            setAvailableLocations(locData);
+                            const found = locData.find((l: any) => l.name === data.province);
+                            if (found) zonesForProvince = found.zones;
+                        }
+                    } catch (e) { }
+                }
+                setAvailableZones(zonesForProvince);
+
                 setEditForm({
                     displayName: data.displayName || "",
                     bio: data.bio || "",
                     age: data.age || 0,
                     price: data.price || 0,
+                    province: data.province || "",
                     location: data.location || "",
+                    zones: data.zones || [],
                     height: data.height || "",
                     weight: data.weight || "",
                     proportions: data.proportions || "",
@@ -1446,6 +1551,8 @@ export default function Dashboard() {
         }
     };
 
+
+
     const handleProfileUpdate = async () => {
         try {
             const token = localStorage.getItem("token");
@@ -1610,7 +1717,55 @@ export default function Dashboard() {
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
-                                <InputField label="จังหวัด / โซน" value={editForm.location} onChange={(e: any) => setEditForm({ ...editForm, location: e.target.value })} icon={MapPin} />
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-medium text-white/70 ml-1">จังหวัด</label>
+                                        <select
+                                            value={editForm.province}
+                                            onChange={(e) => {
+                                                const prov = e.target.value;
+                                                setEditForm({ ...editForm, province: prov, zones: [] });
+                                                const selectedLoc = availableLocations.find((l: any) => l.name === prov);
+                                                setAvailableZones(selectedLoc ? selectedLoc.zones : []);
+                                            }}
+                                            className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none"
+                                        >
+                                            <option value="" className="bg-slate-900">เลือกจังหวัด</option>
+                                            {availableLocations.map((loc: any) => (
+                                                <option key={loc.id} value={loc.name} className="bg-slate-900">{loc.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <InputField label="สถานที่ (ระบุโซน/ถนน)" value={editForm.location} onChange={(e: any) => setEditForm({ ...editForm, location: e.target.value })} icon={MapPin} />
+                                </div>
+
+                                {/* Zones Selection */}
+                                {editForm.province && (
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-medium text-white/70 ml-1">โซนที่รับงาน (เลือกได้หลายโซน)</label>
+                                        <div className="p-4 bg-black/20 rounded-xl border border-white/10 max-h-40 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                            {availableZones.length > 0 ? availableZones.map((zone) => (
+                                                <div
+                                                    key={zone}
+                                                    onClick={() => {
+                                                        const currentZones = editForm.zones || [];
+                                                        if (currentZones.includes(zone)) {
+                                                            setEditForm({ ...editForm, zones: currentZones.filter(z => z !== zone) });
+                                                        } else {
+                                                            setEditForm({ ...editForm, zones: [...currentZones, zone] });
+                                                        }
+                                                    }}
+                                                    className={`px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition text-center border ${editForm.zones?.includes(zone) ? 'bg-[#F84E6E] border-[#F84E6E] text-white' : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'}`}
+                                                >
+                                                    {zone}
+                                                </div>
+                                            )) : (
+                                                <div className="col-span-3 text-center text-white/40 py-2">ไม่มีข้อมูลโซนสำหรับจังหวัดนี้</div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+
                                 <InputField label="สัดส่วน (อก-เอว-สะโพก)" value={editForm.proportions} onChange={(e: any) => setEditForm({ ...editForm, proportions: e.target.value })} icon={Ruler} />
                             </div>
 
@@ -1753,6 +1908,66 @@ export default function Dashboard() {
                                     </form>
                                 </div>
                             </div>
+                        </div>
+
+                        {/* Stories Section */}
+                        <div className="space-y-4">
+                            <h3 className="text-white font-bold text-lg flex items-center gap-2">
+                                <span className="bg-gradient-to-r from-pink-500 to-orange-500 text-transparent bg-clip-text">Stories (24h)</span>
+                            </h3>
+
+                            {/* Subscription Barrier */}
+                            {!hasSubscription ? (
+                                <div className="p-4 rounded-xl border border-yellow-500/30 bg-yellow-500/5 text-center">
+                                    <p className="text-yellow-500 text-sm">คุณต้องมีแพ็กเกจ active เพื่อใช้งานฟีเจอร์ Story</p>
+                                </div>
+                            ) : (
+                                <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+                                    {/* Add Story Button */}
+                                    <div className="flex-shrink-0 w-24 h-40 rounded-xl bg-white/5 border border-white/10 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-white/10 transition group relative overflow-hidden">
+                                        <div className="w-10 h-10 rounded-full bg-[#F84E6E] flex items-center justify-center text-white group-hover:scale-110 transition">
+                                            {isStoryUploading ? <div className="animate-spin text-xl">C</div> : <Plus size={24} />}
+                                        </div>
+                                        <span className="text-xs text-white/70 font-medium">Add Story</span>
+                                        <input
+                                            type="file"
+                                            accept="image/*,video/*"
+                                            hidden
+                                            className="absolute inset-0 cursor-pointer opacity-0"
+                                            onChange={handleStoryUpload}
+                                            disabled={isStoryUploading}
+                                        />
+                                    </div>
+
+                                    {/* Story List */}
+                                    {stories.map((story) => (
+                                        <div key={story._id} className="flex-shrink-0 w-24 h-40 rounded-xl bg-gray-900 border border-white/10 relative group overflow-hidden">
+                                            {story.mediaType === 'video' ? (
+                                                <video src={getImageUrl(story.mediaUrl)} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <Image src={getImageUrl(story.mediaUrl)} fill className="object-cover" alt="Story" />
+                                            )}
+
+                                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center gap-2">
+                                                <span className="text-[10px] text-white">
+                                                    {new Date(story.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                </span>
+                                                <button
+                                                    onClick={() => handleStoryDelete(story._id)}
+                                                    className="p-1.5 bg-red-500/80 rounded-full text-white hover:bg-red-500"
+                                                >
+                                                    <Trash2 size={12} />
+                                                </button>
+                                            </div>
+                                            {story.mediaType === 'video' && (
+                                                <div className="absolute top-1 right-1">
+                                                    <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
 
                         {/* Recent Posts Feed */}

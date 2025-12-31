@@ -1,18 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { API_BASE_URL } from "../../../lib/constants";
 import { getImageUrl } from "../../../lib/images";
 
-export default function LocationPage({ params }: { params: { slug: string } }) {
-    const { slug } = params;
-    const locationName = decodeURIComponent(slug);
+export default function LocationPage() {
+    const params = useParams();
+    const slug = params?.slug as string;
+    const locationName = slug ? decodeURIComponent(slug) : "";
     const [creators, setCreators] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        if (!locationName) return;
         const fetchCreators = async () => {
             setLoading(true);
             try {

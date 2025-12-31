@@ -105,7 +105,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                             </button>
                         </div>
 
-                        <nav className="flex flex-col gap-2">
+                        <nav className="flex-1 flex flex-col gap-2 overflow-y-auto -mx-2 px-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
                             <SidebarItemWithSubmenu
                                 icon={<MapPin size={20} className="text-green-500" />}
                                 label="สถานที่"
