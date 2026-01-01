@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, Search, MapPin, Users, Award, MessageCircle, Send, LogOut, ChevronRight, X, User } from "lucide-react";
+import { Menu, MapPin, Users, Award, MessageCircle, Send, LogOut, ChevronRight, X, User } from "lucide-react";
 
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
+    const router = useRouter();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [telegramUrl, setTelegramUrl] = useState("");
     const [locations, setLocations] = useState<any[]>([]);
@@ -17,12 +18,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const isAuthPage = pathname?.startsWith('/auth');
 
-    // Fetch telegram link and locations
+    // Check login status on mount and when path changes
     useEffect(() => {
-        // Check login status
         const token = localStorage.getItem("token");
         setIsLoggedIn(!!token);
+    }, [pathname]);
 
+    // Fetch telegram link and locations
+    useEffect(() => {
         const fetchSettings = async () => {
             try {
                 // Determine API URL based on environment or hardcoded if simple
@@ -75,6 +78,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         }));
     };
 
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        setIsLoggedIn(false);
+        setIsSidebarOpen(false);
+        router.push('/');
+    };
+
     return (
         <div className="min-h-screen bg-[#020617] text-white font-sans selection:bg-pink-500/30">
 
@@ -84,8 +95,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                     <div className="flex items-center gap-2">
                         {/* Logo */}
                         <Link href="/" className="text-2xl font-bold tracking-tight">
-                            <span className="text-white">Fiw</span>
-                            <span className="text-[#F84E6E]">Fan</span>
+                            <span className="text-white">Lao</span>
+                            <span className="text-[#F84E6E]">Angel</span>
                         </Link>
                     </div>
 
@@ -103,7 +114,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                         )}
                         <button
                             onClick={() => setIsSidebarOpen(true)}
-                            className="w-9 h-9 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 transition"
+                            className="w-9 h-9 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 transition cursor-pointer"
                         >
                             <Menu size={20} className="text-white/90" />
                         </button>
@@ -115,7 +126,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             {isSidebarOpen && (
                 <>
                     <div
-                        className="fixed inset-0 bg-black/60 z-50 backdrop-blur-sm animate-in fade-in duration-200"
+                        className="fixed inset-0 bg-black/60 z-50 backdrop-blur-sm animate-in fade-in duration-200 cursor-pointer"
                         onClick={() => setIsSidebarOpen(false)}
                     />
                     <div className="fixed top-0 right-0 h-full w-[280px] bg-[#0f172a] z-[51] shadow-2xl p-4 flex flex-col animate-in slide-in-from-right duration-300 border-l border-white/10">
@@ -123,7 +134,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                             <span className="text-lg font-bold text-white/50">Menu</span>
                             <button
                                 onClick={() => setIsSidebarOpen(false)}
-                                className="p-2 hover:bg-white/5 rounded-full transition"
+                                className="p-2 hover:bg-white/5 rounded-full transition cursor-pointer"
                             >
                                 <X size={20} />
                             </button>
@@ -175,10 +186,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                                     </Link>
                                 </div>
                             )}
-                            <button className="flex items-center gap-2 text-white/40 text-sm hover:text-white/60">
-                                <LogOut size={16} />
-                                ดาวน์โหลดโลโก้
-                            </button>
+                            {isLoggedIn && (
+                                <button
+                                    onClick={handleLogout}
+                                    className="flex items-center gap-2 text-white/40 text-sm hover:text-white/60 cursor-pointer"
+                                >
+                                    <LogOut size={16} />
+                                    ออกจากระบบ
+                                </button>
+                            )}
                         </div>
                     </div>
                 </>
@@ -193,14 +209,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     );
 }
 
-function SidebarItem({ icon, label }: { icon: React.ReactNode, label: string }) {
-    return (
-        <a href="#" className="flex items-center gap-3 p-3 text-white/80 hover:bg-white/5 rounded-lg transition">
-            {icon}
-            <span className="font-medium">{label}</span>
-        </a>
-    )
-}
 
 function SidebarItemWithSubmenu({ icon, label, items, onNavigate }: { icon: React.ReactNode, label: string, items: { header: string, list: { name: string, count: number }[] }[], onNavigate?: () => void }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -209,7 +217,7 @@ function SidebarItemWithSubmenu({ icon, label, items, onNavigate }: { icon: Reac
         <div className="flex flex-col">
             <button key="toggle-btn"
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center justify-between p-3 text-white/80 hover:bg-white/5 rounded-lg transition w-full"
+                className="flex items-center justify-between p-3 text-white/80 hover:bg-white/5 rounded-lg transition w-full cursor-pointer"
             >
                 <div className="flex items-center gap-3">
                     {icon}
@@ -243,7 +251,7 @@ function CollapsibleGroup({ header, list, onNavigate }: { header: string, list: 
         <div className="flex flex-col">
             <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="flex items-center justify-between py-2 px-3 text-white/70 hover:text-white hover:bg-white/5 rounded-lg transition w-full text-left"
+                className="flex items-center justify-between py-2 px-3 text-white/70 hover:text-white hover:bg-white/5 rounded-lg transition w-full text-left cursor-pointer"
             >
                 <span className="text-sm font-bold uppercase tracking-wider text-[#F84E6E]">{header}</span>
                 <div className={`transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}>

@@ -262,9 +262,9 @@ export default function SidelineDetailPage() {
         <div className="min-h-screen bg-white dark:bg-[#020617] text-zinc-900 dark:text-white pb-20">
             {/* Mobile Header */}
             <div className="md:hidden sticky top-0 z-50 bg-[#1e1b4b] text-white p-4 flex justify-between items-center shadow-md">
-                <button onClick={() => router.back()}><ArrowLeft size={24} /></button>
+                <button onClick={() => router.back()} className="cursor-pointer"><ArrowLeft size={24} /></button>
                 <div className="font-bold">{creator.displayName}</div>
-                <button><Share2 size={24} /></button>
+                <button className="cursor-pointer"><Share2 size={24} /></button>
             </div>
 
             <div className="container mx-auto max-w-6xl p-0 md:p-6 md:pt-10">
@@ -284,13 +284,13 @@ export default function SidelineDetailPage() {
                             {/* Nav Buttons */}
                             <button
                                 onClick={() => setCurrentImageIndex(prev => (prev - 1 + displayImages.length) % displayImages.length)}
-                                className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-black/40 text-white rounded-full hover:bg-white/20 transition backdrop-blur-md opacity-0 group-hover:opacity-100"
+                                className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-black/40 text-white rounded-full hover:bg-white/20 transition backdrop-blur-md opacity-0 group-hover:opacity-100 cursor-pointer"
                             >
                                 <ChevronLeft size={24} />
                             </button>
                             <button
                                 onClick={() => setCurrentImageIndex(prev => (prev + 1) % displayImages.length)}
-                                className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-black/40 text-white rounded-full hover:bg-white/20 transition backdrop-blur-md opacity-0 group-hover:opacity-100"
+                                className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-black/40 text-white rounded-full hover:bg-white/20 transition backdrop-blur-md opacity-0 group-hover:opacity-100 cursor-pointer"
                             >
                                 <ChevronRight size={24} />
                             </button>
@@ -302,7 +302,7 @@ export default function SidelineDetailPage() {
                                 <button
                                     key={i}
                                     onClick={() => setCurrentImageIndex(i)}
-                                    className={`relative w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden border-2 transition ${currentImageIndex === i ? 'border-[#F84E6E]' : 'border-transparent opacity-70 hover:opacity-100'}`}
+                                    className={`relative w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden border-2 transition cursor-pointer ${currentImageIndex === i ? 'border-[#F84E6E]' : 'border-transparent opacity-70 hover:opacity-100'}`}
                                 >
                                     <Image src={img} alt="thumb" fill className="object-cover" />
                                 </button>
@@ -409,18 +409,18 @@ export default function SidelineDetailPage() {
                                 <a
                                     href={`https://line.me/ti/p/~${creator.lineId || creator.user.lineId}`}
                                     target="_blank"
-                                    className="w-full bg-[#06c755] hover:bg-[#05b34c] text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition shadow-lg shadow-green-500/20"
+                                    className="w-full bg-[#06c755] hover:bg-[#05b34c] text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition shadow-lg shadow-green-500/20 cursor-pointer"
                                 >
                                     <MessageCircle className="fill-white" /> {creator.lineId || creator.user.lineId || "Add Line"}
                                 </a>
                                 <div className="flex gap-3">
                                     <button
                                         onClick={toggleFavorite}
-                                        className={`flex-1 border border-zinc-200 dark:border-white/10 hover:bg-zinc-50 dark:hover:bg-white/5 py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition ${isFavorited ? 'text-[#F84E6E] border-[#F84E6E]/30 bg-[#F84E6E]/5' : ''}`}
+                                        className={`flex-1 border border-zinc-200 dark:border-white/10 hover:bg-zinc-50 dark:hover:bg-white/5 py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition cursor-pointer ${isFavorited ? 'text-[#F84E6E] border-[#F84E6E]/30 bg-[#F84E6E]/5' : ''}`}
                                     >
                                         <Heart size={18} fill={isFavorited ? "currentColor" : "none"} /> {isFavorited ? "Favourite" : "Add to favourite"}
                                     </button>
-                                    <button className="px-4 border border-zinc-200 dark:border-white/10 hover:bg-zinc-50 dark:hover:bg-white/5 rounded-xl flex items-center justify-center transition">
+                                    <button className="px-4 border border-zinc-200 dark:border-white/10 hover:bg-zinc-50 dark:hover:bg-white/5 rounded-xl flex items-center justify-center transition cursor-pointer">
                                         <Share2 size={18} />
                                     </button>
                                 </div>
@@ -432,7 +432,7 @@ export default function SidelineDetailPage() {
                                     <span>Views: {creator.user.lineId ? "34456" : "0"}</span>
                                     <span>Updated: Today</span>
                                 </div>
-                                <button className="flex items-center gap-1 hover:text-red-500 transition">
+                                <button className="flex items-center gap-1 hover:text-red-500 transition cursor-pointer">
                                     <Flag size={12} /> Report Profile
                                 </button>
                             </div>
@@ -451,7 +451,7 @@ export default function SidelineDetailPage() {
                     </h2>
                     <button
                         onClick={() => setIsReviewOpen(true)}
-                        className="bg-[#F84E6E] hover:bg-[#d43f5b] text-white px-6 py-2 rounded-full font-bold shadow-lg shadow-pink-500/20 transition hover:scale-105 active:scale-95"
+                        className="bg-[#F84E6E] hover:bg-[#d43f5b] text-white px-6 py-2 rounded-full font-bold shadow-lg shadow-pink-500/20 transition hover:scale-105 active:scale-95 cursor-pointer"
                     >
                         + เพิ่มความคิดเห็น
                     </button>
@@ -573,7 +573,7 @@ export default function SidelineDetailPage() {
                     <div className="bg-white dark:bg-[#0f172a] w-full max-w-lg rounded-3xl shadow-2xl p-6 relative max-h-[90vh] overflow-y-auto">
                         <button
                             onClick={() => setIsReviewOpen(false)}
-                            className="absolute top-4 right-4 p-2 bg-zinc-100 dark:bg-white/10 rounded-full hover:bg-zinc-200 dark:hover:bg-white/20 transition"
+                            className="absolute top-4 right-4 p-2 bg-zinc-100 dark:bg-white/10 rounded-full hover:bg-zinc-200 dark:hover:bg-white/20 transition cursor-pointer"
                         >
                             <X size={20} />
                         </button>
@@ -604,7 +604,7 @@ export default function SidelineDetailPage() {
                                                 <button
                                                     key={star}
                                                     onClick={() => setReviewForm({ ...reviewForm, [field.key]: star, rating: (reviewForm.rating + star) / 2 /* Approximate logic */ })}
-                                                    className={`${(reviewForm as any)[field.key] >= star ? 'text-yellow-400' : 'text-zinc-300 dark:text-zinc-600'}`}
+                                                    className={`cursor-pointer ${(reviewForm as any)[field.key] >= star ? 'text-yellow-400' : 'text-zinc-300 dark:text-zinc-600'}`}
                                                 >
                                                     <Star size={16} className="fill-current" />
                                                 </button>
@@ -645,7 +645,7 @@ export default function SidelineDetailPage() {
                             <button
                                 onClick={handleReviewSubmit}
                                 disabled={submittingReview}
-                                className="w-full bg-[#F84E6E] hover:bg-[#d43f5b] text-white py-4 rounded-xl font-bold shadow-lg shadow-pink-500/20 mt-4 disabled:opacity-50"
+                                className="w-full bg-[#F84E6E] hover:bg-[#d43f5b] text-white py-4 rounded-xl font-bold shadow-lg shadow-pink-500/20 mt-4 disabled:opacity-50 cursor-pointer"
                             >
                                 {submittingReview ? "กำลังส่งรีวิว..." : "โพสต์รีวิว"}
                             </button>

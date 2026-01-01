@@ -126,7 +126,7 @@ export default function CheckHomeworkPage() {
 
                                         <div className="absolute bottom-3 left-3 right-3 text-white">
                                             <div className="font-bold text-lg">{post.creator?.displayName}</div>
-                                            <Link href={post.creator?._id ? `/sideline/${post.creator._id}` : "#"} className="text-xs text-pink-300 hover:text-pink-200 hover:underline flex items-center gap-1">
+                                            <Link href={post.creator?._id ? `/sideline/${post.creator._id}` : "#"} className="text-xs text-pink-300 hover:text-pink-200 hover:underline flex items-center gap-1 cursor-pointer">
                                                 ดูโปรไฟล์ทั้งหมด &rarr;
                                             </Link>
                                         </div>
@@ -153,7 +153,7 @@ export default function CheckHomeworkPage() {
                                                     <div className="text-xs text-zinc-400">{new Date(post.createdAt).toLocaleDateString("th-TH")}</div>
                                                 </div>
                                             </div>
-                                            <button className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
+                                            <button className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 cursor-pointer">
                                                 <MoreHorizontal size={20} />
                                             </button>
                                         </div>

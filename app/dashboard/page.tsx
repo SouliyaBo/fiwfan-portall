@@ -1704,7 +1704,7 @@ export default function Dashboard() {
                     <div className="bg-white dark:bg-[#1e1b4b]/80 backdrop-blur rounded-3xl p-6 shadow-xl border border-white/5 animate-in fade-in slide-in-from-bottom-8">
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="text-xl font-bold text-white flex items-center gap-2"><Edit className="text-[#F84E6E]" /> แก้ไขโปรไฟล์</h3>
-                            <button onClick={() => setIsEditing(false)} className="text-sm text-gray-400 hover:text-white">ยกเลิก</button>
+                            <button onClick={() => setIsEditing(false)} className="text-sm text-gray-400 hover:text-white cursor-pointer">ยกเลิก</button>
                         </div>
 
                         <div className="space-y-5">
@@ -1902,12 +1902,12 @@ export default function Dashboard() {
                         <div className="grid grid-cols-2 gap-4">
                             <button
                                 onClick={() => setIsEditing(true)}
-                                className="bg-white dark:bg-[#1e1b4b]/50 backdrop-blur border border-white/10 hover:bg-white/5 text-white py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-lg"
+                                className="bg-white dark:bg-[#1e1b4b]/50 backdrop-blur border border-white/10 hover:bg-white/5 text-white py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-lg cursor-pointer"
                             >
-                                <Edit size={18} className="text-[#F84E6E]" /> แก้ไขข้อมูล
+                                <Edit size={18} className="text-[#F84E6E] cursor-pointer" /> แก้ไขข้อมูล
                             </button>
-                            <button className="bg-white dark:bg-[#1e1b4b]/50 backdrop-blur border border-white/10 hover:bg-white/5 text-white py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-lg">
-                                <Share2 size={18} className="text-blue-400" /> แชร์โปรไฟล์
+                            <button className="bg-white dark:bg-[#1e1b4b]/50 backdrop-blur border border-white/10 hover:bg-white/5 text-white py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-lg cursor-pointer">
+                                <Share2 size={18} className="text-blue-400 cursor-pointer" /> แชร์โปรไฟล์
                             </button>
                         </div>
 

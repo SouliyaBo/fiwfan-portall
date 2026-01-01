@@ -37,10 +37,10 @@ export default function LeaderboardPage() {
                     </p>
 
                     <div className="flex justify-center gap-4">
-                        <button className="flex items-center gap-2 bg-[#d94459] hover:bg-[#b03042] text-white px-6 py-2 rounded-full font-bold shadow-lg transition transform hover:scale-105">
+                        <button className="flex items-center gap-2 bg-[#d94459] hover:bg-[#b03042] text-white px-6 py-2 rounded-full font-bold shadow-lg transition transform hover:scale-105 cursor-pointer">
                             <Download size={18} /> Logo 09:16
                         </button>
-                        <button className="flex items-center gap-2 bg-[#d94459] hover:bg-[#b03042] text-white px-6 py-2 rounded-full font-bold shadow-lg transition transform hover:scale-105">
+                        <button className="flex items-center gap-2 bg-[#d94459] hover:bg-[#b03042] text-white px-6 py-2 rounded-full font-bold shadow-lg transition transform hover:scale-105 cursor-pointer">
                             <Download size={18} /> Logo 16:09
                         </button>
                     </div>
@@ -56,19 +56,19 @@ export default function LeaderboardPage() {
                         <div className="flex bg-zinc-100 dark:bg-black/40 rounded-full p-1">
                             <button
                                 onClick={() => setActiveTab("all")}
-                                className={`px-6 py-2 rounded-full text-sm font-bold transition ${activeTab === "all" ? "bg-[#F84E6E] text-white shadow-md" : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"}`}
+                                className={`px-6 py-2 rounded-full text-sm font-bold transition cursor-pointer ${activeTab === "all" ? "bg-[#F84E6E] text-white shadow-md" : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"}`}
                             >
                                 ทั้งหมด
                             </button>
                             <button
                                 onClick={() => setActiveTab("week")}
-                                className={`px-6 py-2 rounded-full text-sm font-bold transition ${activeTab === "week" ? "bg-[#F84E6E] text-white shadow-md" : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"}`}
+                                className={`px-6 py-2 rounded-full text-sm font-bold transition cursor-pointer ${activeTab === "week" ? "bg-[#F84E6E] text-white shadow-md" : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"}`}
                             >
                                 สัปดาห์นี้
                             </button>
                             <button
                                 onClick={() => setActiveTab("month")}
-                                className={`px-6 py-2 rounded-full text-sm font-bold transition ${activeTab === "month" ? "bg-[#F84E6E] text-white shadow-md" : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"}`}
+                                className={`px-6 py-2 rounded-full text-sm font-bold transition cursor-pointer ${activeTab === "month" ? "bg-[#F84E6E] text-white shadow-md" : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"}`}
                             >
                                 เดือนนี้
                             </button>

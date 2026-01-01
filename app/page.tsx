@@ -134,7 +134,7 @@ export default function Home() {
           />
           <button
             onClick={handleSearch}
-            className="absolute right-1 top-1 h-10 px-6 bg-[#1e1b4b] text-white rounded-full font-bold hover:bg-blue-900 transition flex items-center gap-2"
+            className="absolute right-1 top-1 h-10 px-6 bg-[#1e1b4b] text-white rounded-full font-bold hover:bg-blue-900 transition flex items-center gap-2 cursor-pointer"
           >
             <Search size={16} /> ค้นหา
           </button>
@@ -214,7 +214,7 @@ export default function Home() {
                 setUsePreferences(newVal);
                 fetchCreators(searchTerm, newVal);
               }}
-              className={`text-xs flex items-center gap-2 px-3 py-1.5 rounded-full transition-all border ${usePreferences ? 'bg-pink-500/10 border-pink-500 text-pink-500' : 'bg-white/5 border-white/10 text-white/50'}`}
+              className={`text-xs flex items-center gap-2 px-3 py-1.5 rounded-full transition-all border cursor-pointer ${usePreferences ? 'bg-pink-500/10 border-pink-500 text-pink-500' : 'bg-white/5 border-white/10 text-white/50'}`}
             >
               <Search size={12} />
               {usePreferences ? "กรองตามความชอบแล้ว" : "กรองตามความชอบ"}

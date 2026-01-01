@@ -272,7 +272,7 @@ export default function PlansPage() {
                             <button
                                 onClick={handlePayment}
                                 disabled={processing}
-                                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-blue-500/30 transition transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-blue-500/30 transition transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 {processing ? 'กำลังดำเนินการ...' : (
                                     <>
@@ -280,7 +280,7 @@ export default function PlansPage() {
                                     </>
                                 )}
                             </button>
-                            <button className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-green-500/30 transition transform hover:-translate-y-0.5 hidden sm:flex">
+                            <button className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-green-500/30 transition transform hover:-translate-y-0.5 hidden sm:flex cursor-pointer">
                                 <Zap size={20} /> ชำระเงินด้วยคริปโต
                             </button>
                         </div>
@@ -295,7 +295,7 @@ export default function PlansPage() {
                                 <h3 className="text-xl font-bold text-zinc-900 dark:text-white">ชำระเงินผ่าน QR Code</h3>
                                 <button
                                     onClick={() => setShowPaymentModal(false)}
-                                    className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition"
+                                    className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition cursor-pointer"
                                 >
                                     <X size={20} className="text-zinc-500" />
                                 </button>
@@ -351,7 +351,7 @@ export default function PlansPage() {
                                 <button
                                     onClick={confirmPayment}
                                     disabled={uploading || !slipFile}
-                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-blue-500/30 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-blue-500/30 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                                 >
                                     {uploading ? (
                                         <>

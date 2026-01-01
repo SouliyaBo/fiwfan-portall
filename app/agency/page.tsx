@@ -59,7 +59,7 @@ export default function AgencyPage() {
                             <span className="text-white">Lao Angel</span>
                         </Link>
                         <div className="flex gap-4">
-                            <button className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-full flex items-center gap-2 backdrop-blur-sm transition">
+                            <button className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-full flex items-center gap-2 backdrop-blur-sm transition cursor-pointer">
                                 <Send size={18} /> เข้าร่วมบนโทรเลข
                             </button>
                             <Link href="/auth?mode=register" className="bg-[#d94459] hover:brightness-110 px-4 py-2 rounded-md font-bold shadow-md transition">
@@ -92,7 +92,7 @@ export default function AgencyPage() {
                                     <div className="w-2 h-10 bg-[#d94459] rounded-sm" />
                                     <h2 className="text-3xl font-bold text-zinc-800 dark:text-zinc-200">{agency.name}</h2>
                                 </div>
-                                <button className="bg-[#0f391b] hover:bg-[#1a5c2b] text-white px-6 py-2 rounded font-medium transition shadow-sm">
+                                <button className="bg-[#0f391b] hover:bg-[#1a5c2b] text-white px-6 py-2 rounded font-medium transition shadow-sm cursor-pointer">
                                     View All Models
                                 </button>
                             </div>
