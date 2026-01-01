@@ -163,7 +163,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                             </Link>
                             {isLoggedIn && (
                                 <Link href="/dashboard" onClick={() => setIsSidebarOpen(false)} className="flex items-center gap-3 p-3 text-white/80 hover:bg-white/5 rounded-lg transition">
-                                    <User size={20} className="text-pink-400" />
+                                    <User size={20} className="text-[#F84E6E]" />
                                     <span className="font-medium">Profile</span>
                                 </Link>
                             )}

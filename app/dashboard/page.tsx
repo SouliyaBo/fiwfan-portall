@@ -1594,6 +1594,31 @@ export default function Dashboard() {
         }
     };
 
+    const handleShareProfile = async () => {
+        if (!creator?._id) return;
+
+        const shareUrl = `${window.location.origin}/sideline/${creator._id}`;
+
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: `Check out ${creator.displayName}'s profile on Lao Angel`,
+                    text: `Visit ${creator.displayName} on Lao Angel!`,
+                    url: shareUrl
+                });
+            } catch (error) {
+                console.error("Error sharing:", error);
+            }
+        } else {
+            try {
+                await navigator.clipboard.writeText(shareUrl);
+                toast.success("คัดลอกลิงก์โปรไฟล์แล้ว!");
+            } catch (err) {
+                toast.error("ไม่สามารถคัดลอกลิงก์ได้");
+            }
+        }
+    };
+
     if (loading) return <div className="min-h-screen flex items-center justify-center dark:bg-black text-white">Loading...</div>;
 
     // --- RENDER AGENCY VIEW ---
@@ -1906,7 +1931,10 @@ export default function Dashboard() {
                             >
                                 <Edit size={18} className="text-[#F84E6E] cursor-pointer" /> แก้ไขข้อมูล
                             </button>
-                            <button className="bg-white dark:bg-[#1e1b4b]/50 backdrop-blur border border-white/10 hover:bg-white/5 text-white py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-lg cursor-pointer">
+                            <button
+                                onClick={handleShareProfile}
+                                className="bg-white dark:bg-[#1e1b4b]/50 backdrop-blur border border-white/10 hover:bg-white/5 text-white py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-lg cursor-pointer"
+                            >
                                 <Share2 size={18} className="text-blue-400 cursor-pointer" /> แชร์โปรไฟล์
                             </button>
                         </div>
