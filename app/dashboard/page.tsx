@@ -1137,6 +1137,9 @@ export default function Dashboard() {
         zones: string[];
         height: string;
         weight: string;
+        chest: number;
+        waist: number;
+        hips: number;
         proportions: string;
         gender: string;
         languages: string[];
@@ -1162,6 +1165,9 @@ export default function Dashboard() {
         zones: [],
         height: "",
         weight: "",
+        chest: 0,
+        waist: 0,
+        hips: 0,
         proportions: "",
         gender: "",
         languages: [],
@@ -1352,6 +1358,9 @@ export default function Dashboard() {
                     zones: data.zones || [],
                     height: data.height || "",
                     weight: data.weight || "",
+                    chest: data.chest || 0,
+                    waist: data.waist || 0,
+                    hips: data.hips || 0,
                     proportions: data.proportions || "",
                     gender: data.gender || "",
                     languages: data.languages || [],
@@ -1657,13 +1666,13 @@ export default function Dashboard() {
                             <h1 className="text-2xl font-bold">Creator Dashboard</h1>
                             <p className="text-white/60 text-sm">จัดการข้อมูลและผลงานของคุณ</p>
                         </div>
-                        <button onClick={handleLogout} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition backdrop-blur-md">
+                        <button onClick={handleLogout} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition backdrop-blur-md cursor-pointer">
                             <LogOut size={20} />
                         </button>
                     </div>
 
                     <div className="flex items-center gap-6">
-                        <div className="w-24 h-24 rounded-full bg-white p-1 relative group cursor-pointer shadow-lg animate-in zoom-in-50 duration-500">
+                        <div className="w-24 h-24 shrink-0 rounded-full bg-white p-1 relative group cursor-pointer shadow-lg animate-in zoom-in-50 duration-500">
                             <div className="w-full h-full rounded-full bg-gray-100 overflow-hidden relative">
                                 {(creator?.images?.[0] || user?.avatarUrl) ? (
                                     <Image
@@ -1687,7 +1696,7 @@ export default function Dashboard() {
                             </div>
                         </div>
 
-                        <div>
+                        <div className="min-w-0">
                             <h2 className="text-3xl font-bold">{creator?.displayName || user?.username}</h2>
                             <p className="text-white/70 text-sm max-w-xs truncate">{creator?.bio || "ยังไม่มีคำอธิบายตัวตน"}</p>
 
@@ -1803,7 +1812,14 @@ export default function Dashboard() {
                                     </div>
                                 )}
 
-                                <InputField label="สัดส่วน (อก-เอว-สะโพก)" value={editForm.proportions} onChange={(e: any) => setEditForm({ ...editForm, proportions: e.target.value })} icon={Ruler} />
+                                <div className="col-span-2">
+                                    <label className="text-xs font-medium text-white/70 ml-1 mb-1 block">สัดส่วน (อก-เอว-สะโพก)</label>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        <InputField label="อก (นิ้ว)" type="number" value={editForm.chest} onChange={(e: any) => setEditForm({ ...editForm, chest: parseInt(e.target.value) })} />
+                                        <InputField label="เอว (นิ้ว)" type="number" value={editForm.waist} onChange={(e: any) => setEditForm({ ...editForm, waist: parseInt(e.target.value) })} />
+                                        <InputField label="สะโพก (นิ้ว)" type="number" value={editForm.hips} onChange={(e: any) => setEditForm({ ...editForm, hips: parseInt(e.target.value) })} />
+                                    </div>
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
@@ -1915,6 +1931,37 @@ export default function Dashboard() {
                                 </select>
                                 <p className="text-[10px] text-yellow-500/80 ml-1">การเปลี่ยนสังกัดจะต้องรอการอนุมัติจากหัวหน้าสังกัดใหม่</p>
                             </div>
+                            {/* 2. Gallery */}
+                            <section className="space-y-4">
+                                <h3 className="text-[#F84E6E] font-bold text-sm uppercase tracking-wider flex items-center gap-2"><ImageIcon size={14} /> รูปผลงาน (Gallery)</h3>
+                                {/* Subscription Barrier for Gallery */}
+                                {!hasSubscription && (
+                                    <div className="text-center py-4 px-2 border border-yellow-500/30 bg-yellow-500/10 rounded-xl mb-2">
+                                        <p className="text-yellow-500 text-xs">คุณต้องมีแพ็กเกจจึงจะสามารถอัปโหลดรูปผลงานได้</p>
+                                    </div>
+                                )}
+
+                                <div className="grid grid-cols-3 gap-2">
+                                    {creator?.images?.map((img: string, idx: number) => (
+                                        <div key={idx} className="aspect-square rounded-lg overflow-hidden relative group">
+                                            <Image src={getImageUrl(img)} fill className="object-cover" alt={`Gallery ${idx}`} />
+                                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                                                <button
+                                                    onClick={() => handleGalleryDelete(idx)}
+                                                    className="bg-red-500 p-2 rounded-full text-white hover:bg-red-600"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    <label className={`aspect-square rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 border-dashed flex flex-col items-center justify-center gap-2 cursor-pointer transition ${!hasSubscription ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                        <Plus className="text-white/30" />
+                                        <span className="text-[10px] text-white/30 font-medium">เพิ่มรูป</span>
+                                        <input type="file" multiple accept="image/*" hidden onChange={handleGalleryUpload} disabled={!hasSubscription} />
+                                    </label>
+                                </div>
+                            </section>
 
                             <button onClick={handleProfileUpdate} className="w-full bg-[#F84E6E] text-white py-3 rounded-xl font-bold hover:brightness-110 shadow-lg shadow-pink-500/20 mt-4 text-sm">
                                 บันทึกการเปลี่ยนแปลง
@@ -2139,59 +2186,6 @@ export default function Dashboard() {
                                 </div>
                             )}
                         </div>
-
-                        <div className="h-px bg-white/10" />
-
-                        {/* 1. Identity */}
-                        <section className="space-y-4">
-                            <h3 className="text-[#F84E6E] font-bold text-sm uppercase tracking-wider flex items-center gap-2"><UserIcon size={14} /> ข้อมูลส่วนตัว</h3>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="bg-black/20 p-3 rounded-xl border border-white/5">
-                                    <span className="text-white/40 text-xs block mb-1">อายุ</span>
-                                    <span className="text-white font-medium">{creator?.age || "-"} ปี</span>
-                                </div>
-                                <div className="bg-black/20 p-3 rounded-xl border border-white/5">
-                                    <span className="text-white/40 text-xs block mb-1">ส่วนสูง / น้ำหนัก</span>
-                                    <span className="text-white font-medium">{creator?.height || "-"} cm / {creator?.weight || "-"} kg</span>
-                                </div>
-                                <div className="bg-black/20 p-3 rounded-xl border border-white/5 col-span-2">
-                                    <span className="text-white/40 text-xs block mb-1">สัดส่วน</span>
-                                    <span className="text-white font-medium">{creator?.proportions || "-"}</span>
-                                </div>
-                            </div>
-                        </section>
-
-                        {/* 2. Gallery */}
-                        <section className="space-y-4">
-                            <h3 className="text-[#F84E6E] font-bold text-sm uppercase tracking-wider flex items-center gap-2"><ImageIcon size={14} /> รูปผลงาน (Gallery)</h3>
-                            {/* Subscription Barrier for Gallery */}
-                            {!hasSubscription && (
-                                <div className="text-center py-4 px-2 border border-yellow-500/30 bg-yellow-500/10 rounded-xl mb-2">
-                                    <p className="text-yellow-500 text-xs">คุณต้องมีแพ็กเกจจึงจะสามารถอัปโหลดรูปผลงานได้</p>
-                                </div>
-                            )}
-
-                            <div className="grid grid-cols-3 gap-2">
-                                {creator?.images?.map((img: string, idx: number) => (
-                                    <div key={idx} className="aspect-square rounded-lg overflow-hidden relative group">
-                                        <Image src={getImageUrl(img)} fill className="object-cover" alt={`Gallery ${idx}`} />
-                                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                                            <button
-                                                onClick={() => handleGalleryDelete(idx)}
-                                                className="bg-red-500 p-2 rounded-full text-white hover:bg-red-600"
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
-                                <label className={`aspect-square rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 border-dashed flex flex-col items-center justify-center gap-2 cursor-pointer transition ${!hasSubscription ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                    <Plus className="text-white/30" />
-                                    <span className="text-[10px] text-white/30 font-medium">เพิ่มรูป</span>
-                                    <input type="file" multiple accept="image/*" hidden onChange={handleGalleryUpload} disabled={!hasSubscription} />
-                                </label>
-                            </div>
-                        </section>
                     </div>
                 )}
             </div>

@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { API_BASE_URL } from "../lib/constants";
 import { getImageUrl } from "../lib/images";
 import StoryViewer from "../components/StoryViewer";
+import SearchModal from "@/app/components/SearchModal";
 
 interface Creator {
   _id: string;
@@ -39,14 +40,16 @@ export default function Home() {
   const [usePreferences, setUsePreferences] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [selectedStoryCreatorIndex, setSelectedStoryCreatorIndex] = useState<number | null>(null);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<any>({});
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
       setIsLoggedIn(true);
-      setUsePreferences(true);
+      // setUsePreferences(true); // Don't auto-filter
     }
-    fetchCreators("", token ? true : false);
+    fetchCreators("", false);
     fetchAgencies();
     fetchStories();
   }, []);
@@ -74,7 +77,7 @@ export default function Home() {
     }
   };
 
-  const fetchCreators = async (search = "", applyPrefs?: boolean) => {
+  const fetchCreators = async (search: any = "", applyPrefs?: boolean) => {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
@@ -82,7 +85,35 @@ export default function Home() {
       if (token) headers["Authorization"] = `Bearer ${token}`;
 
       const prefsParam = applyPrefs ?? usePreferences ? "&usePreferences=true" : "";
-      const query = `?location=${search}${prefsParam}`;
+
+      // Build query string
+      let searchParams = new URLSearchParams();
+      if (typeof search === 'string') {
+        if (search) searchParams.append("location", search);
+      } else {
+        // It's a filter object
+        if (search.name) searchParams.append("name", search.name);
+        if (search.lineId) searchParams.append("lineId", search.lineId);
+        if (search.gender) searchParams.append("gender", search.gender);
+        if (search.province) searchParams.append("province", search.province);
+        if (search.location) searchParams.append("location", search.location);
+        if (search.ageMin) searchParams.append("ageMin", search.ageMin.toString());
+        if (search.ageMax) searchParams.append("ageMax", search.ageMax.toString());
+
+        if (search.heightMin) searchParams.append("heightMin", search.heightMin.toString());
+        if (search.heightMax) searchParams.append("heightMax", search.heightMax.toString());
+        if (search.weightMin) searchParams.append("weightMin", search.weightMin.toString());
+        if (search.weightMax) searchParams.append("weightMax", search.weightMax.toString());
+
+        if (search.chestMin) searchParams.append("chestMin", search.chestMin.toString());
+        if (search.chestMax) searchParams.append("chestMax", search.chestMax.toString());
+        if (search.waistMin) searchParams.append("waistMin", search.waistMin.toString());
+        if (search.waistMax) searchParams.append("waistMax", search.waistMax.toString());
+        if (search.hipsMin) searchParams.append("hipsMin", search.hipsMin.toString());
+        if (search.hipsMax) searchParams.append("hipsMax", search.hipsMax.toString());
+      }
+
+      const query = `?${searchParams.toString()}${prefsParam}`;
 
       const res = await fetch(`${API_BASE_URL}/creators${query}`, { headers });
       if (res.ok) {
@@ -123,21 +154,17 @@ export default function Home() {
           <span className="text-white">ANGEL</span>
         </h1>
 
-        <div className="relative max-w-md mx-auto">
-          <input
-            type="text"
-            placeholder="พิมพ์โซน, จังหวัด"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full h-12 pl-4 pr-24 rounded-full bg-white text-black outline-none border-2 border-transparent focus:border-pink-500"
-            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-          />
-          <button
-            onClick={handleSearch}
-            className="absolute right-1 top-1 h-10 px-6 bg-[#1e1b4b] text-white rounded-full font-bold hover:bg-blue-900 transition flex items-center gap-2 cursor-pointer"
+        <div className="relative max-w-md mx-auto px-4">
+          <div
+            onClick={() => setIsSearchOpen(true)}
+            className="w-full bg-white h-14 rounded-full flex items-center px-6 cursor-pointer shadow-lg hover:scale-105 transition duration-300"
           >
-            <Search size={16} /> ค้นหา
-          </button>
+            <Search className="text-[#F84E6E] mr-3" />
+            <span className="text-zinc-400 font-medium">ค้นหา ชื่อ, จังหวัด, โซน, อายุ...</span>
+            <button className="ml-auto bg-[#1e1b4b] text-white px-6 py-2 rounded-full font-bold text-sm">
+              ค้นหา
+            </button>
+          </div>
         </div>
       </section>
 
@@ -249,6 +276,15 @@ export default function Home() {
           />
         )
       }
+
+      <SearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        onSearch={(filters) => {
+          setActiveFilters(filters);
+          fetchCreators(filters);
+        }}
+      />
     </div >
   );
 }

@@ -47,6 +47,8 @@ interface CreatorDetail {
     reviews: any[];
     posts: any[];
     images?: string[];
+    views?: number;
+    createdAt?: string;
     activeSubscription?: {
         planType: string;
         status: string;
@@ -157,7 +159,6 @@ export default function SidelineDetailPage() {
 
     const [isFavorited, setIsFavorited] = useState(false);
     const [currentUser, setCurrentUser] = useState<any>(null);
-
     useEffect(() => {
         if (params.id) {
             fetchCreator(params.id as string);
@@ -424,17 +425,17 @@ export default function SidelineDetailPage() {
                                             <Heart size={18} fill={isFavorited ? "currentColor" : "none"} /> {isFavorited ? "Favourite" : "Add to favourite"}
                                         </button>
                                     )}
-                                    <button className="px-4 border border-zinc-200 dark:border-white/10 hover:bg-zinc-50 dark:hover:bg-white/5 rounded-xl flex items-center justify-center transition cursor-pointer">
+                                    {/* <button className="px-4 border border-zinc-200 dark:border-white/10 hover:bg-zinc-50 dark:hover:bg-white/5 rounded-xl flex items-center justify-center transition cursor-pointer">
                                         <Share2 size={18} />
-                                    </button>
+                                    </button> */}
                                 </div>
                             </div>
 
                             {/* Meta & Report */}
                             <div className="flex justify-between items-center pt-4 border-t border-zinc-200 dark:border-white/10 text-xs text-zinc-400">
                                 <div className="flex items-center gap-4">
-                                    <span>Views: {creator.user.lineId ? "34456" : "0"}</span>
-                                    <span>Updated: Today</span>
+                                    <span>Views: {creator.views || 0}</span>
+                                    <span>Joined: {creator.createdAt ? new Date(creator.createdAt).toLocaleDateString('th-TH') : '-'}</span>
                                 </div>
                                 <button className="flex items-center gap-1 hover:text-red-500 transition cursor-pointer">
                                     <Flag size={12} /> Report Profile
