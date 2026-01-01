@@ -138,7 +138,7 @@ export default function AgencyDetailPage() {
                 <div className="mt-8 border-t border-white/10 pt-8">
                     <h2 className="text-2xl font-bold mb-6 text-white flex">
                         <span className="w-1 h-8 bg-[#F84E6E] rounded-full"></span>
-                        พบกับความงดงามที่น่าทึ่งในคืนนี้ได้ที่ fiwfan.app
+                        พบกับความงดงามที่น่าทึ่งในคืนนี้ได้ที่ laoangel.app
                     </h2>
 
                     {zones.length > 0 && (

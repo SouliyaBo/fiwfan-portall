@@ -118,9 +118,9 @@ export default function Home() {
       {/* Search Hero */}
       <section className="text-center py-8">
         <h1 className="text-2xl font-bold mb-6 flex items-center justify-center gap-2">
-          <span className="text-white">FIF</span>
+          <span className="text-white">LAO</span>
           <span className="text-pink-500">❤️</span>
-          <span className="text-white">FAN</span>
+          <span className="text-white">ANGEL</span>
         </h1>
 
         <div className="relative max-w-md mx-auto">
@@ -168,7 +168,7 @@ export default function Home() {
       {/* Top Agencies */}
       <section className="mb-8 px-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold border-l-4 border-[#F84E6E] pl-3">Top Agencies Fiwfan</h2>
+          <h2 className="text-lg font-bold border-l-4 border-[#F84E6E] pl-3">Top Agencies Lao Angel</h2>
           <Link href="/agency" className="text-xs text-pink-500 flex items-center">
             ดูทั้งหมด <ChevronRight size={14} />
           </Link>
@@ -205,7 +205,7 @@ export default function Home() {
       {/* Creator Feed Grid */}
       <section className="px-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold border-l-4 border-[#F84E6E] pl-3">Superstar Fiwfan</h2>
+          <h2 className="text-lg font-bold border-l-4 border-[#F84E6E] pl-3">Superstar Lao Angel</h2>
 
           {isLoggedIn && (
             <button

@@ -401,7 +401,7 @@ export default function SidelineDetailPage() {
 
                             {/* Promo Banner */}
                             <div className="bg-gradient-to-r from-[#F84E6E] to-[#ff758f] text-white p-3 rounded-xl text-center text-sm font-medium shadow-lg shadow-pink-500/20 card-hover">
-                                ใช้โค้ด: <span className="font-bold bg-white/20 px-2 py-0.5 rounded">Fiwfan.app-25</span> เพื่อบริการที่ดีขึ้นขณะเชื่อมต่อบน LINE
+                                ใช้โค้ด: <span className="font-bold bg-white/20 px-2 py-0.5 rounded">LaoAngel</span> เพื่อบริการที่ดีขึ้นขณะเชื่อมต่อบน LINE
                             </div>
 
                             {/* Action Buttons */}
@@ -513,7 +513,7 @@ export default function SidelineDetailPage() {
                 {recommendedCreators.length > 0 && (
                     <div className="mt-20 mb-10">
                         <div className="flex items-center gap-2 mb-8 border-l-4 border-[#F84E6E] pl-4">
-                            <h2 className="text-2xl font-bold dark:text-white">ค้นพบคู่ที่ยอดเยี่ยมครั้งต่อไปของคุณได้ที่ FiwFan 🔥</h2>
+                            <h2 className="text-2xl font-bold dark:text-white">ค้นพบคู่ที่ยอดเยี่ยมครั้งต่อไปของคุณได้ที่ Lao Angel 🔥</h2>
                         </div>
 
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">

@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FiwFan Portal",
+  title: "Lao Angel",
   description: "Creator & Agency Portal",
 };
 

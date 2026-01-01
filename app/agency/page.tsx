@@ -56,7 +56,7 @@ export default function AgencyPage() {
                 <div className="container mx-auto">
                     <div className="flex items-center justify-between mb-4">
                         <Link href="/" className="flex items-center gap-2 text-2xl font-bold">
-                            <span className="text-white">FiwFan</span>
+                            <span className="text-white">Lao Angel</span>
                         </Link>
                         <div className="flex gap-4">
                             <button className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-full flex items-center gap-2 backdrop-blur-sm transition">
@@ -69,7 +69,7 @@ export default function AgencyPage() {
                     </div>
 
                     <h1 className="text-3xl md:text-5xl font-bold mb-4 drop-shadow-md">
-                        พบกับเอเจนซี่ชั้นนำของ fiwfan ที่มีสาวแฟนตาซีตัวจริง!
+                        พบกับเอเจนซี่ชั้นนำของ Lao Angel ที่มีสาวแฟนตาซีตัวจริง!
                     </h1>
                     <p className="text-xl opacity-90 mb-4">ผู้หญิงจริง. พูดจริง. ล่อ</p>
                     <p className="text-sm opacity-80 max-w-4xl">

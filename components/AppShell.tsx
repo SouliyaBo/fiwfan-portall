@@ -4,14 +4,25 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Menu, Search, MapPin, Users, Award, MessageCircle, Send, LogOut, ChevronRight, X, User } from "lucide-react";
 
+import { usePathname } from 'next/navigation';
+
 export default function AppShell({ children }: { children: React.ReactNode }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [telegramUrl, setTelegramUrl] = useState("");
     const [locations, setLocations] = useState<any[]>([]);
     const [zoneStats, setZoneStats] = useState<Record<string, number>>({});
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    // Check path for auth page
+    const pathname = usePathname();
+    const isAuthPage = pathname?.startsWith('/auth');
 
     // Fetch telegram link and locations
     useEffect(() => {
+        // Check login status
+        const token = localStorage.getItem("token");
+        setIsLoggedIn(!!token);
+
         const fetchSettings = async () => {
             try {
                 // Determine API URL based on environment or hardcoded if simple
@@ -66,34 +77,39 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
     return (
         <div className="min-h-screen bg-[#020617] text-white font-sans selection:bg-pink-500/30">
-            {/* ... Navbar (unchanged) ... */}
-            <nav className="fixed top-0 left-0 right-0 h-16 bg-[#020617]/80 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-4 z-50">
-                <div className="flex items-center gap-2">
-                    {/* Logo */}
-                    <Link href="/" className="text-2xl font-bold tracking-tight">
-                        <span className="text-white">Fiw</span>
-                        <span className="text-[#F84E6E]">Fan</span>
-                    </Link>
-                </div>
 
-                <div className="flex items-center gap-4">
-                    {telegramUrl && (
-                        <a href={telegramUrl} target="_blank" rel="noopener noreferrer" className="hidden md:flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition">
-                            <Send size={16} />
-                            <span>เข้าร่วมบนโทรเลข</span>
-                        </a>
-                    )}
-                    <Link href="/auth?mode=register" className="hidden md:block px-4 py-1.5 bg-[#F84E6E] hover:bg-[#d63d5b] text-white text-sm font-bold rounded-full transition shadow-[0_0_15px_rgba(248,78,110,0.3)]">
-                        สมัครสมาชิก
-                    </Link>
-                    <button
-                        onClick={() => setIsSidebarOpen(true)}
-                        className="w-9 h-9 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 transition"
-                    >
-                        <Menu size={20} className="text-white/90" />
-                    </button>
-                </div>
-            </nav>
+            {/* Navbar - Hide on Auth Page */}
+            {!isAuthPage && (
+                <nav className="fixed top-0 left-0 right-0 h-16 bg-[#020617]/80 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-4 z-50">
+                    <div className="flex items-center gap-2">
+                        {/* Logo */}
+                        <Link href="/" className="text-2xl font-bold tracking-tight">
+                            <span className="text-white">Fiw</span>
+                            <span className="text-[#F84E6E]">Fan</span>
+                        </Link>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        {telegramUrl && (
+                            <a href={telegramUrl} target="_blank" rel="noopener noreferrer" className="hidden md:flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition">
+                                <Send size={16} />
+                                <span>เข้าร่วมบนโทรเลข</span>
+                            </a>
+                        )}
+                        {!isLoggedIn && (
+                            <Link href="/auth?mode=register" className="hidden md:block px-4 py-1.5 bg-[#F84E6E] hover:bg-[#d63d5b] text-white text-sm font-bold rounded-full transition shadow-[0_0_15px_rgba(248,78,110,0.3)]">
+                                สมัครสมาชิก
+                            </Link>
+                        )}
+                        <button
+                            onClick={() => setIsSidebarOpen(true)}
+                            className="w-9 h-9 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 transition"
+                        >
+                            <Menu size={20} className="text-white/90" />
+                        </button>
+                    </div>
+                </nav>
+            )}
 
             {/* Sidebar Overlay */}
             {isSidebarOpen && (
@@ -134,10 +150,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                                 <MessageCircle size={20} className="text-pink-400" />
                                 <span className="font-medium">ตรวจการบ้าน</span>
                             </Link>
-                            <Link href="/dashboard" onClick={() => setIsSidebarOpen(false)} className="flex items-center gap-3 p-3 text-white/80 hover:bg-white/5 rounded-lg transition">
-                                <User size={20} className="text-pink-400" />
-                                <span className="font-medium">Profile</span>
-                            </Link>
+                            {isLoggedIn && (
+                                <Link href="/dashboard" onClick={() => setIsSidebarOpen(false)} className="flex items-center gap-3 p-3 text-white/80 hover:bg-white/5 rounded-lg transition">
+                                    <User size={20} className="text-pink-400" />
+                                    <span className="font-medium">Profile</span>
+                                </Link>
+                            )}
                             {telegramUrl && (
                                 <a href={telegramUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 text-white/80 hover:bg-white/5 rounded-lg transition">
                                     <Send size={20} className="text-blue-400" />
@@ -147,14 +165,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                         </nav>
 
                         <div className="mt-auto border-t border-white/10 pt-6 flex flex-col gap-4">
-                            <div className="flex gap-4">
-                                <Link href="/auth?mode=login" onClick={() => setIsSidebarOpen(false)} className="flex-1 py-2 rounded-lg border border-white/20 text-center text-sm font-medium hover:bg-white/5">
-                                    Login
-                                </Link>
-                                <Link href="/auth?mode=register" onClick={() => setIsSidebarOpen(false)} className="flex-1 py-2 rounded-lg bg-white/10 text-center text-sm font-medium hover:bg-white/20">
-                                    Register
-                                </Link>
-                            </div>
+                            {!isLoggedIn && (
+                                <div className="flex gap-4">
+                                    <Link href="/auth?mode=login" onClick={() => setIsSidebarOpen(false)} className="flex-1 py-2 rounded-lg border border-white/20 text-center text-sm font-medium hover:bg-white/5">
+                                        Login
+                                    </Link>
+                                    <Link href="/auth?mode=register" onClick={() => setIsSidebarOpen(false)} className="flex-1 py-2 rounded-lg bg-white/10 text-center text-sm font-medium hover:bg-white/20">
+                                        Register
+                                    </Link>
+                                </div>
+                            )}
                             <button className="flex items-center gap-2 text-white/40 text-sm hover:text-white/60">
                                 <LogOut size={16} />
                                 ดาวน์โหลดโลโก้
