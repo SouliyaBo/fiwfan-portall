@@ -3,9 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Star, CheckCircle2, MoreHorizontal } from "lucide-react";
+import { Star, CheckCircle2, MoreHorizontal, X, AlertTriangle } from "lucide-react";
 import { API_BASE_URL } from "../../lib/constants";
 import { getImageUrl } from "../../lib/images";
+import { toast } from "react-toastify";
 
 
 
@@ -23,9 +24,9 @@ interface Review {
         username: string;
         avatarUrl?: string;
     };
-    ratingAppearance: number;
-    ratingService: number;
-    ratingValue: number;
+    accuracyRating: number;
+    serviceRating: number;
+    valueRating: number;
     comment: string;
     images?: string | string[];
     createdAt: string;
@@ -48,6 +49,7 @@ function StarRating({ rating }: { rating: number }) {
 export default function CheckHomeworkPage() {
     const [reviews, setReviews] = useState<Review[]>([]);
     const [loading, setLoading] = useState(true);
+    const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
     useEffect(() => {
         fetchReviews();
@@ -68,8 +70,58 @@ export default function CheckHomeworkPage() {
         }
     };
 
+    const [reportModal, setReportModal] = useState<{ isOpen: boolean, reviewId: string | null }>({ isOpen: false, reviewId: null });
+    const [reportReason, setReportReason] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const openReportModal = (reviewId: string) => {
+        setReportModal({ isOpen: true, reviewId });
+        setOpenMenuId(null);
+    };
+
+    const submitReport = async () => {
+        if (!reportReason.trim() || !reportModal.reviewId) return;
+
+        try {
+            setIsSubmitting(true);
+            const token = localStorage.getItem("token");
+            if (!token) {
+                toast.error("กรุณาเข้าสู่ระบบก่อนแจ้งปัญหา");
+                return;
+            }
+
+            const res = await fetch(`${API_BASE_URL}/reports`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    targetType: "REVIEW",
+                    targetId: reportModal.reviewId,
+                    reason: reportReason
+                })
+            });
+
+            if (res.ok) {
+                toast.success("แจ้งลบรีวิวเรียบร้อยแล้ว แอดมินจะดำเนินการตรวจสอบโดยเร็วที่สุด");
+                setReportModal({ isOpen: false, reviewId: null });
+                setReportReason("");
+            } else {
+                const error = await res.json();
+                toast.error(`เกิดข้อผิดพลาด: ${error.message || "ไม่สามารถแจ้งปัญหาได้"}`);
+            }
+
+        } catch (error) {
+            console.error(error);
+            toast.error("เกิดข้อผิดพลาดในการเชื่อมต่อ");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     return (
-        <div className="min-h-screen bg-[#f3f4f6] dark:bg-[#020617] pb-20 pt-8 px-4">
+        <div className="min-h-screen bg-[#f3f4f6] dark:bg-[#020617] pb-20 pt-8 px-4" onClick={() => setOpenMenuId(null)}>
             <div className="container mx-auto max-w-4xl">
                 {/* Header */}
                 <div className="flex items-center gap-3 mb-6">
@@ -153,24 +205,46 @@ export default function CheckHomeworkPage() {
                                                     <div className="text-xs text-zinc-400">{new Date(post.createdAt).toLocaleDateString("th-TH")}</div>
                                                 </div>
                                             </div>
-                                            <button className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 cursor-pointer">
-                                                <MoreHorizontal size={20} />
-                                            </button>
+                                            <div className="relative">
+                                                <button
+                                                    className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 cursor-pointer p-1"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setOpenMenuId(openMenuId === post._id ? null : post._id);
+                                                    }}
+                                                >
+                                                    <MoreHorizontal size={20} />
+                                                </button>
+
+                                                {openMenuId === post._id && (
+                                                    <div className="absolute right-0 top-full mt-1 bg-white dark:bg-[#020617] border border-zinc-200 dark:border-white/10 rounded-lg shadow-xl z-10 w-32 overflow-hidden">
+                                                        <button
+                                                            className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 cursor-pointer transition"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                openReportModal(post._id);
+                                                            }}
+                                                        >
+                                                            แจ้งลบรีวิว
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
 
                                         {/* Ratings Grid */}
                                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4 bg-zinc-50 dark:bg-black/20 p-3 rounded-lg">
                                             <div className="flex flex-col gap-1">
                                                 <span className="text-xs text-zinc-500 font-medium">ตามที่แสดงในภาพ</span>
-                                                <StarRating rating={post.ratingAppearance} />
+                                                <StarRating rating={post.accuracyRating} />
                                             </div>
                                             <div className="flex flex-col gap-1">
                                                 <span className="text-xs text-zinc-500 font-medium">บริการ</span>
-                                                <StarRating rating={post.ratingService} />
+                                                <StarRating rating={post.serviceRating} />
                                             </div>
                                             <div className="flex flex-col gap-1">
                                                 <span className="text-xs text-zinc-500 font-medium">คุ้มค่าเงิน</span>
-                                                <StarRating rating={post.ratingValue} />
+                                                <StarRating rating={post.valueRating} />
                                             </div>
                                         </div>
 
@@ -205,6 +279,52 @@ export default function CheckHomeworkPage() {
                 </div>
 
             </div>
+            {/* Report Modal */}
+            {reportModal.isOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                    <div className="bg-white dark:bg-[#1e1b4b] rounded-2xl w-full max-w-md p-6 shadow-2xl border border-zinc-200 dark:border-white/10">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-xl font-bold flex items-center gap-2 text-zinc-900 dark:text-white">
+                                <AlertTriangle className="text-red-500" /> แจ้งลบรีวิว
+                            </h3>
+                            <button
+                                onClick={() => setReportModal({ isOpen: false, reviewId: null })}
+                                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition"
+                            >
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        <p className="text-zinc-600 dark:text-zinc-300 text-sm mb-4">
+                            โปรดระบุเหตุผลที่คุณต้องการแจ้งลบรีวิวนี้ เพื่อให้ทีมงานตรวจสอบ
+                        </p>
+
+                        <textarea
+                            className="w-full bg-zinc-50 dark:bg-black/30 border border-zinc-200 dark:border-white/10 rounded-xl p-4 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-red-500/50 min-h-[120px] mb-6 resize-none"
+                            placeholder="ระบุเหตุผล (เช่น เนื้อหาไม่สุภาพ, สแปม, ข้อมูลเท็จ...)"
+                            value={reportReason}
+                            onChange={(e) => setReportReason(e.target.value)}
+                        />
+
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setReportModal({ isOpen: false, reviewId: null })}
+                                className="flex-1 py-3 bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 text-zinc-700 dark:text-white rounded-xl font-medium transition"
+                                disabled={isSubmitting}
+                            >
+                                ยกเลิก
+                            </button>
+                            <button
+                                onClick={submitReport}
+                                className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-red-500/20"
+                                disabled={isSubmitting || !reportReason.trim()}
+                            >
+                                {isSubmitting ? "กำลังส่ง..." : "แจ้งลบรีวิว"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

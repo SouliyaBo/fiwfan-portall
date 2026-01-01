@@ -156,6 +156,7 @@ export default function SidelineDetailPage() {
         : mockImages.map(img => `/mock/creators/${img}`);
 
     const [isFavorited, setIsFavorited] = useState(false);
+    const [currentUser, setCurrentUser] = useState<any>(null);
 
     useEffect(() => {
         if (params.id) {
@@ -190,6 +191,7 @@ export default function SidelineDetailPage() {
             });
             if (res.ok) {
                 const user = await res.json();
+                setCurrentUser(user);
                 if (user.favorites && user.favorites.includes(id)) {
                     setIsFavorited(true);
                 }
@@ -400,9 +402,9 @@ export default function SidelineDetailPage() {
                             </div>
 
                             {/* Promo Banner */}
-                            <div className="bg-gradient-to-r from-[#F84E6E] to-[#ff758f] text-white p-3 rounded-xl text-center text-sm font-medium shadow-lg shadow-pink-500/20 card-hover">
+                            {/* <div className="bg-gradient-to-r from-[#F84E6E] to-[#ff758f] text-white p-3 rounded-xl text-center text-sm font-medium shadow-lg shadow-pink-500/20 card-hover">
                                 ใช้โค้ด: <span className="font-bold bg-white/20 px-2 py-0.5 rounded">LaoAngel</span> เพื่อบริการที่ดีขึ้นขณะเชื่อมต่อบน LINE
-                            </div>
+                            </div> */}
 
                             {/* Action Buttons */}
                             <div className="space-y-3">
@@ -414,12 +416,14 @@ export default function SidelineDetailPage() {
                                     <MessageCircle className="fill-white" /> {creator.lineId || creator.user.lineId || "Add Line"}
                                 </a>
                                 <div className="flex gap-3">
-                                    <button
-                                        onClick={toggleFavorite}
-                                        className={`flex-1 border border-zinc-200 dark:border-white/10 hover:bg-zinc-50 dark:hover:bg-white/5 py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition cursor-pointer ${isFavorited ? 'text-[#F84E6E] border-[#F84E6E]/30 bg-[#F84E6E]/5' : ''}`}
-                                    >
-                                        <Heart size={18} fill={isFavorited ? "currentColor" : "none"} /> {isFavorited ? "Favourite" : "Add to favourite"}
-                                    </button>
+                                    {currentUser?.role !== 'CREATOR' && (
+                                        <button
+                                            onClick={toggleFavorite}
+                                            className={`flex-1 border border-zinc-200 dark:border-white/10 hover:bg-zinc-50 dark:hover:bg-white/5 py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition cursor-pointer ${isFavorited ? 'text-[#F84E6E] border-[#F84E6E]/30 bg-[#F84E6E]/5' : ''}`}
+                                        >
+                                            <Heart size={18} fill={isFavorited ? "currentColor" : "none"} /> {isFavorited ? "Favourite" : "Add to favourite"}
+                                        </button>
+                                    )}
                                     <button className="px-4 border border-zinc-200 dark:border-white/10 hover:bg-zinc-50 dark:hover:bg-white/5 rounded-xl flex items-center justify-center transition cursor-pointer">
                                         <Share2 size={18} />
                                     </button>
