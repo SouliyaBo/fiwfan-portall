@@ -31,6 +31,7 @@ interface CreatorDetail {
     gender?: string;
     proportions?: string;
     price: number;
+    priceTime?: string;
     packages?: { price: number; time: string; details: string; }[];
     services?: string[];
     interests?: string[];
@@ -363,22 +364,33 @@ export default function SidelineDetailPage() {
                                 </div>
 
                                 <div className="text-xl font-bold text-zinc-900 dark:text-white">
-                                    {creator.price}.- <span className="text-sm font-normal text-zinc-400">/ 1ชม. (ราคาเริ่มต้น)</span>
+                                    {creator.price}.- <span className="text-sm font-normal text-zinc-400">/ {creator.priceTime || '1 ชม.'} (ราคาเริ่มต้น)</span>
                                 </div>
 
                                 {/* Service Packages */}
                                 {creator.packages && creator.packages.length > 0 && (
                                     <div className="space-y-2 pt-2 border-t border-zinc-200 dark:border-white/10 mt-2">
                                         <h4 className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase">แพ็กเกจแนะนำ</h4>
-                                        <div className="space-y-2">
+                                        <div className="space-y-3">
                                             {creator.packages.map((pkg, idx) => (
-                                                <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-zinc-50 dark:bg-white/5 border border-zinc-200 dark:border-white/5">
-                                                    <div>
-                                                        <div className="font-bold text-[#F84E6E]">{pkg.price}.- {pkg.time && `/ ${pkg.time}`}</div>
-                                                        <div className="text-xs text-zinc-500 dark:text-zinc-400">{pkg.details}</div>
+                                                <div key={idx} className="flex items-center p-4 rounded-2xl bg-zinc-50 dark:bg-white/5 border border-zinc-200 dark:border-white/5 gap-4">
+                                                    {/* Checkmark Circle */}
+                                                    <div className="w-10 h-10 rounded-full bg-[#F84E6E]/20 flex items-center justify-center text-[#F84E6E] flex-shrink-0">
+                                                        <Check size={20} strokeWidth={3} />
                                                     </div>
-                                                    <div className="w-6 h-6 rounded-full bg-[#F84E6E]/10 flex items-center justify-center text-[#F84E6E]">
-                                                        <Check size={14} />
+
+                                                    <div className="flex-1">
+                                                        <div className="font-bold text-lg sm:text-xl text-zinc-900 dark:text-white flex flex-wrap items-center gap-2 align-middle">
+                                                            <span className="text-[#F84E6E]">{pkg.price}</span>
+                                                            <span className="text-zinc-400 text-base">/</span>
+                                                            {pkg.details && (
+                                                                <>
+                                                                    <span>{pkg.details}</span>
+                                                                    <span className="text-zinc-400 text-base">/</span>
+                                                                </>
+                                                            )}
+                                                            <span>{pkg.time}</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             ))}

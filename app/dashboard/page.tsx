@@ -1130,6 +1130,7 @@ export default function Dashboard() {
         displayName: string;
         bio: string;
         price: number;
+        priceTime: string;
         age: number;
         province: string;
         location: string;
@@ -1154,6 +1155,7 @@ export default function Dashboard() {
         displayName: "",
         bio: "",
         price: 0,
+        priceTime: "",
         age: 0,
         province: "",
         location: "",
@@ -1344,6 +1346,7 @@ export default function Dashboard() {
                     bio: data.bio || "",
                     age: data.age || 0,
                     price: data.price || 0,
+                    priceTime: data.priceTime || "",
                     province: data.province || "",
                     location: data.location || "",
                     zones: data.zones || [],
@@ -1719,7 +1722,10 @@ export default function Dashboard() {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <InputField label="อายุ" type="number" value={editForm.age} onChange={(e: any) => setEditForm({ ...editForm, age: parseInt(e.target.value) })} />
-                                <InputField label="เรทราคา (เริ่มต้น)" type="number" value={editForm.price} onChange={(e: any) => setEditForm({ ...editForm, price: parseInt(e.target.value) })} icon={DollarSign} />
+                                <div className="grid grid-cols-2 gap-2">
+                                    <InputField label="เรทราคา (เริ่มต้น)" type="number" value={editForm.price} onChange={(e: any) => setEditForm({ ...editForm, price: parseInt(e.target.value) })} icon={DollarSign} />
+                                    <InputField label="ระยะเวลา" value={editForm.priceTime || ''} onChange={(e: any) => setEditForm({ ...editForm, priceTime: e.target.value })} placeholder="1 ชม." />
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
