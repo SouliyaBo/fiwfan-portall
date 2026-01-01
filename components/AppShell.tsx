@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, Search, MapPin, Users, Award, MessageCircle, Send, LogOut, ChevronRight, X } from "lucide-react";
+import { Menu, Search, MapPin, Users, Award, MessageCircle, Send, LogOut, ChevronRight, X, User } from "lucide-react";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -55,22 +55,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     }, []);
 
     const getLocationItems = () => {
-        const bkk = locations.find((l: any) => l.name === "กรุงเทพมหานคร");
-        const others = locations.filter((l: any) => l.name !== "กรุงเทพมหานคร");
-
         // Helper to attach count
         const withCount = (name: string) => ({ name, count: zoneStats[name] || 0 });
 
-        return [
-            {
-                header: "กรุงเทพมหานคร",
-                list: bkk ? bkk.zones.map(withCount) : []
-            },
-            {
-                header: "จังหวัดอื่นๆ",
-                list: others.map((l: any) => withCount(l.name))
-            }
-        ];
+        return locations.map((l: any) => ({
+            header: l.name,
+            list: (l.zones || []).map(withCount)
+        }));
     };
 
     return (
@@ -144,7 +135,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                                 <span className="font-medium">ตรวจการบ้าน</span>
                             </Link>
                             <Link href="/dashboard" onClick={() => setIsSidebarOpen(false)} className="flex items-center gap-3 p-3 text-white/80 hover:bg-white/5 rounded-lg transition">
-                                <MessageCircle size={20} className="text-pink-400" />
+                                <User size={20} className="text-pink-400" />
                                 <span className="font-medium">Profile</span>
                             </Link>
                             {telegramUrl && (
@@ -210,26 +201,50 @@ function SidebarItemWithSubmenu({ icon, label, items, onNavigate }: { icon: Reac
             </button>
 
             {isOpen && (
-                <div className="pl-11 pr-2 pb-2 flex flex-col gap-4 animate-in slide-in-from-top-2 duration-200">
+                <div className="pl-4 pr-2 pb-2 flex flex-col gap-1 animate-in slide-in-from-top-2 duration-200">
                     {items.map((group, idx) => (
-                        <div key={idx}>
-                            <h4 className="text-xs font-bold text-[#F84E6E] mb-2 uppercase tracking-wider">{group.header}</h4>
-                            <div className="flex flex-col gap-1 border-l border-white/10 pl-3">
-                                {group.list.map((item, i) => (
-                                    <Link key={i} href={`/location/${item.name}`} onClick={onNavigate} className="flex items-center justify-between text-sm text-white/60 hover:text-white py-1 group">
-                                        <span>{item.name}</span>
-                                        {item.count > 0 && (
-                                            <span className="bg-white/10 text-white group-hover:bg-[#F84E6E] group-hover:text-white px-2 py-0.5 rounded-full text-[10px] font-bold transition">
-                                                {item.count}
-                                            </span>
-                                        )}
-                                    </Link>
-                                ))}
-                            </div>
-                        </div>
+                        <CollapsibleGroup
+                            key={idx}
+                            header={group.header}
+                            list={group.list}
+                            onNavigate={onNavigate}
+                        />
                     ))}
                 </div>
             )}
         </div>
     )
+}
+
+function CollapsibleGroup({ header, list, onNavigate }: { header: string, list: { name: string, count: number }[], onNavigate?: () => void }) {
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    return (
+        <div className="flex flex-col">
+            <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="flex items-center justify-between py-2 px-3 text-white/70 hover:text-white hover:bg-white/5 rounded-lg transition w-full text-left"
+            >
+                <span className="text-sm font-bold uppercase tracking-wider text-[#F84E6E]">{header}</span>
+                <div className={`transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}>
+                    <ChevronRight size={14} className="text-white/40" />
+                </div>
+            </button>
+
+            {isExpanded && (
+                <div className="flex flex-col gap-1 border-l border-white/10 pl-3 ml-3 mt-1 animate-in slide-in-from-top-1 duration-150">
+                    {list.map((item, i) => (
+                        <Link key={i} href={`/?location=${item.name}`} onClick={onNavigate} className="flex items-center justify-between text-sm text-white/60 hover:text-white py-1.5 px-2 rounded hover:bg-white/5 group transition">
+                            <span>{item.name}</span>
+                            {item.count > 0 && (
+                                <span className="bg-white/10 text-white group-hover:bg-[#F84E6E] group-hover:text-white px-2 py-0.5 rounded-full text-[10px] font-bold transition">
+                                    {item.count}
+                                </span>
+                            )}
+                        </Link>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
 }
