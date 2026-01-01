@@ -11,11 +11,15 @@ import { MapPin, Phone, MessageCircle, Globe, ShieldCheck, ChevronLeft, Building
 export default function AgencyDetailPage() {
     const params = useParams();
     const [agency, setAgency] = useState<any>(null);
+    const [zones, setZones] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (params.id) {
-            fetchAgency(params.id as string);
+            Promise.all([
+                fetchAgency(params.id as string),
+                fetchZones()
+            ]).finally(() => setLoading(false));
         }
     }, [params.id]);
 
@@ -28,8 +32,18 @@ export default function AgencyDetailPage() {
             }
         } catch (error) {
             console.error("Failed to fetch agency", error);
-        } finally {
-            setLoading(false);
+        }
+    };
+
+    const fetchZones = async () => {
+        try {
+            const res = await fetch(`${API_BASE_URL}/creators/zones`);
+            if (res.ok) {
+                const data = await res.json();
+                setZones(data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch zones", error);
         }
     };
 
@@ -102,7 +116,7 @@ export default function AgencyDetailPage() {
                 </div>
 
                 {/* Creators Section */}
-                <div>
+                <div className="mb-12">
                     <h2 className="text-xl font-bold border-l-4 border-[#F84E6E] pl-3 mb-6 flex items-center gap-2 text-white">
                         โมเดลในสังกัด <span className="text-[#F84E6E]">({agency.creators?.length || 0})</span>
                     </h2>
@@ -116,6 +130,31 @@ export default function AgencyDetailPage() {
                     ) : (
                         <div className="py-20 text-center border-2 border-dashed border-white/10 rounded-2xl">
                             <p className="text-white/40">ยังไม่มีน้องๆ ในสังกัดนี้</p>
+                        </div>
+                    )}
+                </div>
+
+                {/* Zone Stats */}
+                <div className="mt-8 border-t border-white/10 pt-8">
+                    <h2 className="text-2xl font-bold mb-6 text-white flex">
+                        <span className="w-1 h-8 bg-[#F84E6E] rounded-full"></span>
+                        พบกับความงดงามที่น่าทึ่งในคืนนี้ได้ที่ fiwfan.app
+                    </h2>
+
+                    {zones.length > 0 && (
+                        <div className="flex flex-wrap gap-2 justify-center">
+                            {zones.map((zone, i) => (
+                                <Link
+                                    href={`/?location=${zone.name}`}
+                                    key={i}
+                                    className="flex items-center gap-2 bg-white text-zinc-800 px-3 py-1.5 rounded-full text-sm font-bold shadow-sm hover:scale-105 transition group"
+                                >
+                                    <span className="group-hover:text-[#F84E6E] transition">{zone.name}</span>
+                                    <span className="bg-[#1e1b4b] text-white text-[10px] px-1.5 py-0.5 rounded-md font-bold min-w-[20px] text-center group-hover:bg-[#F84E6E] transition">
+                                        {zone.count}
+                                    </span>
+                                </Link>
+                            ))}
                         </div>
                     )}
                 </div>

@@ -8,6 +8,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [telegramUrl, setTelegramUrl] = useState("");
     const [locations, setLocations] = useState<any[]>([]);
+    const [zoneStats, setZoneStats] = useState<Record<string, number>>({});
 
     // Fetch telegram link and locations
     useEffect(() => {
@@ -32,6 +33,20 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                     }
                 } catch (e) { console.error(e); }
 
+                // Zone Stats
+                try {
+                    const res = await fetch(`${API_URL}/creators/zones`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        // Convert array [{name, count}] to object {name: count}
+                        const stats: Record<string, number> = {};
+                        data.forEach((item: any) => {
+                            stats[item.name] = item.count;
+                        });
+                        setZoneStats(stats);
+                    }
+                } catch (e) { console.error(e); }
+
             } catch (error) {
                 console.error("Failed to fetch settings", error);
             }
@@ -43,22 +58,24 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         const bkk = locations.find((l: any) => l.name === "กรุงเทพมหานคร");
         const others = locations.filter((l: any) => l.name !== "กรุงเทพมหานคร");
 
+        // Helper to attach count
+        const withCount = (name: string) => ({ name, count: zoneStats[name] || 0 });
+
         return [
             {
                 header: "กรุงเทพมหานคร",
-                list: bkk ? bkk.zones : []
+                list: bkk ? bkk.zones.map(withCount) : []
             },
             {
                 header: "จังหวัดอื่นๆ",
-                list: others.map((l: any) => l.name)
+                list: others.map((l: any) => withCount(l.name))
             }
         ];
     };
 
     return (
         <div className="min-h-screen bg-[#020617] text-white font-sans selection:bg-pink-500/30">
-
-            {/* Navbar */}
+            {/* ... Navbar (unchanged) ... */}
             <nav className="fixed top-0 left-0 right-0 h-16 bg-[#020617]/80 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-4 z-50">
                 <div className="flex items-center gap-2">
                     {/* Logo */}
@@ -174,7 +191,7 @@ function SidebarItem({ icon, label }: { icon: React.ReactNode, label: string }) 
     )
 }
 
-function SidebarItemWithSubmenu({ icon, label, items, onNavigate }: { icon: React.ReactNode, label: string, items: { header: string, list: string[] }[], onNavigate?: () => void }) {
+function SidebarItemWithSubmenu({ icon, label, items, onNavigate }: { icon: React.ReactNode, label: string, items: { header: string, list: { name: string, count: number }[] }[], onNavigate?: () => void }) {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
@@ -199,8 +216,13 @@ function SidebarItemWithSubmenu({ icon, label, items, onNavigate }: { icon: Reac
                             <h4 className="text-xs font-bold text-[#F84E6E] mb-2 uppercase tracking-wider">{group.header}</h4>
                             <div className="flex flex-col gap-1 border-l border-white/10 pl-3">
                                 {group.list.map((item, i) => (
-                                    <Link key={i} href={`/location/${item}`} onClick={onNavigate} className="text-sm text-white/60 hover:text-white py-1">
-                                        {item}
+                                    <Link key={i} href={`/location/${item.name}`} onClick={onNavigate} className="flex items-center justify-between text-sm text-white/60 hover:text-white py-1 group">
+                                        <span>{item.name}</span>
+                                        {item.count > 0 && (
+                                            <span className="bg-white/10 text-white group-hover:bg-[#F84E6E] group-hover:text-white px-2 py-0.5 rounded-full text-[10px] font-bold transition">
+                                                {item.count}
+                                            </span>
+                                        )}
                                     </Link>
                                 ))}
                             </div>

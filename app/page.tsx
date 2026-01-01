@@ -51,6 +51,7 @@ export default function Home() {
     fetchStories();
   }, []);
 
+
   const fetchStories = async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/stories/feed`);
@@ -140,7 +141,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stories Section (Mock) */}
+
+      {/* Stories Section (Mock) */}{" "}
       <section className="mb-8 pt-4">
         <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide px-4">
           {stories.length === 0 ? (
@@ -238,14 +240,16 @@ export default function Home() {
       </a>
 
       {/* Story Viewer Modal */}
-      {selectedStoryCreatorIndex !== null && (
-        <StoryViewer
-          creators={stories as any}
-          initialCreatorIndex={selectedStoryCreatorIndex}
-          onClose={() => setSelectedStoryCreatorIndex(null)}
-        />
-      )}
-    </div>
+      {
+        selectedStoryCreatorIndex !== null && (
+          <StoryViewer
+            creators={stories as any}
+            initialCreatorIndex={selectedStoryCreatorIndex}
+            onClose={() => setSelectedStoryCreatorIndex(null)}
+          />
+        )
+      }
+    </div >
   );
 }
 
