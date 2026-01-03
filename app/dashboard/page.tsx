@@ -801,7 +801,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                 <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-6 flex items-center gap-2"><Edit className="text-[#F84E6E]" /> แก้ไขข้อมูลส่วนตัว</h3>
                                 <div className="space-y-4">
                                     <InputField label="ชื่อที่ใช้แสดง" value={form.displayName} onChange={(e: any) => setForm({ ...form, displayName: e.target.value })} icon={UserIcon} />
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-3 gap-4">
                                         <InputField label="อายุ" type="number" value={form.age} onChange={(e: any) => setForm({ ...form, age: Number(e.target.value) })} />
                                         <div className="space-y-1.5">
                                             <label className="text-xs font-medium text-gray-500 dark:text-white/70 ml-1">เพศ</label>
@@ -1148,6 +1148,7 @@ export default function Dashboard() {
         availability: string;
         // New Fields
         lineId: string;
+        whatsapp?: string;
         instagram: string;
         phone: string;
         transport: string;
@@ -1368,6 +1369,7 @@ export default function Dashboard() {
                     interests: data.interests ? data.interests.join(", ") : "",
                     availability: data.availability || "",
                     lineId: data.lineId || "",
+                    whatsapp: data.whatsapp || "",
                     instagram: data.instagram || "",
                     phone: data.phone || "",
                     transport: data.transport || "",
@@ -1754,16 +1756,14 @@ export default function Dashboard() {
                                 />
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-3 gap-4">
                                 <InputField label="อายุ" type="number" value={editForm.age} onChange={(e: any) => setEditForm({ ...editForm, age: parseInt(e.target.value) })} />
-                                <div className="grid grid-cols-2 gap-2">
-                                    <InputField label="เรทราคา (เริ่มต้น)" type="number" value={editForm.price} onChange={(e: any) => setEditForm({ ...editForm, price: parseInt(e.target.value) })} icon={DollarSign} />
-                                    <InputField label="ระยะเวลา" value={editForm.priceTime || ''} onChange={(e: any) => setEditForm({ ...editForm, priceTime: e.target.value })} placeholder="1 ชม." />
-                                </div>
+                                <InputField label="ราคา (เริ่มต้น)" type="number" value={editForm.price} onChange={(e: any) => setEditForm({ ...editForm, price: parseInt(e.target.value) })} icon={DollarSign} />
+                                <InputField label="ระยะเวลา" value={editForm.priceTime || ''} onChange={(e: any) => setEditForm({ ...editForm, priceTime: e.target.value })} placeholder="1 ชม." />
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="space-y-1.5">
                                         <label className="text-xs font-medium text-white/70 ml-1">จังหวัด</label>
                                         <select
@@ -1836,6 +1836,36 @@ export default function Dashboard() {
                                     className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm"
                                 />
                                 <p className="text-[10px] text-white/40 ml-1">คั่นด้วยเครื่องหมายจุลภาค (,)</p>
+                            </div>
+
+                            <div className="space-y-3 pt-4 border-t border-white/5">
+                                <label className="text-xs font-medium text-white/70 ml-1">ข้อมูลการติดต่อ (Contact Info)</label>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <InputField
+                                        label="Line ID"
+                                        value={editForm.lineId}
+                                        onChange={(e: any) => setEditForm({ ...editForm, lineId: e.target.value })}
+                                        placeholder="ไอดีไลน์..."
+                                    />
+                                    <InputField
+                                        label="WhatsApp"
+                                        value={editForm.whatsapp || ''}
+                                        onChange={(e: any) => setEditForm({ ...editForm, whatsapp: e.target.value })}
+                                        placeholder="เบอร์โทร WhatsApp..."
+                                    />
+                                    <InputField
+                                        label="Instagram"
+                                        value={editForm.instagram}
+                                        onChange={(e: any) => setEditForm({ ...editForm, instagram: e.target.value })}
+                                        placeholder="ชื่อบัญชี (ไม่ต้องมี @)..."
+                                    />
+                                    <InputField
+                                        label="เบอร์โทรศัพท์"
+                                        value={editForm.phone}
+                                        onChange={(e: any) => setEditForm({ ...editForm, phone: e.target.value })}
+                                        placeholder="เบอร์โทร..."
+                                    />
+                                </div>
                             </div>
 
                             {/* Package Management */}

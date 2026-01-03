@@ -30,8 +30,21 @@ interface Agency {
 export default function AgencyPage() {
     const [agencies, setAgencies] = useState<Agency[]>([]);
     const [loading, setLoading] = useState(true);
+    const [telegramUrl, setTelegramUrl] = useState("");
 
     useEffect(() => {
+        const fetchSystemSettings = async () => {
+            try {
+                const res = await fetch(`${API_BASE_URL}/settings?key=telegram_url`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setTelegramUrl(data.value || "");
+                }
+            } catch (error) {
+                console.error("Failed to fetch settings", error);
+            }
+        };
+        fetchSystemSettings();
         fetchAgencies();
     }, []);
 
@@ -54,15 +67,20 @@ export default function AgencyPage() {
             {/* Header */}
             <header className="bg-gradient-to-r from-rose-600 via-pink-600 to-blue-800 text-white py-12 px-4 shadow-lg">
                 <div className="container mx-auto">
-                    <div className="flex items-center justify-between mb-4">
+                    <div className="flex flex-col md:flex-row items-center justify-between mb-8 md:mb-4 gap-4">
                         <Link href="/" className="flex items-center gap-2 text-2xl font-bold">
                             <span className="text-white">Lao Angel</span>
                         </Link>
-                        <div className="flex gap-4">
-                            <button className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-full flex items-center gap-2 backdrop-blur-sm transition cursor-pointer">
-                                <Send size={18} /> เข้าร่วมบนโทรเลข
-                            </button>
-                            <Link href="/auth?mode=register" className="bg-[#d94459] hover:brightness-110 px-4 py-2 rounded-md font-bold shadow-md transition">
+                        <div className="flex gap-3 md:gap-4 w-full md:w-auto justify-center">
+                            <a
+                                href={telegramUrl || "#"}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="bg-white/20 hover:bg-white/30 px-3 py-1.5 md:px-4 md:py-2 text-sm md:text-base rounded-full flex items-center gap-2 backdrop-blur-sm transition cursor-pointer whitespace-nowrap"
+                            >
+                                <Send size={16} className="md:w-[18px] md:h-[18px]" /> เข้าร่วมบนโทรเลข
+                            </a>
+                            <Link href="/auth?mode=register" className="bg-[#d94459] hover:brightness-110 px-3 py-1.5 md:px-4 md:py-2 text-sm md:text-base rounded-md font-bold shadow-md transition whitespace-nowrap">
                                 สมัครสมาชิก
                             </Link>
                         </div>
@@ -92,9 +110,11 @@ export default function AgencyPage() {
                                     <div className="w-2 h-10 bg-[#d94459] rounded-sm" />
                                     <h2 className="text-3xl font-bold text-zinc-800 dark:text-zinc-200">{agency.name}</h2>
                                 </div>
-                                <button className="bg-[#0f391b] hover:bg-[#1a5c2b] text-white px-6 py-2 rounded font-medium transition shadow-sm cursor-pointer">
-                                    View All Models
-                                </button>
+                                <Link href={`/agency/${agency._id}`}>
+                                    <button className="bg-[#0f391b] hover:bg-[#1a5c2b] text-white px-6 py-2 rounded font-medium transition shadow-sm cursor-pointer">
+                                        View All Models
+                                    </button>
+                                </Link>
                             </div>
 
                             {/* Content Row */}
