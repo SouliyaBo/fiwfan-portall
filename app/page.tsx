@@ -42,6 +42,7 @@ export default function Home() {
   const [selectedStoryCreatorIndex, setSelectedStoryCreatorIndex] = useState<number | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState<any>({});
+  const [zones, setZones] = useState<any[]>([]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -52,7 +53,20 @@ export default function Home() {
     fetchCreators("", false);
     fetchAgencies();
     fetchStories();
+    fetchZones();
   }, []);
+
+  const fetchZones = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/creators/zones`);
+      if (res.ok) {
+        const data = await res.json();
+        setZones(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch zones", error);
+    }
+  };
 
 
   const fetchStories = async () => {
@@ -139,9 +153,6 @@ export default function Home() {
     }
   };
 
-  const handleSearch = () => {
-    fetchCreators(searchTerm);
-  };
 
   return (
     <div className="pb-20">
@@ -285,7 +296,31 @@ export default function Home() {
           fetchCreators(filters);
         }}
       />
-    </div >
+
+      {/* Zone Stats */}
+      <div className="mt-8 border-t border-white/10 pt-8 px-4">
+        <h2 className="text-xl md:text-2xl font-bold mb-6 text-white flex items-center gap-3">
+          <span className="w-1 h-8 bg-[#F84E6E] rounded-full"></span>
+          พบกับความงดงามที่น่าทึ่งในคืนนี้ได้ที่ laoangel.app
+        </h2>
+
+        {zones.length > 0 && (
+          <div className="flex flex-wrap gap-2 justify-center">
+            {zones.map((zone: any, i: number) => (
+              <Link
+                href={`/?location=${zone.name}`}
+                key={i}
+                className="flex items-center gap-2 bg-white text-zinc-800 px-3 py-1.5 rounded-full text-sm font-bold shadow-sm hover:scale-105 transition group"
+              >
+                <span className="group-hover:text-[#F84E6E] transition">{zone.name}</span>
+                <span className="bg-[#1e1b4b] text-white text-[10px] px-1.5 py-0.5 rounded-md font-bold min-w-[20px] text-center group-hover:bg-[#F84E6E] transition">
+                  {zone.count}
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>    </div >
   );
 }
 

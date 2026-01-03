@@ -121,6 +121,48 @@ export default function SidelineDetailPage() {
         }
     };
 
+    // Report State
+    const [isReportOpen, setIsReportOpen] = useState(false);
+    const [reportReason, setReportReason] = useState("");
+    const [reportDescription, setReportDescription] = useState("");
+    const [isReporting, setIsReporting] = useState(false);
+
+    const handleReport = async () => {
+        try {
+            setIsReporting(true);
+            const token = localStorage.getItem("token");
+            if (!token) {
+                toast.error("กรุณาเข้าสู่ระบบก่อนแจ้งรายงาน");
+                router.push("/auth");
+                return;
+            }
+
+            const res = await fetch(`${API_BASE_URL}/reports`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                body: JSON.stringify({
+                    targetType: "CREATOR",
+                    targetId: creator?.id || params.id,
+                    reason: reportReason,
+                    description: reportDescription
+                })
+            });
+
+            if (res.ok) {
+                toast.success("ส่งรายงานเรียบร้อยแล้ว แอดมินจะดำเนินการตรวจสอบ");
+                setIsReportOpen(false);
+                setReportReason("");
+                setReportDescription("");
+            } else {
+                toast.error("ส่งรายงานไม่สำเร็จ");
+            }
+        } catch (error) {
+            toast.error("Error submitting report");
+        } finally {
+            setIsReporting(false);
+        }
+    };
+
     const getBadgeStyle = (planType?: string) => {
         switch (planType) {
             case 'SUPER_STAR':
@@ -159,13 +201,28 @@ export default function SidelineDetailPage() {
 
     const [isFavorited, setIsFavorited] = useState(false);
     const [currentUser, setCurrentUser] = useState<any>(null);
+    const [zones, setZones] = useState<any[]>([]);
+
     useEffect(() => {
         if (params.id) {
             fetchCreator(params.id as string);
             recordView(params.id as string);
             checkIfFavorited(params.id as string);
         }
+        fetchZones();
     }, [params.id]);
+
+    const fetchZones = async () => {
+        try {
+            const res = await fetch(`${API_BASE_URL}/creators/zones`);
+            if (res.ok) {
+                const data = await res.json();
+                setZones(data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch zones", error);
+        }
+    };
 
     const recordView = async (id: string) => {
         const token = localStorage.getItem("token");
@@ -441,7 +498,7 @@ export default function SidelineDetailPage() {
                                     <span>Views: {creator.views || 0}</span>
                                     <span>Joined: {creator.createdAt ? new Date(creator.createdAt).toLocaleDateString('th-TH') : '-'}</span>
                                 </div>
-                                <button className="flex items-center gap-1 hover:text-red-500 transition cursor-pointer">
+                                <button onClick={() => setIsReportOpen(true)} className="flex items-center gap-1 hover:text-red-500 transition cursor-pointer">
                                     <Flag size={12} /> Report Profile
                                 </button>
                             </div>
@@ -662,6 +719,83 @@ export default function SidelineDetailPage() {
                     </div>
                 </div>
             )}
+            {/* REPORT MODAL */}
+            {isReportOpen && (
+                <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+                    <div className="bg-white dark:bg-[#1e1b4b] border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-xl font-bold flex items-center gap-2">
+                                <Flag className="text-[#F84E6E]" /> รายงานปัญหา
+                            </h3>
+                            <button onClick={() => setIsReportOpen(false)} className="text-zinc-400 hover:text-white transition">
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-bold mb-2 text-zinc-700 dark:text-zinc-300">หัวข้อการรายงาน</label>
+                                <select
+                                    value={reportReason}
+                                    onChange={(e) => setReportReason(e.target.value)}
+                                    className="w-full bg-zinc-100 dark:bg-black/20 border border-zinc-200 dark:border-white/10 rounded-xl px-4 py-3 text-zinc-900 dark:text-white focus:outline-none focus:border-[#F84E6E]"
+                                >
+                                    <option value="">เลือกหัวข้อ...</option>
+                                    <option value="Inappropriate Content">รูปภาพ/เนื้อหาไม่เหมาะสม</option>
+                                    <option value="Fake Profile">โปรไฟล์ปลอม/หลอกลวง</option>
+                                    <option value="Harassment">การคุกคาม/รบกวน</option>
+                                    <option value="Spam">สแปม/โฆษณา</option>
+                                    <option value="Other">อื่นๆ</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-bold mb-2 text-zinc-700 dark:text-zinc-300">รายละเอียดเพิ่มเติม</label>
+                                <textarea
+                                    value={reportDescription}
+                                    onChange={(e) => setReportDescription(e.target.value)}
+                                    rows={4}
+                                    placeholder="อธิบายรายละเอียด..."
+                                    className="w-full bg-zinc-100 dark:bg-black/20 border border-zinc-200 dark:border-white/10 rounded-xl px-4 py-3 text-zinc-900 dark:text-white focus:outline-none focus:border-[#F84E6E]"
+                                />
+                            </div>
+
+                            <button
+                                onClick={handleReport}
+                                disabled={!reportReason || isReporting}
+                                className="w-full bg-[#F84E6E] hover:bg-[#d43f5b] disabled:opacity-50 disabled:cursor-not-allowed text-white py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 mt-2"
+                            >
+                                {isReporting ? "กำลังส่ง..." : "ส่งรายงาน"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Zone Stats */}
+            <div className="container mx-auto max-w-6xl px-4 mt-8 border-t border-zinc-200 dark:border-white/10 pt-8">
+                <h2 className="text-xl md:text-2xl font-bold mb-6 text-zinc-900 dark:text-white flex items-center gap-3">
+                    <span className="w-1 h-8 bg-[#F84E6E] rounded-full"></span>
+                    พบกับความงดงามที่น่าทึ่งในคืนนี้ได้ที่ laoangel.app
+                </h2>
+
+                {zones.length > 0 && (
+                    <div className="flex flex-wrap gap-2 justify-center">
+                        {zones.map((zone: any, i: number) => (
+                            <Link
+                                href={`/?location=${zone.name}`}
+                                key={i}
+                                className="flex items-center gap-2 bg-white text-zinc-800 px-3 py-1.5 rounded-full text-sm font-bold shadow-sm hover:scale-105 transition group border border-zinc-200"
+                            >
+                                <span className="group-hover:text-[#F84E6E] transition">{zone.name}</span>
+                                <span className="bg-[#1e1b4b] text-white text-[10px] px-1.5 py-0.5 rounded-md font-bold min-w-[20px] text-center group-hover:bg-[#F84E6E] transition">
+                                    {zone.count}
+                                </span>
+                            </Link>
+                        ))}
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
