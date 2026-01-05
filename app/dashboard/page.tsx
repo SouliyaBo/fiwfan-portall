@@ -9,7 +9,7 @@ import { API_BASE_URL } from "../../lib/constants";
 import { toast } from 'react-toastify';
 import StoryViewer from "../../components/StoryViewer";
 
-import { LogOut, Plus, Image as ImageIcon, Send, Edit, Save, Upload, MapPin, Ruler, DollarSign, User as UserIcon, Phone, Instagram, Hash, Car, Train, Check, MoreHorizontal, Heart, MessageCircle, Share2, Camera, Trash2, Users, Building, ShieldCheck, Zap, Star, Eye, ChevronRight, ChevronLeft, Settings, Scissors } from "lucide-react";
+import { LogOut, Plus, Image as ImageIcon, Send, Edit, Save, X, MapPin, Ruler, DollarSign, User as UserIcon, Phone, Instagram, Hash, Car, Train, Check, MoreHorizontal, Heart, MessageCircle, Share2, Camera, Trash2, Users, Building, ShieldCheck, Zap, Star, Eye, ChevronRight, ChevronLeft, Settings, Scissors } from "lucide-react";
 
 // Checkbox Component for easy selection
 const CheckboxField = ({ label, checked, onChange, icon: Icon }: any) => (
@@ -159,8 +159,13 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
         }
     };
 
-    const submitKYC = async () => {
-        if (!confirm("ยืนยันการส่งเอกสารตรวจสอบตัวตน (จำลอง)?")) return;
+    const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
+
+    const handleRequestVerification = () => {
+        setIsVerificationModalOpen(true);
+    };
+
+    const confirmVerification = async () => {
         try {
             const token = localStorage.getItem("token");
             const res = await fetch(`${API_BASE_URL}/agencies/me/kyc`, {
@@ -170,6 +175,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                 const updated = await res.json();
                 setAgency(updated);
                 toast.info("ส่งเรื่องตรวจสอบแล้ว รอแอดมินอนุมัติ");
+                setIsVerificationModalOpen(false);
             }
         } catch (e) { toast.error("Error"); }
     };
@@ -347,7 +353,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                                                         เหตุผล: <span className="text-white font-medium">{agency.rejectionReason || "ไม่ระบุเหตุผล"}</span>
                                                     </p>
                                                     <button
-                                                        onClick={submitKYC}
+                                                        onClick={handleRequestVerification}
                                                         className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-sm font-bold shadow-lg transition"
                                                     >
                                                         ส่งเอกสารยืนยันตัวตนใหม่ (Resubmit KYC)
@@ -355,7 +361,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                                                 </div>
                                             ) : (
                                                 <button
-                                                    onClick={submitKYC}
+                                                    onClick={handleRequestVerification}
                                                     className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-bold shadow-lg"
                                                 >
                                                     ส่งเอกสารยืนยันตัวตน (KYC)
@@ -450,11 +456,68 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                     </div>
                 </div>
             </div>
+
+            {/* KYC Modal */}
+            {isVerificationModalOpen && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in">
+                    <div className="bg-white dark:bg-[#1e1b4b] w-full max-w-md p-6 rounded-2xl border border-white/10 shadow-2xl relative">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-xl font-bold flex items-center gap-2 text-white">
+                                <ShieldCheck className="text-[#F84E6E]" /> ยืนยันตัวตน (KYC)
+                            </h3>
+                            <button
+                                onClick={() => setIsVerificationModalOpen(false)}
+                                className="text-white/50 hover:text-white transition"
+                            >
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        <div className="space-y-4 mb-6">
+                            <div className="bg-[#F84E6E]/10 border border-[#F84E6E]/20 rounded-xl p-4 flex gap-3">
+                                <div className="min-w-[40px] h-10 rounded-full bg-[#F84E6E]/20 flex items-center justify-center text-[#F84E6E]">
+                                    <Building size={20} />
+                                </div>
+                                <div>
+                                    <h4 className="font-bold text-[#F84E6E] text-sm">ยืนยันสังกัดและเจ้าของ</h4>
+                                    <p className="text-xs text-white/70 mt-1">
+                                        ระบบจะทำการตรวจสอบข้อมูลสังกัดของคุณ <br />
+                                        เพื่อเปิดให้คุณสามารถรับสมาชิกเข้าสังกัดได้
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="text-center py-4">
+                                <p className="text-white/80 text-sm">
+                                    คุณต้องการส่งคำขอตรวจสอบตัวตน
+                                    <br />
+                                    <span className="font-bold text-white">(จำลองการส่งเอกสาร)</span> ใช่หรือไม่?
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                            <button
+                                onClick={() => setIsVerificationModalOpen(false)}
+                                className="py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold transition"
+                            >
+                                ยกเลิก
+                            </button>
+                            <button
+                                onClick={confirmVerification}
+                                className="py-3 rounded-xl bg-gradient-to-r from-[#F84E6E] to-[#e11d48] text-white font-bold shadow-lg hover:shadow-xl hover:scale-[1.02] transition"
+                            >
+                                ยืนยันการส่ง
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
 
-const GENDER_OPTIONS = ["Male", "Female", "LGBTQ+", "Other"];
+const GENDER_OPTIONS = ["ผู้หญิง", "ผู้ชาย", "LGBTQ+", "Other"];
 const SERVICE_TYPES = [
     "Sideline", "N-Kid", "Tour Guide", "Travel", "Rental Girlfriend",
     "Virtual Exciting Call", "Massage", "Naked Maid", "Dinner Date", "Long Term"
@@ -1756,8 +1819,20 @@ export default function Dashboard() {
                                 />
                             </div>
 
-                            <div className="grid grid-cols-3 gap-4">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <InputField label="อายุ" type="number" value={editForm.age} onChange={(e: any) => setEditForm({ ...editForm, age: parseInt(e.target.value) })} />
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-medium text-white/70 ml-1">เพศ (Gender)</label>
+                                    <select
+                                        value={editForm.gender}
+                                        onChange={(e) => setEditForm({ ...editForm, gender: e.target.value })}
+                                        className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none"
+                                    >
+                                        {GENDER_OPTIONS.map(g => (
+                                            <option key={g} value={g} className="bg-slate-900">{g}</option>
+                                        ))}
+                                    </select>
+                                </div>
                                 <InputField label="ราคา (เริ่มต้น)" type="number" value={editForm.price} onChange={(e: any) => setEditForm({ ...editForm, price: parseInt(e.target.value) })} icon={DollarSign} />
                                 <InputField label="ระยะเวลา" value={editForm.priceTime || ''} onChange={(e: any) => setEditForm({ ...editForm, priceTime: e.target.value })} placeholder="1 ชม." />
                             </div>

@@ -111,20 +111,20 @@ export default function Home() {
         if (search.gender) searchParams.append("gender", search.gender);
         if (search.province) searchParams.append("province", search.province);
         if (search.location) searchParams.append("location", search.location);
-        if (search.ageMin) searchParams.append("ageMin", search.ageMin.toString());
-        if (search.ageMax) searchParams.append("ageMax", search.ageMax.toString());
+        // if (search.ageMin) searchParams.append("ageMin", search.ageMin.toString());
+        // if (search.ageMax) searchParams.append("ageMax", search.ageMax.toString());
 
-        if (search.heightMin) searchParams.append("heightMin", search.heightMin.toString());
-        if (search.heightMax) searchParams.append("heightMax", search.heightMax.toString());
-        if (search.weightMin) searchParams.append("weightMin", search.weightMin.toString());
-        if (search.weightMax) searchParams.append("weightMax", search.weightMax.toString());
+        // if (search.heightMin) searchParams.append("heightMin", search.heightMin.toString());
+        // if (search.heightMax) searchParams.append("heightMax", search.heightMax.toString());
+        // if (search.weightMin) searchParams.append("weightMin", search.weightMin.toString());
+        // if (search.weightMax) searchParams.append("weightMax", search.weightMax.toString());
 
-        if (search.chestMin) searchParams.append("chestMin", search.chestMin.toString());
-        if (search.chestMax) searchParams.append("chestMax", search.chestMax.toString());
-        if (search.waistMin) searchParams.append("waistMin", search.waistMin.toString());
-        if (search.waistMax) searchParams.append("waistMax", search.waistMax.toString());
-        if (search.hipsMin) searchParams.append("hipsMin", search.hipsMin.toString());
-        if (search.hipsMax) searchParams.append("hipsMax", search.hipsMax.toString());
+        // if (search.chestMin) searchParams.append("chestMin", search.chestMin.toString());
+        // if (search.chestMax) searchParams.append("chestMax", search.chestMax.toString());
+        // if (search.waistMin) searchParams.append("waistMin", search.waistMin.toString());
+        // if (search.waistMax) searchParams.append("waistMax", search.waistMax.toString());
+        // if (search.hipsMin) searchParams.append("hipsMin", search.hipsMin.toString());
+        // if (search.hipsMax) searchParams.append("hipsMax", search.hipsMax.toString());
       }
 
       const query = `?${searchParams.toString()}${prefsParam}`;

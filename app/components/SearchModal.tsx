@@ -14,18 +14,18 @@ export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalPr
         gender: "",
         province: "",
         location: "", // Zone
-        ageMin: 20,
-        ageMax: 60,
-        heightMin: 100,
-        heightMax: 200,
-        weightMin: 40,
-        weightMax: 100,
-        chestMin: 30,
-        chestMax: 60,
-        waistMin: 20,
-        waistMax: 50,
-        hipsMin: 30,
-        hipsMax: 60,
+        // ageMin: 20,
+        // ageMax: 60,
+        // heightMin: 100,
+        // heightMax: 200,
+        // weightMin: 40,
+        // weightMax: 100,
+        // chestMin: 30,
+        // chestMax: 60,
+        // waistMin: 20,
+        // waistMax: 50,
+        // hipsMin: 30,
+        // hipsMax: 60,
     });
 
     if (!isOpen) return null;
@@ -63,7 +63,7 @@ export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalPr
                     </div>
 
                     {/* Line ID */}
-                    <div>
+                    {/* <div>
                         <label className="block text-sm font-medium mb-1 text-zinc-700 dark:text-zinc-300">ไลน์ไอดี</label>
                         <div className="relative">
                             <input
@@ -74,7 +74,7 @@ export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalPr
                             />
                             <Hash className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
                         </div>
-                    </div>
+                    </div> */}
 
                     {/* Gender */}
                     <div>
@@ -85,8 +85,10 @@ export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalPr
                             className="w-full bg-zinc-50 dark:bg-black/30 border border-zinc-200 dark:border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] dark:text-white appearance-none cursor-pointer"
                         >
                             <option value="">ทั้งหมด</option>
-                            <option value="Female">ผู้หญิง</option>
-                            <option value="Ladyboy">สาวสอง</option>
+                            <option value="ผู้หญิง">ผู้หญิง</option>
+                            <option value="ผู้ชาย">ผู้ชาย</option>
+                            <option value="LGBTQ+">LGBTQ+</option>
+                            <option value="Other">อื่นๆ (Other)</option>
                         </select>
                     </div>
 
@@ -99,13 +101,13 @@ export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalPr
                             className="w-full bg-zinc-50 dark:bg-black/30 border border-zinc-200 dark:border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] dark:text-white appearance-none cursor-pointer"
                         >
                             <option value="">ทุกจังหวัด</option>
-                            <option value="Bangkok">กรุงเทพมหานคร</option>
-                            <option value="Nonthaburi">นนทบุรี</option>
-                            <option value="Pathum Thani">ปทุมธานี</option>
-                            <option value="Samut Prakan">สมุทรปราการ</option>
-                            <option value="Chonburi">ชลบุรี</option>
-                            <option value="Chiang Mai">เชียงใหม่</option>
-                            <option value="Phuket">ภูเก็ต</option>
+                            <option value="กรุงเทพมหานคร">กรุงเทพมหานคร</option>
+                            <option value="นนทบุรี">นนทบุรี</option>
+                            <option value="ปทุมธานี">ปทุมธานี</option>
+                            <option value="สมุทรปราการ">สมุทรปราการ</option>
+                            <option value="ชลบุรี">ชลบุรี</option>
+                            <option value="เชียงใหม่">เชียงใหม่</option>
+                            <option value="ภูเก็ต">ภูเก็ต</option>
                         </select>
                     </div>
 
@@ -124,7 +126,7 @@ export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalPr
                     </div>
 
                     {/* Age Range */}
-                    <div>
+                    {/* <div>
                         <label className="block text-sm font-medium mb-1 text-zinc-700 dark:text-zinc-300">
                             ช่วงอายุ: <span className="text-[#F84E6E]">{filters.ageMin} - {filters.ageMax} ปี</span>
                         </label>
@@ -152,10 +154,10 @@ export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalPr
                                 className="w-full accent-[#F84E6E] h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer"
                             />
                         </div>
-                    </div>
+                    </div> */}
 
                     {/* Height & Weight */}
-                    <div className="grid grid-cols-2 gap-4">
+                    {/* <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium mb-1 text-zinc-700 dark:text-zinc-300">
                                 ส่วนสูง: <span className="text-[#F84E6E]">{filters.heightMin || 100} - {filters.heightMax || 200} ซม.</span>
@@ -182,10 +184,10 @@ export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalPr
                                 className="w-full accent-[#F84E6E] h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer"
                             />
                         </div>
-                    </div>
+                    </div> */}
 
                     {/* Proportions */}
-                    <div className="space-y-3">
+                    {/* <div className="space-y-3">
                         <div>
                             <label className="block text-sm font-medium mb-1 text-zinc-700 dark:text-zinc-300">
                                 หน้าอก: <span className="text-[#F84E6E]">{filters.chestMin || 30} - {filters.chestMax || 60} นิ้ว</span>
@@ -225,7 +227,7 @@ export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalPr
                                 className="w-full accent-[#F84E6E] h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer"
                             />
                         </div>
-                    </div>
+                    </div> */}
 
                     {/* Submit Button */}
                     <button

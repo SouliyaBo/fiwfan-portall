@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Eye, EyeOff, Loader2, MessageCircle, AlertCircle } from "lucide-react";
 import { API_BASE_URL } from "../../lib/constants";
+import TelegramLoginButton from "../components/TelegramLoginButton";
 
 // Schemas
 const loginSchema = z.object({
@@ -89,13 +90,29 @@ function AuthForm() {
     }, [roleWatch]);
 
 
-    // Check if user is already logged in
+
+    // Check if user is already logged in or returning from Telegram auth
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (token) {
-            // router.push("/feed"); // Commented out for dev
+            // router.push("/feed"); 
         }
-    }, [router]);
+
+        // Handle Telegram Redirect Login
+        const tgId = searchParams.get("id");
+        const tgHash = searchParams.get("hash");
+        if (tgId && tgHash) {
+            const telegramUser = {
+                id: searchParams.get("id"),
+                first_name: searchParams.get("first_name"),
+                username: searchParams.get("username"),
+                photo_url: searchParams.get("photo_url"),
+                auth_date: searchParams.get("auth_date"),
+                hash: searchParams.get("hash"),
+            };
+            handleTelegramAuth(telegramUser);
+        }
+    }, [router, searchParams]);
 
     const onLoginSubmit = async (data: z.infer<typeof loginSchema>) => {
         setIsLoading(true);
@@ -221,6 +238,31 @@ function AuthForm() {
         }
     };
 
+    const handleTelegramAuth = async (user: any) => {
+        setIsLoading(true);
+        setError("");
+        try {
+            const res = await fetch(`${API_BASE_URL}/auth/telegram`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(user),
+            });
+
+            const result = await res.json();
+
+            if (!res.ok) throw new Error(result.message || "การเข้าสู่ระบบด้วย Telegram ล้มเหลว");
+
+            localStorage.setItem("token", result.token);
+            localStorage.setItem("user", JSON.stringify(result.user));
+
+            router.push("/dashboard");
+
+        } catch (err: any) {
+            setError(err.message);
+            setIsLoading(false);
+        }
+    };
+
     return (
         <div className="w-full max-w-md bg-white rounded-lg shadow-xl overflow-hidden text-zinc-800">
             {/* Tabs */}
@@ -240,12 +282,36 @@ function AuthForm() {
             </div>
 
             <div className="p-8">
+
                 {/* Social Login */}
                 <div className="space-y-3 mb-6">
-                    <button className="w-full bg-[#06c755] text-white font-bold py-2.5 rounded-lg flex items-center justify-center gap-2 hover:brightness-105 transition cursor-pointer">
-                        <MessageCircle size={24} className="fill-white" />
-                        <span>เข้าสู่ระบบด้วย Line</span>
-                    </button>
+                    <div className="flex flex-col items-center w-full gap-2">
+                        <div className="flex justify-center w-full min-h-[40px]">
+                            <TelegramLoginButton
+                                botName="lao_angel_bot"
+                                onAuth={handleTelegramAuth}
+                                buttonSize="large"
+                            />
+                        </div>
+                        {/* Dev Bypass Button */}
+                        {process.env.NODE_ENV === 'development' && (
+                            <button
+                                type="button"
+                                onClick={() => handleTelegramAuth({
+                                    id: 123456789,
+                                    first_name: "Test User",
+                                    username: "test_user",
+                                    photo_url: "",
+                                    auth_date: Math.floor(Date.now() / 1000),
+                                    hash: "mock_hash_for_dev"
+                                })}
+                                className="text-xs text-gray-400 hover:text-pink-500 underline cursor-pointer"
+                            >
+                                [Dev Only] Simulate Telegram Login (Bypass Widget)
+                            </button>
+                        )}
+                    </div>
+
                     <button className="w-full bg-[#db4437] text-white font-bold py-2.5 rounded-lg flex items-center justify-center gap-2 hover:brightness-105 transition cursor-pointer">
                         <span className="font-serif font-black text-xl">G</span>
                         <span>เข้าสู่ระบบด้วย Gmail</span>
