@@ -102,14 +102,21 @@ function AuthForm() {
         const tgId = searchParams.get("id");
         const tgHash = searchParams.get("hash");
         if (tgId && tgHash) {
-            const telegramUser = {
+            const rawParams = {
                 id: searchParams.get("id"),
                 first_name: searchParams.get("first_name"),
+                last_name: searchParams.get("last_name"),
                 username: searchParams.get("username"),
                 photo_url: searchParams.get("photo_url"),
                 auth_date: searchParams.get("auth_date"),
                 hash: searchParams.get("hash"),
             };
+
+            // Filter out null values to ensure hash calculation matches
+            const telegramUser = Object.fromEntries(
+                Object.entries(rawParams).filter(([_, v]) => v !== null)
+            );
+
             handleTelegramAuth(telegramUser);
         }
     }, [router, searchParams]);
