@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Menu, MapPin, Users, Award, MessageCircle, Send, LogOut, ChevronRight, X, User } from "lucide-react";
-
+import { API_BASE_URL } from "../lib/constants";
 import { usePathname, useRouter } from 'next/navigation';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
@@ -28,19 +28,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         const fetchSettings = async () => {
             try {
-                // Determine API URL based on environment or hardcoded if simple
-                const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
-
                 // Telegram
                 try {
-                    const res = await fetch(`${API_URL}/settings?key=telegram_url`);
+                    const res = await fetch(`${API_BASE_URL}/settings?key=telegram_url`);
                     const data = await res.json();
                     if (data && data.value) setTelegramUrl(data.value);
                 } catch (e) { console.error(e); }
 
                 // Locations
                 try {
-                    const res = await fetch(`${API_URL}/settings/locations`);
+                    const res = await fetch(`${API_BASE_URL}/settings/locations`);
                     if (res.ok) {
                         const data = await res.json();
                         setLocations(data);
@@ -49,7 +46,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
                 // Zone Stats
                 try {
-                    const res = await fetch(`${API_URL}/creators/zones`);
+                    const res = await fetch(`${API_BASE_URL}/creators/zones`);
                     if (res.ok) {
                         const data = await res.json();
                         // Convert array [{name, count}] to object {name: count}
