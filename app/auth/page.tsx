@@ -52,11 +52,16 @@ function AuthForm() {
     const router = useRouter();
     const token = searchParams.get("token");
     const initialMode = searchParams.get("mode") as "login" | "register" | "forgot-password" | "reset" || "login";
-    const [mode, setMode] = useState<"login" | "register" | "forgot-password" | "reset">(initialMode);
+    const [mode, setMode] = useState<"login" | "register" | "forgot-password" | "reset" | "telegram-register">(initialMode);
     const [successMessage, setSuccessMessage] = useState("");
 
     // Watch role to conditionally show creatorType
     const [selectedRole, setSelectedRole] = useState<"USER" | "CREATOR">("USER");
+
+    // Telegram Reg Data
+    const [telegramRegData, setTelegramRegData] = useState<any>(null);
+    const [tgRole, setTgRole] = useState<"USER" | "CREATOR">("USER");
+    const [tgCreatorType, setTgCreatorType] = useState<"INDIVIDUAL" | "AGENCY">("INDIVIDUAL");
 
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
@@ -257,6 +262,14 @@ function AuthForm() {
 
             const result = await res.json();
 
+            if (res.status === 202 && result.isNewUser) {
+                // New User -> Show Role Selection
+                setTelegramRegData(result.telegramData);
+                setMode("telegram-register");
+                setIsLoading(false);
+                return;
+            }
+
             if (!res.ok) throw new Error(result.message || "การเข้าสู่ระบบด้วย Telegram ล้มเหลว");
 
             localStorage.setItem("token", result.token);
@@ -270,66 +283,181 @@ function AuthForm() {
         }
     };
 
+    const onTelegramRegisterConfirm = async () => {
+        if (!telegramRegData) return;
+        setIsLoading(true);
+        try {
+            const res = await fetch(`${API_BASE_URL}/auth/telegram/register`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    telegramData: telegramRegData,
+                    role: tgRole,
+                    creatorType: tgCreatorType
+                }),
+            });
+
+            const result = await res.json();
+            if (!res.ok) throw new Error(result.message || "การลงทะเบียนล้มเหลว");
+
+            localStorage.setItem("token", result.token);
+            localStorage.setItem("user", JSON.stringify(result.user));
+
+            router.push("/dashboard");
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
     return (
         <div className="w-full max-w-md bg-white rounded-lg shadow-xl overflow-hidden text-zinc-800">
             {/* Tabs */}
-            <div className="flex border-b">
-                <button
-                    onClick={() => { setMode("login"); setError(""); }}
-                    className={`flex-1 py-4 text-center font-bold text-lg cursor-pointer transition ${mode === "login" ? "text-[#F84E6E] border-b-2 border-[#F84E6E]" : "text-gray-400 hover:text-gray-600"}`}
-                >
-                    เข้าสู่ระบบ
-                </button>
-                <button
-                    onClick={() => { setMode("register"); setError(""); }}
-                    className={`flex-1 py-4 text-center font-bold text-lg cursor-pointer transition ${mode === "register" ? "text-[#F84E6E] border-b-2 border-[#F84E6E]" : "text-gray-400 hover:text-gray-600"}`}
-                >
-                    ลงทะเบียน
-                </button>
-            </div>
+            {mode !== 'telegram-register' && (
+                <div className="flex border-b">
+                    <button
+                        onClick={() => { setMode("login"); setError(""); }}
+                        className={`flex-1 py-4 text-center font-bold text-lg cursor-pointer transition ${mode === "login" ? "text-[#F84E6E] border-b-2 border-[#F84E6E]" : "text-gray-400 hover:text-gray-600"}`}
+                    >
+                        เข้าสู่ระบบ
+                    </button>
+                    <button
+                        onClick={() => { setMode("register"); setError(""); }}
+                        className={`flex-1 py-4 text-center font-bold text-lg cursor-pointer transition ${mode === "register" ? "text-[#F84E6E] border-b-2 border-[#F84E6E]" : "text-gray-400 hover:text-gray-600"}`}
+                    >
+                        ลงทะเบียน
+                    </button>
+                </div>
+            )}
+            {mode === 'telegram-register' && (
+                <div className="flex border-b">
+                    <div className="flex-1 py-4 text-center font-bold text-lg text-[#F84E6E] border-b-2 border-[#F84E6E]">
+                        ยืนยันข้อมูลการสมัคร
+                    </div>
+                </div>
+            )}
 
             <div className="p-8">
 
-                {/* Social Login */}
-                <div className="space-y-3 mb-6">
-                    <div className="flex flex-col items-center w-full gap-2">
-                        <div className="flex justify-center w-full min-h-[40px]">
-                            <TelegramLoginButton
-                                botName="lao_angel_bot"
-                                onAuth={handleTelegramAuth}
-                                buttonSize="large"
-                            />
+                {mode === "telegram-register" ? (
+                    <div className="space-y-6 animate-in fade-in zoom-in-95 duration-200">
+                        <div className="text-center">
+                            <h3 className="text-xl font-bold">สวัสดี, {telegramRegData?.first_name}</h3>
+                            <p className="text-sm text-gray-500">กรุณาเลือกประเภทบัญชีของคุณเพื่อดำเนินการต่อ</p>
                         </div>
-                        {/* Dev Bypass Button */}
-                        {process.env.NODE_ENV === 'development' && (
-                            <button
-                                type="button"
-                                onClick={() => handleTelegramAuth({
-                                    id: 123456789,
-                                    first_name: "Test User",
-                                    username: "test_user",
-                                    photo_url: "",
-                                    auth_date: Math.floor(Date.now() / 1000),
-                                    hash: "mock_hash_for_dev"
-                                })}
-                                className="text-xs text-gray-400 hover:text-pink-500 underline cursor-pointer"
-                            >
-                                [Dev Only] Simulate Telegram Login (Bypass Widget)
-                            </button>
+
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-3">ประเภทผู้ใช้:</label>
+                            <div className="grid grid-cols-2 gap-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setTgRole("USER")}
+                                    className={`p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition ${tgRole === "USER" ? "border-pink-500 bg-pink-50 text-pink-700" : "border-gray-200 hover:border-gray-300"}`}
+                                >
+                                    <span className="text-lg">🏕️</span>
+                                    <span className="font-bold">นักท่องเที่ยว</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setTgRole("CREATOR")}
+                                    className={`p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition ${tgRole === "CREATOR" ? "border-pink-500 bg-pink-50 text-pink-700" : "border-gray-200 hover:border-gray-300"}`}
+                                >
+                                    <span className="text-lg">💃</span>
+                                    <span className="font-bold">ครีเอเตอร์/โม</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        {tgRole === "CREATOR" && (
+                            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 animate-in slide-in-from-top-2">
+                                <label className="block text-sm font-bold text-gray-700 mb-2">รูปแบบการรับงาน:</label>
+                                <div className="flex gap-4">
+                                    <label className="flex items-center gap-2 cursor-pointer bg-white p-2 px-3 rounded border border-gray-200 shadow-sm w-full justify-center">
+                                        <input
+                                            type="radio"
+                                            name="tgCreatorType"
+                                            checked={tgCreatorType === "INDIVIDUAL"}
+                                            onChange={() => setTgCreatorType("INDIVIDUAL")}
+                                            className="w-4 h-4 text-pink-600 focus:ring-pink-500"
+                                        />
+                                        <span className="text-sm font-medium">รับงานเอง (รายบุคคล)</span>
+                                    </label>
+                                    <label className="flex items-center gap-2 cursor-pointer bg-white p-2 px-3 rounded border border-gray-200 shadow-sm w-full justify-center">
+                                        <input
+                                            type="radio"
+                                            name="tgCreatorType"
+                                            checked={tgCreatorType === "AGENCY"}
+                                            onChange={() => setTgCreatorType("AGENCY")}
+                                            className="w-4 h-4 text-pink-600 focus:ring-pink-500"
+                                        />
+                                        <span className="text-sm font-medium">สังกัดโมเดลลิ่ง</span>
+                                    </label>
+                                </div>
+                            </div>
                         )}
+
+                        <button
+                            onClick={onTelegramRegisterConfirm}
+                            disabled={isLoading}
+                            className="w-full bg-[#1e1b4b] text-white font-bold py-3 rounded-lg hover:bg-[#2d2a6e] transition flex items-center justify-center gap-2 mt-4"
+                        >
+                            {isLoading && <Loader2 className="animate-spin" size={20} />}
+                            ยืนยันการสมัคร
+                        </button>
+
+                        <button
+                            onClick={() => { setMode("login"); setTelegramRegData(null); }}
+                            className="w-full text-gray-500 text-sm hover:text-gray-700 transition mt-2"
+                        >
+                            ยกเลิก
+                        </button>
+
                     </div>
+                ) : (
+                    <>
+                        {/* Social Login */}
+                        <div className="space-y-3 mb-6">
+                            <div className="flex flex-col items-center w-full gap-2">
+                                <div className="flex justify-center w-full min-h-[40px]">
+                                    <TelegramLoginButton
+                                        botName="lao_angel_bot"
+                                        onAuth={handleTelegramAuth}
+                                        buttonSize="large"
+                                    />
+                                </div>
+                                {/* Dev Bypass Button */}
+                                {process.env.NODE_ENV === 'development' && (
+                                    <button
+                                        type="button"
+                                        onClick={() => handleTelegramAuth({
+                                            id: 123456789,
+                                            first_name: "Test User",
+                                            username: "test_user",
+                                            photo_url: "",
+                                            auth_date: Math.floor(Date.now() / 1000),
+                                            hash: "mock_hash_for_dev"
+                                        })}
+                                        className="text-xs text-gray-400 hover:text-pink-500 underline cursor-pointer"
+                                    >
+                                        [Dev Only] Simulate Telegram Login (Bypass Widget)
+                                    </button>
+                                )}
+                            </div>
 
-                    <button className="w-full bg-[#db4437] text-white font-bold py-2.5 rounded-lg flex items-center justify-center gap-2 hover:brightness-105 transition cursor-pointer">
-                        <span className="font-serif font-black text-xl">G</span>
-                        <span>เข้าสู่ระบบด้วย Gmail</span>
-                    </button>
-                </div>
+                            <button className="w-full bg-[#db4437] text-white font-bold py-2.5 rounded-lg flex items-center justify-center gap-2 hover:brightness-105 transition cursor-pointer">
+                                <span className="font-serif font-black text-xl">G</span>
+                                <span>เข้าสู่ระบบด้วย Gmail</span>
+                            </button>
+                        </div>
 
-                <div className="relative flex py-2 items-center mb-6">
-                    <div className="flex-grow border-t border-gray-200"></div>
-                    <span className="flex-shrink-0 mx-4 text-gray-400 text-sm">หรือ</span>
-                    <div className="flex-grow border-t border-gray-200"></div>
-                </div>
+                        <div className="relative flex py-2 items-center mb-6">
+                            <div className="flex-grow border-t border-gray-200"></div>
+                            <span className="flex-shrink-0 mx-4 text-gray-400 text-sm">หรือ</span>
+                            <div className="flex-grow border-t border-gray-200"></div>
+                        </div>
+                    </>
+                )}
 
                 {error && (
                     <div className="bg-red-50 text-red-500 p-3 rounded-lg flex items-center gap-2 mb-4 text-sm">
