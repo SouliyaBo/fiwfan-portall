@@ -777,9 +777,9 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                 <SidebarItem id="reviews" label="รีวิวของฉัน" icon={Star} />
                                 <SidebarItem id="favorites" label="รายการโปรด" icon={Heart} />
                                 <SidebarItem id="preferences" label="ตั้งค่าฟิลเตอร์" icon={Settings} />
-                                <button onClick={() => window.open(telegramUrl, '_blank')} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/5 transition">
+                                {/* <button onClick={() => window.open(telegramUrl, '_blank')} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/5 transition">
                                     <Send size={18} /> เข้าร่วมบน Telegram
-                                </button>
+                                </button> */}
                                 <button onClick={onLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 transition mt-4">
                                     <LogOut size={18} /> ออกจากระบบ
                                 </button>
@@ -1301,8 +1301,9 @@ export default function Dashboard() {
                 headers: { "Authorization": `Bearer ${token}` }
             });
             if (res.ok) {
-                const sub = await res.json();
-                if (sub && sub.status === 'ACTIVE') {
+                const data = await res.json();
+                // data is { active, pending }
+                if (data && data.active) {
                     setHasSubscription(true);
                 } else {
                     setHasSubscription(false);
@@ -2076,19 +2077,14 @@ export default function Dashboard() {
                 ) : (
                     <div className="space-y-6">
                         {/* Action Buttons */}
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-4">
                             <button
                                 onClick={() => setIsEditing(true)}
                                 className="bg-white dark:bg-[#1e1b4b]/50 backdrop-blur border border-white/10 hover:bg-white/5 text-white py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-lg cursor-pointer"
                             >
                                 <Edit size={18} className="text-[#F84E6E] cursor-pointer" /> แก้ไขข้อมูล
                             </button>
-                            <button
-                                onClick={handleShareProfile}
-                                className="bg-white dark:bg-[#1e1b4b]/50 backdrop-blur border border-white/10 hover:bg-white/5 text-white py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-lg cursor-pointer"
-                            >
-                                <Share2 size={18} className="text-blue-400 cursor-pointer" /> แชร์โปรไฟล์
-                            </button>
+
                         </div>
 
                         {/* Subscription Status - Only show if hasSubscription is true or false logic needed? */}

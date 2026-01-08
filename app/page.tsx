@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { MessageCircle, ChevronRight, Search, Building2 } from "lucide-react";
+import { MessageCircle, ChevronRight, Search, Building2, Send } from "lucide-react";
 import { useEffect, useState } from "react";
 import { API_BASE_URL } from "../lib/constants";
 import { getImageUrl } from "../lib/images";
@@ -43,6 +43,7 @@ export default function Home() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState<any>({});
   const [zones, setZones] = useState<any[]>([]);
+  const [telegramUrl, setTelegramUrl] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -54,7 +55,22 @@ export default function Home() {
     fetchAgencies();
     fetchStories();
     fetchZones();
+    fetchTelegramUrl();
   }, []);
+
+  const fetchTelegramUrl = async () => {
+    try {
+      // Determine API URL based on environment or hardcoded if simple
+      // We can use API_BASE_URL which is already imported
+      const res = await fetch(`${API_BASE_URL}/settings?key=telegram_url`);
+      if (res.ok) {
+        const data = await res.json();
+        setTelegramUrl(data.value || "");
+      }
+    } catch (error) {
+      console.error("Failed to fetch settings", error);
+    }
+  };
 
   const fetchZones = async () => {
     try {
@@ -272,10 +288,12 @@ export default function Home() {
         )}
       </section>
 
-      {/* Floating Line Button */}
-      <a href="#" className="fixed bottom-6 right-6 w-14 h-14 bg-[#06c755] rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition z-40">
-        <MessageCircle size={32} className="text-white fill-white" />
-      </a>
+      {/* Floating Telegram Button */}
+      {telegramUrl && (
+        <a href={telegramUrl} target="_blank" rel="noopener noreferrer" className="fixed bottom-6 right-6 w-14 h-14 bg-[#229ED9] rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition z-40 animate-bounce">
+          <Send size={28} className="text-white fill-white ml-1 mt-1" />
+        </a>
+      )}
 
       {/* Story Viewer Modal */}
       {

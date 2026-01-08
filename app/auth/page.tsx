@@ -445,10 +445,6 @@ function AuthForm() {
                                 )}
                             </div>
 
-                            <button className="w-full bg-[#db4437] text-white font-bold py-2.5 rounded-lg flex items-center justify-center gap-2 hover:brightness-105 transition cursor-pointer">
-                                <span className="font-serif font-black text-xl">G</span>
-                                <span>เข้าสู่ระบบด้วย Gmail</span>
-                            </button>
                         </div>
 
                         <div className="relative flex py-2 items-center mb-6">

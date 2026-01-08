@@ -33,10 +33,28 @@ export default function PlansPage() {
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [slipFile, setSlipFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
+    const [subscriptionStatus, setSubscriptionStatus] = useState<{ active: any, pending: any } | null>(null);
 
     useEffect(() => {
         fetchPlans();
+        fetchSubscription();
     }, []);
+
+    const fetchSubscription = async () => {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        try {
+            const res = await fetch(`${API_BASE_URL}/payments/me`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setSubscriptionStatus(data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch subscription", error);
+        }
+    };
 
     const fetchPlans = async () => {
         try {
@@ -62,6 +80,11 @@ export default function PlansPage() {
     };
 
     const handlePayment = async () => {
+        if (subscriptionStatus?.pending) {
+            toast.info("คุณมีรายการที่รอการตรวจสอบอยู่แล้ว กรุณารอแอดมินดำเนินการ");
+            return;
+        }
+
         const plan = plans.find(p => p.id === selectedPlanId);
         if (!plan) return;
 
@@ -170,6 +193,18 @@ export default function PlansPage() {
                     <h1 className="text-3xl font-bold text-zinc-900 dark:text-white mb-2">เลือกแพ็กเกจที่ใช่ เพื่อดันยอดแฟนคลับของคุณ!</h1>
                     <p className="text-red-500 font-medium">คุณเข้าใกล้การมีรายได้ไปอีกขั้น โปรไฟล์ของคุณจะยังไม่แสดงผลจนกว่าจะเปิดใช้งาน เลือกแพ็กเกจและเปิดโปรไฟล์ของคุณให้เป็นสาธารณะได้เลย!</p>
                 </div>
+
+                {subscriptionStatus?.pending && (
+                    <div className="mb-8 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-4 flex items-center gap-3">
+                        <Loader2 className="text-yellow-600 dark:text-yellow-400 animate-spin" />
+                        <div>
+                            <h3 className="font-bold text-yellow-800 dark:text-yellow-400">อยู่ระหว่างการตรวจสอบ</h3>
+                            <p className="text-sm text-yellow-700 dark:text-yellow-500">
+                                คุณได้ส่งสลิปการโอนเงินไปแล้ว กรุณารอแอดมินตรวจสอบความถูกต้อง (รายการ: {subscriptionStatus.pending.planType})
+                            </p>
+                        </div>
+                    </div>
+                )}
 
                 <h2 className="text-xl font-bold text-zinc-700 dark:text-zinc-300 mb-6 uppercase tracking-wider">แพ็กเกจแนะนำ</h2>
 

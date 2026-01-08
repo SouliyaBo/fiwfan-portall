@@ -308,7 +308,12 @@ export default function SidelineDetailPage() {
             const res = await fetch(`${API_BASE_URL}/creators/recommended?excludeId=${excludeId}`);
             if (res.ok) {
                 const data = await res.json();
-                setRecommendedCreators(data);
+                // Filter out creators who don't have an active plan/subscription
+                const activeCreators = data.filter((c: any) =>
+                    c.activeSubscription?.status === 'ACTIVE' ||
+                    (c.isVerified && c.activeSubscription) // Fallback: if verified and has sub object
+                );
+                setRecommendedCreators(activeCreators);
             }
         } catch (error) {
             console.error("Error fetching recommended creators:", error);
