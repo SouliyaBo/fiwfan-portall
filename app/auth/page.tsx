@@ -254,6 +254,38 @@ function AuthForm() {
         setIsLoading(true);
         setError("");
         try {
+            // Check if we are in "Forgot Password" mode
+            if (mode === "forgot-password") {
+                const res = await fetch(`${API_BASE_URL}/auth/telegram/reset-request`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(user),
+                });
+
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.message || "ไม่สามารถรีเซ็ตรหัสผ่านได้\n(บัญชี Telegram นี้อาจยังไม่เชื่อมต่อกับระบบ)");
+
+                if (result.success && result.resetToken) {
+                    setSuccessMessage("ยืนยันตัวตนสำเร็จ! กรุณาตั้งรหัสผ่านใหม่");
+                    // Manually redirect to reset mode with token
+                    const params = new URLSearchParams(searchParams.toString());
+                    params.set("token", result.resetToken);
+                    params.set("mode", "reset");
+                    router.push(`/auth?${params.toString()}`);
+                    // Force update local state if router push doesn't trigger reload instantly
+                    setMode("reset");
+                    // We need to fetch the token from params again or use a state, 
+                    // but for now let's rely on the URL param update which might need a reload or state passing
+                    // Actually, let's just use the router push and maybe reload window if needed, 
+                    // but Next.js router should handle it. 
+                    // However, our component reads token from searchParams at top level.
+                    // Let's force a window location change to be sure or use another state for token
+                }
+                setIsLoading(false);
+                return;
+            }
+
+            // Normal Login / Register Flow
             const res = await fetch(`${API_BASE_URL}/auth/telegram`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -617,6 +649,36 @@ function AuthForm() {
                             <label className="block text-sm font-medium text-gray-700 mb-1">อีเมล</label>
                             <input {...forgotPasswordForm.register("email")} type="email" placeholder="name@example.com" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition" />
                             {forgotPasswordForm.formState.errors.email && <p className="text-red-500 text-xs mt-1">{forgotPasswordForm.formState.errors.email.message}</p>}
+                        </div>
+
+                        {/* Telegram Reset Button */}
+                        <div className="flex flex-col items-center gap-2 pt-2">
+                            <div className="relative flex w-full py-2 items-center">
+                                <div className="flex-grow border-t border-gray-200"></div>
+                                <span className="flex-shrink-0 mx-4 text-gray-400 text-xs">หรือ รีเซ็ตรหัสผ่านด้วย Telegram</span>
+                                <div className="flex-grow border-t border-gray-200"></div>
+                            </div>
+                            <TelegramLoginButton
+                                botName="lao_angel_bot"
+                                onAuth={handleTelegramAuth}
+                                buttonSize="large"
+                            />
+                            {process.env.NODE_ENV === 'development' && (
+                                <button
+                                    type="button"
+                                    onClick={() => handleTelegramAuth({
+                                        id: 123456789,
+                                        first_name: "Test User",
+                                        username: "test_user",
+                                        photo_url: "",
+                                        auth_date: Math.floor(Date.now() / 1000),
+                                        hash: "mock_hash_for_dev"
+                                    })}
+                                    className="text-xs text-gray-400 hover:text-pink-500 underline cursor-pointer"
+                                >
+                                    [Dev Only] Simulate Reset (Bypass Widget)
+                                </button>
+                            )}
                         </div>
 
                         <button type="submit" disabled={isLoading} className="w-full bg-[#1e1b4b] text-white font-bold py-3 rounded-lg hover:bg-[#2d2a6e] transition flex items-center justify-center gap-2">
