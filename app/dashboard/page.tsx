@@ -1850,7 +1850,8 @@ export default function Dashboard() {
                                                 const selectedLoc = availableLocations.find((l: any) => l.name === prov);
                                                 setAvailableZones(selectedLoc ? selectedLoc.zones : []);
                                             }}
-                                            className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none"
+                                            disabled={!hasSubscription}
+                                            className={`w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none ${!hasSubscription ? 'opacity-50 cursor-not-allowed' : ''}`}
                                         >
                                             <option value="" className="bg-slate-900">เลือกจังหวัด</option>
                                             {availableLocations.map((loc: any) => (
@@ -1865,26 +1866,36 @@ export default function Dashboard() {
                                 {editForm.province && (
                                     <div className="space-y-2">
                                         <label className="text-xs font-medium text-white/70 ml-1">โซนที่รับงาน (เลือกได้หลายโซน)</label>
-                                        <div className="p-4 bg-black/20 rounded-xl border border-white/10 max-h-40 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-2">
-                                            {availableZones.length > 0 ? availableZones.map((zone) => (
-                                                <div
-                                                    key={zone}
-                                                    onClick={() => {
-                                                        const currentZones = editForm.zones || [];
-                                                        if (currentZones.includes(zone)) {
-                                                            setEditForm({ ...editForm, zones: currentZones.filter(z => z !== zone) });
-                                                        } else {
-                                                            setEditForm({ ...editForm, zones: [...currentZones, zone] });
-                                                        }
-                                                    }}
-                                                    className={`px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition text-center border ${editForm.zones?.includes(zone) ? 'bg-[#F84E6E] border-[#F84E6E] text-white' : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'}`}
-                                                >
-                                                    {zone}
-                                                </div>
-                                            )) : (
-                                                <div className="col-span-3 text-center text-white/40 py-2">ไม่มีข้อมูลโซนสำหรับจังหวัดนี้</div>
-                                            )}
-                                        </div>
+
+                                        {!hasSubscription ? (
+                                            <div className="p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-center">
+                                                <p className="text-yellow-500 text-xs flex items-center justify-center gap-2">
+                                                    <Zap size={14} />
+                                                    ต้องมีแพ็กเกจเพื่อเลือกโซนรับงาน
+                                                </p>
+                                            </div>
+                                        ) : (
+                                            <div className="p-4 bg-black/20 rounded-xl border border-white/10 max-h-40 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                                {availableZones.length > 0 ? availableZones.map((zone) => (
+                                                    <div
+                                                        key={zone}
+                                                        onClick={() => {
+                                                            const currentZones = editForm.zones || [];
+                                                            if (currentZones.includes(zone)) {
+                                                                setEditForm({ ...editForm, zones: currentZones.filter(z => z !== zone) });
+                                                            } else {
+                                                                setEditForm({ ...editForm, zones: [...currentZones, zone] });
+                                                            }
+                                                        }}
+                                                        className={`px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition text-center border ${editForm.zones?.includes(zone) ? 'bg-[#F84E6E] border-[#F84E6E] text-white' : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'}`}
+                                                    >
+                                                        {zone}
+                                                    </div>
+                                                )) : (
+                                                    <div className="col-span-3 text-center text-white/40 py-2">ไม่มีข้อมูลโซนสำหรับจังหวัดนี้</div>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 )}
 
