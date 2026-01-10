@@ -66,12 +66,21 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     }, []);
 
     const getLocationItems = () => {
-        // Helper to attach count
-        const withCount = (name: string) => ({ name, count: zoneStats[name] || 0 });
-
-        return locations.map((l: any) => ({
-            header: l.name,
-            list: (l.zones || []).map(withCount)
+        // Now locations are Countries -> Provinces -> Zones
+        // We want Header = Country Name
+        // List = Province Names
+        return locations.map((country: any) => ({
+            header: country.name,
+            list: (country.provinces || []).map((p: any) => ({
+                name: p.name,
+                count: 0 // We don't have province-level counts readily available from /creators/zones (which returns zone counts)
+                // To get province count we'd need to sum up p.zones counts from zoneStats
+            })).map((p: any) => {
+                // Try to calculate count if possible
+                const provinceCount = (country.provinces.find((prov: any) => prov.name === p.name)?.zones || [])
+                    .reduce((acc: number, z: string) => acc + (zoneStats[z] || 0), 0);
+                return { ...p, count: provinceCount };
+            })
         }));
     };
 
@@ -259,7 +268,7 @@ function CollapsibleGroup({ header, list, onNavigate }: { header: string, list: 
             {isExpanded && (
                 <div className="flex flex-col gap-1 border-l border-white/10 pl-3 ml-3 mt-1 animate-in slide-in-from-top-1 duration-150">
                     {list.map((item, i) => (
-                        <Link key={i} href={`/?location=${item.name}`} onClick={onNavigate} className="flex items-center justify-between text-sm text-white/60 hover:text-white py-1.5 px-2 rounded hover:bg-white/5 group transition">
+                        <Link key={i} href={`/?province=${item.name}`} onClick={onNavigate} className="flex items-center justify-between text-sm text-white/60 hover:text-white py-1.5 px-2 rounded hover:bg-white/5 group transition">
                             <span>{item.name}</span>
                             {item.count > 0 && (
                                 <span className="bg-white/10 text-white group-hover:bg-[#F84E6E] group-hover:text-white px-2 py-0.5 rounded-full text-[10px] font-bold transition">

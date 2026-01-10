@@ -1,5 +1,6 @@
 import { X, Search, MapPin, Hash } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { API_BASE_URL } from "../../lib/constants";
 
 interface SearchModalProps {
     isOpen: boolean;
@@ -11,6 +12,7 @@ export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalPr
     const [filters, setFilters] = useState({
         name: "",
         lineId: "",
+        country: "",
         gender: "",
         province: "",
         location: "", // Zone
@@ -27,6 +29,23 @@ export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalPr
         // hipsMin: 30,
         // hipsMax: 60,
     });
+    const [availableCountries, setAvailableCountries] = useState<any[]>([]);
+    const [availableProvinces, setAvailableProvinces] = useState<any[]>([]);
+
+    useEffect(() => {
+        const fetchLocations = async () => {
+            try {
+                const res = await fetch(`${API_BASE_URL}/settings/locations`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setAvailableCountries(data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch locations", error);
+            }
+        };
+        fetchLocations();
+    }, []);
 
     if (!isOpen) return null;
 
@@ -92,6 +111,26 @@ export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalPr
                         </select>
                     </div>
 
+                    {/* Country */}
+                    <div>
+                        <label className="block text-sm font-medium mb-1 text-zinc-700 dark:text-zinc-300">ประเทศ</label>
+                        <select
+                            value={filters.country}
+                            onChange={(e) => {
+                                const country = e.target.value;
+                                setFilters({ ...filters, country, province: "" });
+                                const selectedCountry = availableCountries.find((c: any) => c.name === country);
+                                setAvailableProvinces(selectedCountry ? selectedCountry.provinces : []);
+                            }}
+                            className="w-full bg-zinc-50 dark:bg-black/30 border border-zinc-200 dark:border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] dark:text-white appearance-none cursor-pointer"
+                        >
+                            <option value="">ทุกประเทศ</option>
+                            {availableCountries.map((c: any) => (
+                                <option key={c.code} value={c.name}>{c.name}</option>
+                            ))}
+                        </select>
+                    </div>
+
                     {/* Province */}
                     <div>
                         <label className="block text-sm font-medium mb-1 text-zinc-700 dark:text-zinc-300">จังหวัด</label>
@@ -101,13 +140,9 @@ export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalPr
                             className="w-full bg-zinc-50 dark:bg-black/30 border border-zinc-200 dark:border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] dark:text-white appearance-none cursor-pointer"
                         >
                             <option value="">ทุกจังหวัด</option>
-                            <option value="กรุงเทพมหานคร">กรุงเทพมหานคร</option>
-                            <option value="นนทบุรี">นนทบุรี</option>
-                            <option value="ปทุมธานี">ปทุมธานี</option>
-                            <option value="สมุทรปราการ">สมุทรปราการ</option>
-                            <option value="ชลบุรี">ชลบุรี</option>
-                            <option value="เชียงใหม่">เชียงใหม่</option>
-                            <option value="ภูเก็ต">ภูเก็ต</option>
+                            {availableProvinces.map((p: any) => (
+                                <option key={p.id} value={p.name}>{p.name}</option>
+                            ))}
                         </select>
                     </div>
 

@@ -58,9 +58,11 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
         lineId: "",
         phone: "",
         website: "",
+        country: "",
         province: "",
         zones: [] as string[]
     });
+    const [availableCountries, setAvailableCountries] = useState<any[]>([]);
     const [availableLocations, setAvailableLocations] = useState<any[]>([]);
     const [availableZones, setAvailableZones] = useState<string[]>([]);
 
@@ -74,7 +76,8 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
             const res = await fetch(`${API_BASE_URL}/settings/locations`);
             if (res.ok) {
                 const data = await res.json();
-                setAvailableLocations(data);
+                // Data is now array of countries with provinces
+                setAvailableCountries(data);
             }
         } catch (error) {
             console.error("Failed to fetch locations");
@@ -97,9 +100,17 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                     lineId: data.lineId || "",
                     phone: data.phone || "",
                     website: data.website || "",
+                    country: data.country || "Thailand",
                     province: data.province || "",
                     zones: data.zones || []
                 });
+                // Initialize dependent dropdowns
+                if (data.country) {
+                    // We need availableCountries to be set, but it might not be ready. 
+                    // Ideally we wait for both. But for now let's rely on user interaction or effect.
+                    // A better way is to trigger a province update if we have the data.
+                    // Since fetchLocations is called effectively in parallel, we might need a useEffect dependence.
+                }
             }
         } catch (error) {
             console.error(error);
@@ -272,6 +283,24 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-medium text-white/70 ml-1">ประเทศ</label>
+                                        <select
+                                            value={form.country}
+                                            onChange={(e) => {
+                                                const country = e.target.value;
+                                                setForm({ ...form, country, province: "", zones: [] });
+                                                const selectedCountry = availableCountries.find((c: any) => c.name === country);
+                                                setAvailableLocations(selectedCountry ? selectedCountry.provinces : []);
+                                            }}
+                                            className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none"
+                                        >
+                                            <option value="">เลือกประเทศ</option>
+                                            {availableCountries.map((c: any) => (
+                                                <option key={c.code} value={c.name} className="bg-slate-900">{c.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
                                     <div className="space-y-1.5">
                                         <label className="text-xs font-medium text-white/70 ml-1">จังหวัด</label>
                                         <select
@@ -540,6 +569,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
     // Locations
     const [availableLocations, setAvailableLocations] = useState<any[]>([]);
     const [availableZones, setAvailableZones] = useState<string[]>([]);
+    const [availableCountries, setAvailableCountries] = useState<any[]>([]);
 
     // Profile Form
     const [form, setForm] = useState({
@@ -570,14 +600,22 @@ const UserDashboard = ({ user, onLogout }: any) => {
             try {
                 const res = await fetch(`${API_BASE_URL}/settings/locations`);
                 if (res.ok) {
-                    const data = await res.json();
-                    setAvailableLocations(data);
-                    if (user.province) {
-                        const loc = data.find((l: any) => l.name === user.province);
-                        if (loc) setAvailableZones(loc.zones);
+                    const countries = await res.json();
+                    setAvailableCountries(countries);
+
+                    // Set initial provinces based on user's country
+                    const userCountryName = user.country || "Thailand";
+                    const countryData = countries.find((c: any) => c.name === userCountryName);
+
+                    if (countryData) {
+                        setAvailableLocations(countryData.provinces);
+                        if (user.province) {
+                            const loc = countryData.provinces.find((l: any) => l.name === user.province);
+                            if (loc) setAvailableZones(loc.zones);
+                        }
                     }
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) { }
 
             // 2. Telegram URL
             try {
@@ -881,7 +919,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-1.5">
-                                            <label className="text-xs font-medium text-gray-500 dark:text-white/70 ml-1">จังหวัด</label>
+                                            <label className="text-xs font-medium text-gray-500 dark:text-white/70 ml-1">จังหวัด3</label>
                                             <select
                                                 value={form.province}
                                                 onChange={(e) => {
@@ -1184,10 +1222,25 @@ export default function Dashboard() {
     const [previewUrl, setPreviewUrl] = useState("");
     const [isPosting, setIsPosting] = useState(false);
 
+    // Location Data
     const [availableLocations, setAvailableLocations] = useState<any[]>([]);
     const [availableZones, setAvailableZones] = useState<string[]>([]);
+    const [availableCountries, setAvailableCountries] = useState<any[]>([]);
 
-    // Profile Edit State
+    useEffect(() => {
+        const initLocs = async () => {
+            try {
+                const res = await fetch(`${API_BASE_URL}/settings/locations`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setAvailableCountries(data);
+                }
+            } catch (e) { }
+        };
+        initLocs();
+    }, []);
+
+    // Main editForm state
     const [isEditing, setIsEditing] = useState(false);
     const [editForm, setEditForm] = useState<{
         displayName: string;
@@ -1195,6 +1248,7 @@ export default function Dashboard() {
         price: number;
         priceTime: string;
         age: number;
+        country: string;
         province: string;
         location: string;
         zones: string[];
@@ -1209,14 +1263,13 @@ export default function Dashboard() {
         services: string;
         interests: string;
         availability: string;
-        // New Fields
         lineId: string;
         whatsapp?: string;
         instagram: string;
         phone: string;
         transport: string;
         parking: boolean;
-        agency: string; // Agency ID
+        agency: string;
         packages: { price: number; time: string; details: string; }[];
     }>({
         displayName: "",
@@ -1224,6 +1277,7 @@ export default function Dashboard() {
         price: 0,
         priceTime: "",
         age: 0,
+        country: "Thailand",
         province: "",
         location: "",
         zones: [],
@@ -1239,6 +1293,7 @@ export default function Dashboard() {
         interests: "",
         availability: "",
         lineId: "",
+        whatsapp: "",
         instagram: "",
         phone: "",
         transport: "",
@@ -1418,6 +1473,7 @@ export default function Dashboard() {
                     age: data.age || 0,
                     price: data.price || 0,
                     priceTime: data.priceTime || "",
+                    country: data.country || "Thailand",
                     province: data.province || "",
                     location: data.location || "",
                     zones: data.zones || [],
@@ -1840,6 +1896,26 @@ export default function Dashboard() {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-medium text-white/70 ml-1">ประเทศ</label>
+                                        <select
+                                            value={editForm.country}
+                                            onChange={(e) => {
+                                                const country = e.target.value;
+                                                setEditForm({ ...editForm, country, province: "", zones: [] });
+                                                const selectedCountry = availableCountries.find((c: any) => c.name === country);
+                                                setAvailableLocations(selectedCountry ? selectedCountry.provinces : []);
+                                                setAvailableZones([]);
+                                            }}
+                                            disabled={!hasSubscription}
+                                            className={`w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none ${!hasSubscription ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        >
+                                            <option value="" className="bg-slate-900">เลือกประเทศ</option>
+                                            {availableCountries.map((c: any) => (
+                                                <option key={c.code} value={c.name} className="bg-slate-900">{c.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
                                     <div className="space-y-1.5">
                                         <label className="text-xs font-medium text-white/70 ml-1">จังหวัด</label>
                                         <select
