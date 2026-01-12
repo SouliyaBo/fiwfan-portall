@@ -213,7 +213,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             )}
 
             {/* Main Content Payload */}
-            <div className="pt-16">
+            <div className={!isAuthPage ? "pt-16" : ""}>
                 {children}
             </div>
 

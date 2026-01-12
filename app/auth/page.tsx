@@ -761,7 +761,7 @@ function AuthForm() {
 
 const AuthPage = () => {
     return (
-        <div className="flex min-h-screen items-center justify-center bg-[#0f0c29] bg-gradient-to-r from-[#0f0c29] via-[#302b63] to-[#24243e] px-4 py-12 relative overflow-hidden">
+        <div className="flex min-h-screen items-start md:items-center justify-center bg-[#0f0c29] bg-gradient-to-r from-[#0f0c29] via-[#302b63] to-[#24243e] px-4 pt-24 md:pt-0 relative overflow-hidden">
             {/* Background Decorations */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
                 <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-500/20 rounded-full blur-[100px] animate-pulse"></div>
