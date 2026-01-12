@@ -3,11 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { MessageCircle, ChevronRight, Search, Building2, Send } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { API_BASE_URL } from "../lib/constants";
 import { getImageUrl } from "../lib/images";
 import StoryViewer from "../components/StoryViewer";
 import SearchModal from "@/app/components/SearchModal";
+import { Loader2 } from "lucide-react";
 
 interface Creator {
   _id: string;
@@ -34,7 +35,7 @@ interface Agency {
 import { useSearchParams } from 'next/navigation';
 import { getAuthToken } from "../lib/auth";
 
-export default function Home() {
+function HomeContent() {
   const searchParams = useSearchParams();
   const [creators, setCreators] = useState<Creator[]>([]);
   const [agencies, setAgencies] = useState<Agency[]>([]);
@@ -453,3 +454,10 @@ function CreatorCard({ creator }: { creator: Creator }) {
   )
 }
 
+export default function Home() {
+  return (
+    <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="animate-spin text-white" size={32} /></div>}>
+      <HomeContent />
+    </Suspense>
+  );
+}
