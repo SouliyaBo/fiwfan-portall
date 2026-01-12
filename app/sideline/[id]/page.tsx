@@ -406,7 +406,7 @@ export default function SidelineDetail() {
                                 </div>
 
                                 {/* Location Details */}
-                                <div className="bg-zinc-100 dark:bg-white/5 rounded-xl p-4 space-y-2 text-sm">
+                                <div className="bg-white/5 rounded-xl p-4 space-y-2 text-sm">
                                     <div className="flex items-center gap-2 font-medium">
                                         <MapPin size={16} className="text-red-500" />
                                         {creator.location || "โซนกรุงเทพ"}
@@ -443,10 +443,10 @@ export default function SidelineDetail() {
                                 {/* Service Packages */}
                                 {creator.packages && creator.packages.length > 0 && (
                                     <div className="space-y-2 pt-2 border-t border-zinc-200 dark:border-white/10 mt-2">
-                                        <h4 className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase">แพ็กเกจแนะนำ</h4>
+                                        <h4 className="text-xs font-bold text-zinc-400 uppercase">แพ็กเกจแนะนำ</h4>
                                         <div className="space-y-3">
                                             {creator.packages.map((pkg, idx) => (
-                                                <div key={idx} className="flex items-center p-4 rounded-2xl bg-zinc-50 dark:bg-white/5 border border-zinc-200 dark:border-white/5 gap-4">
+                                                <div key={idx} className="flex items-center p-4 rounded-2xl bg-white/5 border border-white/5 gap-4">
                                                     {/* Checkmark Circle */}
                                                     <div className="w-10 h-10 rounded-full bg-[#F84E6E]/20 flex items-center justify-center text-[#F84E6E] flex-shrink-0">
                                                         <Check size={20} strokeWidth={3} />
@@ -494,7 +494,7 @@ export default function SidelineDetail() {
                                     {currentUser?.role !== 'CREATOR' && (
                                         <button
                                             onClick={toggleFavorite}
-                                            className={`flex-1 border border-zinc-200 dark:border-white/10 hover:bg-zinc-50 dark:hover:bg-white/5 py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition cursor-pointer ${isFavorited ? 'text-[#F84E6E] border-[#F84E6E]/30 bg-[#F84E6E]/5' : ''}`}
+                                            className={`flex-1 border border-white/10 hover:bg-white/5 py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition cursor-pointer ${isFavorited ? 'text-[#F84E6E] border-[#F84E6E]/30 bg-[#F84E6E]/5' : ''}`}
                                         >
                                             <Heart size={18} fill={isFavorited ? "currentColor" : "none"} /> {isFavorited ? "Favourite" : "Add to favourite"}
                                         </button>
@@ -538,12 +538,12 @@ export default function SidelineDetail() {
 
                 <div className="space-y-6">
                     {creator?.reviews?.length === 0 ? (
-                        <div className="text-center py-10 bg-zinc-50 dark:bg-white/5 rounded-2xl text-zinc-400 border border-zinc-200 dark:border-white/5">
+                        <div className="text-center py-10 bg-white/5 rounded-2xl text-zinc-400 border border-white/5">
                             ยังไม่มีรีวิว เป็นคนแรกที่รีวิวน้องเลย!
                         </div>
                     ) : (
                         creator?.reviews?.map((review: any, i: number) => (
-                            <div key={i} className="bg-white dark:bg-[#1e1b4b]/50 backdrop-blur border border-zinc-200 dark:border-white/5 p-6 rounded-2xl shadow-sm">
+                            <div key={i} className="bg-[#1e1b4b]/50 backdrop-blur border border-white/5 p-6 rounded-2xl shadow-sm">
                                 <div className="flex justify-between items-start mb-4">
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-white/10 overflow-hidden relative">
@@ -603,9 +603,9 @@ export default function SidelineDetail() {
                                         router.push(`/sideline/${item._id}`);
                                         window.scrollTo(0, 0);
                                     }}
-                                    className="group bg-white dark:bg-white/5 rounded-2xl overflow-hidden border border-zinc-200 dark:border-white/5 hover:border-[#F84E6E]/50 transition duration-300 cursor-pointer shadow-sm hover:shadow-xl"
+                                    className="group bg-white/5 rounded-2xl overflow-hidden border border-white/5 hover:border-[#F84E6E]/50 transition duration-300 cursor-pointer shadow-sm hover:shadow-xl"
                                 >
-                                    <div className="aspect-[3/4] relative bg-zinc-100 dark:bg-white/5">
+                                    <div className="aspect-[3/4] relative bg-white/5">
                                         {(item.images?.[0] || item.user?.avatarUrl) ? (
                                             <Image
                                                 src={getImageUrl(item.images?.[0] || item.user?.avatarUrl)}
@@ -647,147 +647,151 @@ export default function SidelineDetail() {
             </div>
 
             {/* REVIEW MODAL */}
-            {isReviewOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
-                    <div className="bg-white dark:bg-[#0f172a] w-full max-w-lg rounded-3xl shadow-2xl p-6 relative max-h-[90vh] overflow-y-auto">
-                        <button
-                            onClick={() => setIsReviewOpen(false)}
-                            className="absolute top-4 right-4 p-2 bg-zinc-100 dark:bg-white/10 rounded-full hover:bg-zinc-200 dark:hover:bg-white/20 transition cursor-pointer"
-                        >
-                            <X size={20} />
-                        </button>
+            {
+                isReviewOpen && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+                        <div className="bg-[#0f172a] w-full max-w-lg rounded-3xl shadow-2xl p-6 relative max-h-[90vh] overflow-y-auto">
+                            <button
+                                onClick={() => setIsReviewOpen(false)}
+                                className="absolute top-4 right-4 p-2 bg-zinc-100 dark:bg-white/10 rounded-full hover:bg-zinc-200 dark:hover:bg-white/20 transition cursor-pointer"
+                            >
+                                <X size={20} />
+                            </button>
 
-                        <h3 className="text-xl font-bold mb-6 text-center">เขียนรีวิวให้น้อง</h3>
+                            <h3 className="text-xl font-bold mb-6 text-center">เขียนรีวิวให้น้อง</h3>
 
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium mb-1 dark:text-zinc-300">หัวข้อรีวิว</label>
-                                <input
-                                    value={reviewForm.title}
-                                    onChange={e => setReviewForm({ ...reviewForm, title: e.target.value })}
-                                    className="w-full bg-zinc-50 dark:bg-black/30 border border-zinc-200 dark:border-white/10 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[#F84E6E]"
-                                    placeholder="เช่น น้องน่ารักมากครับ..."
-                                />
-                            </div>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium mb-1 text-zinc-300">หัวข้อรีวิว</label>
+                                    <input
+                                        value={reviewForm.title}
+                                        onChange={e => setReviewForm({ ...reviewForm, title: e.target.value })}
+                                        className="w-full bg-black/30 border border-white/10 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-white"
+                                        placeholder="เช่น น้องน่ารักมากครับ..."
+                                    />
+                                </div>
 
-                            <div className="grid grid-cols-3 gap-2">
-                                {[
-                                    { label: "ตรงปก", key: "accuracyRating" },
-                                    { label: "บริการ", key: "serviceRating" },
-                                    { label: "คุ้มค่า", key: "valueRating" },
-                                ].map((field) => (
-                                    <div key={field.key} className="bg-zinc-50 dark:bg-white/5 p-3 rounded-xl text-center">
-                                        <div className="text-xs text-zinc-500 mb-1">{field.label}</div>
-                                        <div className="flex justify-center gap-1">
-                                            {[1, 2, 3, 4, 5].map((star) => (
-                                                <button
-                                                    key={star}
-                                                    onClick={() => setReviewForm({ ...reviewForm, [field.key]: star, rating: (reviewForm.rating + star) / 2 /* Approximate logic */ })}
-                                                    className={`cursor-pointer ${(reviewForm as any)[field.key] >= star ? 'text-yellow-400' : 'text-zinc-300 dark:text-zinc-600'}`}
-                                                >
-                                                    <Star size={16} className="fill-current" />
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium mb-1 dark:text-zinc-300">ความประทับใจ</label>
-                                <textarea
-                                    value={reviewForm.comment}
-                                    onChange={e => setReviewForm({ ...reviewForm, comment: e.target.value })}
-                                    className="w-full bg-zinc-50 dark:bg-black/30 border border-zinc-200 dark:border-white/10 rounded-xl p-3 h-32 focus:outline-none focus:ring-2 focus:ring-[#F84E6E]"
-                                    placeholder="เล่าประสบการณ์..."
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium mb-2 dark:text-zinc-300">รูปประกอบ (ถ้ามี)</label>
-                                <div className="flex gap-2">
-                                    <label className="w-20 h-20 flex flex-col items-center justify-center bg-zinc-50 dark:bg-white/5 border border-dashed border-zinc-300 dark:border-white/20 rounded-xl cursor-pointer hover:bg-zinc-100 transition">
-                                        <ImageIcon size={20} className="text-zinc-400" />
-                                        <span className="text-[10px] text-zinc-400 mt-1">Add</span>
-                                        <input type="file" multiple hidden onChange={(e) => {
-                                            if (e.target.files) setReviewImages(Array.from(e.target.files));
-                                        }} />
-                                    </label>
-                                    {reviewImages.map((file, i) => (
-                                        <div key={i} className="w-20 h-20 relative rounded-xl overflow-hidden border border-zinc-200 dark:border-white/10">
-                                            <Image src={URL.createObjectURL(file)} fill className="object-cover" alt="prev" />
+                                <div className="grid grid-cols-3 gap-2">
+                                    {[
+                                        { label: "ตรงปก", key: "accuracyRating" },
+                                        { label: "บริการ", key: "serviceRating" },
+                                        { label: "คุ้มค่า", key: "valueRating" },
+                                    ].map((field) => (
+                                        <div key={field.key} className="bg-zinc-50 dark:bg-white/5 p-3 rounded-xl text-center">
+                                            <div className="text-xs text-zinc-500 mb-1">{field.label}</div>
+                                            <div className="flex justify-center gap-1">
+                                                {[1, 2, 3, 4, 5].map((star) => (
+                                                    <button
+                                                        key={star}
+                                                        onClick={() => setReviewForm({ ...reviewForm, [field.key]: star, rating: (reviewForm.rating + star) / 2 /* Approximate logic */ })}
+                                                        className={`cursor-pointer ${(reviewForm as any)[field.key] >= star ? 'text-yellow-400' : 'text-zinc-300 dark:text-zinc-600'}`}
+                                                    >
+                                                        <Star size={16} className="fill-current" />
+                                                    </button>
+                                                ))}
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
-                            </div>
 
-                            <button
-                                onClick={handleReviewSubmit}
-                                disabled={submittingReview}
-                                className="w-full bg-[#F84E6E] hover:bg-[#d43f5b] text-white py-4 rounded-xl font-bold shadow-lg shadow-pink-500/20 mt-4 disabled:opacity-50 cursor-pointer"
-                            >
-                                {submittingReview ? "กำลังส่งรีวิว..." : "โพสต์รีวิว"}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-            {/* REPORT MODAL */}
-            {isReportOpen && (
-                <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-                    <div className="bg-white dark:bg-[#1e1b4b] border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-xl font-bold flex items-center gap-2">
-                                <Flag className="text-[#F84E6E]" /> รายงานปัญหา
-                            </h3>
-                            <button onClick={() => setIsReportOpen(false)} className="text-zinc-400 hover:text-white transition">
-                                <X size={24} />
-                            </button>
-                        </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-1 text-zinc-300">ความประทับใจ</label>
+                                    <textarea
+                                        value={reviewForm.comment}
+                                        onChange={e => setReviewForm({ ...reviewForm, comment: e.target.value })}
+                                        className="w-full bg-black/30 border border-white/10 rounded-xl p-3 h-32 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-white"
+                                        placeholder="เล่าประสบการณ์..."
+                                    />
+                                </div>
 
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-bold mb-2 text-zinc-700 dark:text-zinc-300">หัวข้อการรายงาน</label>
-                                <select
-                                    value={reportReason}
-                                    onChange={(e) => setReportReason(e.target.value)}
-                                    className="w-full bg-zinc-100 dark:bg-black/20 border border-zinc-200 dark:border-white/10 rounded-xl px-4 py-3 text-zinc-900 dark:text-white focus:outline-none focus:border-[#F84E6E]"
+                                <div>
+                                    <label className="block text-sm font-medium mb-2 dark:text-zinc-300">รูปประกอบ (ถ้ามี)</label>
+                                    <div className="flex gap-2">
+                                        <label className="w-20 h-20 flex flex-col items-center justify-center bg-zinc-50 dark:bg-white/5 border border-dashed border-zinc-300 dark:border-white/20 rounded-xl cursor-pointer hover:bg-zinc-100 transition">
+                                            <ImageIcon size={20} className="text-zinc-400" />
+                                            <span className="text-[10px] text-zinc-400 mt-1">Add</span>
+                                            <input type="file" multiple hidden onChange={(e) => {
+                                                if (e.target.files) setReviewImages(Array.from(e.target.files));
+                                            }} />
+                                        </label>
+                                        {reviewImages.map((file, i) => (
+                                            <div key={i} className="w-20 h-20 relative rounded-xl overflow-hidden border border-zinc-200 dark:border-white/10">
+                                                <Image src={URL.createObjectURL(file)} fill className="object-cover" alt="prev" />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={handleReviewSubmit}
+                                    disabled={submittingReview}
+                                    className="w-full bg-[#F84E6E] hover:bg-[#d43f5b] text-white py-4 rounded-xl font-bold shadow-lg shadow-pink-500/20 mt-4 disabled:opacity-50 cursor-pointer"
                                 >
-                                    <option value="">เลือกหัวข้อ...</option>
-                                    <option value="Inappropriate Content">รูปภาพ/เนื้อหาไม่เหมาะสม</option>
-                                    <option value="Fake Profile">โปรไฟล์ปลอม/หลอกลวง</option>
-                                    <option value="Harassment">การคุกคาม/รบกวน</option>
-                                    <option value="Spam">สแปม/โฆษณา</option>
-                                    <option value="Other">อื่นๆ</option>
-                                </select>
+                                    {submittingReview ? "กำลังส่งรีวิว..." : "โพสต์รีวิว"}
+                                </button>
                             </div>
-
-                            <div>
-                                <label className="block text-sm font-bold mb-2 text-zinc-700 dark:text-zinc-300">รายละเอียดเพิ่มเติม</label>
-                                <textarea
-                                    value={reportDescription}
-                                    onChange={(e) => setReportDescription(e.target.value)}
-                                    rows={4}
-                                    placeholder="อธิบายรายละเอียด..."
-                                    className="w-full bg-zinc-100 dark:bg-black/20 border border-zinc-200 dark:border-white/10 rounded-xl px-4 py-3 text-zinc-900 dark:text-white focus:outline-none focus:border-[#F84E6E]"
-                                />
-                            </div>
-
-                            <button
-                                onClick={handleReport}
-                                disabled={!reportReason || isReporting}
-                                className="w-full bg-[#F84E6E] hover:bg-[#d43f5b] disabled:opacity-50 disabled:cursor-not-allowed text-white py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 mt-2"
-                            >
-                                {isReporting ? "กำลังส่ง..." : "ส่งรายงาน"}
-                            </button>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
+            {/* REPORT MODAL */}
+            {
+                isReportOpen && (
+                    <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+                        <div className="bg-white dark:bg-[#1e1b4b] border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="text-xl font-bold flex items-center gap-2">
+                                    <Flag className="text-[#F84E6E]" /> รายงานปัญหา
+                                </h3>
+                                <button onClick={() => setIsReportOpen(false)} className="text-zinc-400 hover:text-white transition">
+                                    <X size={24} />
+                                </button>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-bold mb-2 text-zinc-700 dark:text-zinc-300">หัวข้อการรายงาน</label>
+                                    <select
+                                        value={reportReason}
+                                        onChange={(e) => setReportReason(e.target.value)}
+                                        className="w-full bg-zinc-100 dark:bg-black/20 border border-zinc-200 dark:border-white/10 rounded-xl px-4 py-3 text-zinc-900 dark:text-white focus:outline-none focus:border-[#F84E6E]"
+                                    >
+                                        <option value="">เลือกหัวข้อ...</option>
+                                        <option value="Inappropriate Content">รูปภาพ/เนื้อหาไม่เหมาะสม</option>
+                                        <option value="Fake Profile">โปรไฟล์ปลอม/หลอกลวง</option>
+                                        <option value="Harassment">การคุกคาม/รบกวน</option>
+                                        <option value="Spam">สแปม/โฆษณา</option>
+                                        <option value="Other">อื่นๆ</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-bold mb-2 text-zinc-700 dark:text-zinc-300">รายละเอียดเพิ่มเติม</label>
+                                    <textarea
+                                        value={reportDescription}
+                                        onChange={(e) => setReportDescription(e.target.value)}
+                                        rows={4}
+                                        placeholder="อธิบายรายละเอียด..."
+                                        className="w-full bg-zinc-100 dark:bg-black/20 border border-zinc-200 dark:border-white/10 rounded-xl px-4 py-3 text-zinc-900 dark:text-white focus:outline-none focus:border-[#F84E6E]"
+                                    />
+                                </div>
+
+                                <button
+                                    onClick={handleReport}
+                                    disabled={!reportReason || isReporting}
+                                    className="w-full bg-[#F84E6E] hover:bg-[#d43f5b] disabled:opacity-50 disabled:cursor-not-allowed text-white py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 mt-2"
+                                >
+                                    {isReporting ? "กำลังส่ง..." : "ส่งรายงาน"}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
 
             {/* Zone Stats */}
             <div className="container mx-auto max-w-6xl px-4 mt-8 border-t border-zinc-200 dark:border-white/10 pt-8">
-                <h2 className="text-xl md:text-2xl font-bold mb-6 text-zinc-900 dark:text-white flex items-center gap-3">
+                <h2 className="text-xl md:text-2xl font-bold mb-6 text-zinc-900 text-white flex items-center gap-3">
                     <span className="w-1 h-8 bg-[#F84E6E] rounded-full"></span>
                     พบกับความงดงามที่น่าทึ่งในคืนนี้ได้ที่ laoangel.app
                 </h2>
@@ -816,6 +820,6 @@ export default function SidelineDetail() {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 }

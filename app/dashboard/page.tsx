@@ -248,7 +248,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* Sidebar / Stats */}
                     <div className="space-y-6">
-                        <div className="bg-white dark:bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/5">
+                        <div className="bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/5">
                             <h3 className="text-gray-500 dark:text-gray-400 text-sm font-bold uppercase mb-4">สถิติสังกัด</h3>
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between">
@@ -269,7 +269,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                     {/* Main Content */}
                     <div className="md:col-span-2 space-y-6">
                         {isEditing ? (
-                            <div className="bg-white dark:bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/5 animate-in fade-in slide-in-from-bottom-4">
+                            <div className="bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/5 animate-in fade-in slide-in-from-bottom-4">
                                 <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2"><Edit className="text-[#F84E6E]" /> แก้ไขข้อมูลสังกัด</h3>
                                 <div className="space-y-4">
                                     <InputField label="ชื่อสังกัด" value={form.name} onChange={(e: any) => setForm({ ...form, name: e.target.value })} />
@@ -358,7 +358,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                                 </button>
                             </div>
                         ) : (
-                            <div className="bg-white dark:bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/5">
+                            <div className="bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/5">
                                 <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><Users className="text-[#F84E6E]" /> รายชื่อเด็กในสังกัด</h3>
 
                                 {/* Tabs or Sections */}
@@ -787,12 +787,12 @@ const UserDashboard = ({ user, onLogout }: any) => {
     );
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-[#020617]">
+        <div className="min-h-screen bg-[#020617]">
             <div className="container mx-auto px-4 py-8">
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                     {/* Sidebar */}
                     <div className="lg:col-span-1">
-                        <div className="bg-white dark:bg-[#1e1b4b]/50 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-white/5">
+                        <div className="bg-[#1e1b4b]/50 rounded-2xl p-6 shadow-sm border border-white/5">
                             <div className="flex flex-col items-center mb-8">
                                 <div className="w-24 h-24 rounded-full bg-gray-100 relative mb-4 group cursor-pointer overflow-hidden border-4 border-white shadow-lg">
                                     {user.avatarUrl ? (
@@ -829,7 +829,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                     <div className="lg:col-span-3">
                         {activeTab === 'dashboard' && (
                             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                <div className="bg-white dark:bg-[#1e1b4b]/50 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-white/5">
+                                <div className="bg-[#1e1b4b]/50 rounded-2xl p-6 shadow-sm border border-white/5">
                                     <h2 className="font-bold text-xl mb-2 dark:text-white">My Dashboard</h2>
                                     <p className="text-gray-500 text-sm">Welcome back! Here&apos;s your Lao Angel activity overview</p>
                                 </div>
@@ -837,7 +837,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <div
                                         onClick={() => setActiveTab('history')}
-                                        className="bg-white dark:bg-[#1e1b4b]/50 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-white/5 flex flex-col justify-between h-[140px] cursor-pointer hover:bg-white/5 transition"
+                                        className="bg-[#1e1b4b]/50 p-6 rounded-2xl shadow-sm border border-white/5 flex flex-col justify-between h-[140px] cursor-pointer hover:bg-white/5 transition"
                                     >
                                         <div className="flex justify-between items-start">
                                             <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Profiles Seen</span>
@@ -851,7 +851,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
 
                                     <div
                                         onClick={() => setActiveTab('reviews')}
-                                        className="bg-white dark:bg-[#1e1b4b]/50 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-white/5 flex flex-col justify-between h-[140px] cursor-pointer hover:bg-white/5 transition"
+                                        className="bg-[#1e1b4b]/50 p-6 rounded-2xl shadow-sm border border-white/5 flex flex-col justify-between h-[140px] cursor-pointer hover:bg-white/5 transition"
                                     >
                                         <div className="flex justify-between items-start">
                                             <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">My Reviews</span>
@@ -865,7 +865,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
 
                                     <div
                                         onClick={() => setActiveTab('favorites')}
-                                        className="bg-white dark:bg-[#1e1b4b]/50 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-white/5 flex flex-col justify-between h-[140px] cursor-pointer hover:bg-white/5 transition"
+                                        className="bg-[#1e1b4b]/50 p-6 rounded-2xl shadow-sm border border-white/5 flex flex-col justify-between h-[140px] cursor-pointer hover:bg-white/5 transition"
                                     >
                                         <div className="flex justify-between items-start">
                                             <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">My Favorites</span>

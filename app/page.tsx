@@ -122,7 +122,7 @@ function HomeContent() {
                 <Link
                   href={`/?location=${zone.name}`}
                   key={i}
-                  className="flex items-center gap-2 bg-white text-zinc-800 px-3 py-1.5 rounded-full text-sm font-bold shadow-sm hover:scale-105 transition group"
+                  className="flex items-center gap-2 bg-[#1e1b4b] text-white px-3 py-1.5 rounded-full text-sm font-bold shadow-sm hover:scale-105 transition group border border-white/10"
                 >
                   <span className="group-hover:text-[#F84E6E] transition">{zone.name}</span>
                   <span className="bg-[#1e1b4b] text-white text-[10px] px-1.5 py-0.5 rounded-md font-bold min-w-[20px] text-center group-hover:bg-[#F84E6E] transition">
@@ -237,7 +237,7 @@ function HomeContent() {
         <div className="relative max-w-md mx-auto px-4">
           <div
             onClick={() => setIsSearchOpen(true)}
-            className="w-full bg-white h-14 rounded-full flex items-center px-6 cursor-pointer shadow-lg hover:scale-105 transition duration-300"
+            className="w-full bg-[#1e1b4b]/80 h-14 rounded-full flex items-center px-6 cursor-pointer shadow-lg hover:scale-105 transition duration-300 border border-white/10 text-white"
           >
             <Search className="text-[#F84E6E] mr-3" />
             <span className="text-zinc-400 font-medium">ค้นหา ชื่อ, จังหวัด, โซน, อายุ...</span>

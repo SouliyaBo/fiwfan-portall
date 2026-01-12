@@ -349,7 +349,7 @@ function AuthForm() {
 
     return (
         <>
-            <div className="w-full max-w-md bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/20 overflow-hidden text-zinc-800 border border-white/20">
+            <div className="w-full max-w-md bg-[#1e1b4b]/90 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/20 overflow-hidden text-white border border-white/20">
                 {/* Tabs */}
                 {mode !== 'telegram-register' && (
                     <div className="flex border-b border-gray-200/50">
@@ -392,7 +392,7 @@ function AuthForm() {
                                     <button
                                         type="button"
                                         onClick={() => setTgRole("USER")}
-                                        className={`p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition ${tgRole === "USER" ? "border-pink-500 bg-pink-50 text-pink-700" : "border-gray-200 hover:border-gray-300"}`}
+                                        className={`p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition ${tgRole === "USER" ? "border-[#F84E6E] bg-[#F84E6E]/10 text-[#F84E6E]" : "border-white/10 hover:border-white/30 text-white"}`}
                                     >
                                         <span className="text-lg">🏕️</span>
                                         <span className="font-bold">นักท่องเที่ยว</span>
@@ -400,7 +400,7 @@ function AuthForm() {
                                     <button
                                         type="button"
                                         onClick={() => setTgRole("CREATOR")}
-                                        className={`p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition ${tgRole === "CREATOR" ? "border-pink-500 bg-pink-50 text-pink-700" : "border-gray-200 hover:border-gray-300"}`}
+                                        className={`p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition ${tgRole === "CREATOR" ? "border-[#F84E6E] bg-[#F84E6E]/10 text-[#F84E6E]" : "border-white/10 hover:border-white/30 text-white"}`}
                                     >
                                         <span className="text-lg">💃</span>
                                         <span className="font-bold">ครีเอเตอร์/โม</span>
@@ -487,9 +487,9 @@ function AuthForm() {
                             </div>
 
                             <div className="relative flex py-2 items-center mb-6">
-                                <div className="flex-grow border-t border-gray-200"></div>
+                                <div className="flex-grow border-t border-white/10"></div>
                                 <span className="flex-shrink-0 mx-4 text-gray-400 text-sm">หรือ</span>
-                                <div className="flex-grow border-t border-gray-200"></div>
+                                <div className="flex-grow border-t border-white/10"></div>
                             </div>
                         </>
                     )}
@@ -505,18 +505,18 @@ function AuthForm() {
                     {mode === "login" && (
                         <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">อีเมล</label>
-                                <input {...loginForm.register("email")} type="email" className="w-full px-5 py-3 border border-gray-200 bg-gray-50/50 rounded-xl focus:bg-white focus:ring-2 focus:ring-violet-500 focus:border-transparent outline-none transition-all placeholder:text-gray-400" placeholder="อีเมลของคุณ" />
+                                <label className="block text-sm font-medium text-gray-300 mb-1">อีเมล</label>
+                                <input {...loginForm.register("email")} type="email" className="w-full px-5 py-3 border border-white/10 bg-black/20 rounded-xl focus:bg-black/40 focus:ring-2 focus:ring-[#F84E6E] focus:border-transparent outline-none transition-all placeholder:text-white/30 text-white" placeholder="อีเมลของคุณ" />
                                 {loginForm.formState.errors.email && <p className="text-red-500 text-xs mt-1">{loginForm.formState.errors.email.message}</p>}
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน</label>
-                                <input {...loginForm.register("password")} type="password" className="w-full px-5 py-3 border border-gray-200 bg-gray-50/50 rounded-xl focus:bg-white focus:ring-2 focus:ring-violet-500 focus:border-transparent outline-none transition-all placeholder:text-gray-400" placeholder="รหัสผ่าน" />
+                                <label className="block text-sm font-medium text-gray-300 mb-1">รหัสผ่าน</label>
+                                <input {...loginForm.register("password")} type="password" className="w-full px-5 py-3 border border-white/10 bg-black/20 rounded-xl focus:bg-black/40 focus:ring-2 focus:ring-[#F84E6E] focus:border-transparent outline-none transition-all placeholder:text-white/30 text-white" placeholder="รหัสผ่าน" />
                                 {loginForm.formState.errors.password && <p className="text-red-500 text-xs mt-1">{loginForm.formState.errors.password.message}</p>}
                             </div>
 
                             <div className="flex items-center justify-between text-sm">
-                                <label className="flex items-center gap-2 cursor-pointer text-gray-600">
+                                <label className="flex items-center gap-2 cursor-pointer text-gray-400">
                                     <input
                                         type="checkbox"
                                         checked={rememberMe}
