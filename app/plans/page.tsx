@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Check, Star, ShieldCheck, Zap, X, Upload, Loader2, Copy } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { API_BASE_URL } from '../../lib/constants';
+import { getAuthToken } from "../../lib/auth";
 
 interface PlanPrice {
     duration: string;
@@ -41,7 +42,7 @@ export default function PlansPage() {
     }, []);
 
     const fetchSubscription = async () => {
-        const token = localStorage.getItem("token");
+        const token = getAuthToken();
         if (!token) return;
         try {
             const res = await fetch(`${API_BASE_URL}/payments/me`, {
@@ -112,7 +113,7 @@ export default function PlansPage() {
 
         setUploading(true);
         try {
-            const token = localStorage.getItem("token");
+            const token = getAuthToken();
 
             // 1. Get Presigned URL
             const presignRes = await fetch(`${API_BASE_URL}/files/presign-url`, {

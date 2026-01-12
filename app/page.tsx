@@ -32,6 +32,7 @@ interface Agency {
 }
 
 import { useSearchParams } from 'next/navigation';
+import { getAuthToken } from "../lib/auth";
 
 export default function Home() {
   const searchParams = useSearchParams();
@@ -47,9 +48,8 @@ export default function Home() {
   const [activeFilters, setActiveFilters] = useState<any>({});
   const [zones, setZones] = useState<any[]>([]);
   const [telegramUrl, setTelegramUrl] = useState("");
-
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = getAuthToken();
     if (token) {
       setIsLoggedIn(true);
       // setUsePreferences(true); // Don't auto-filter
@@ -162,7 +162,7 @@ export default function Home() {
   const fetchCreators = async (search: any = "", applyPrefs?: boolean) => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
+      const token = getAuthToken();
       const headers: any = {};
       if (token) headers["Authorization"] = `Bearer ${token}`;
 
@@ -452,3 +452,4 @@ function CreatorCard({ creator }: { creator: Creator }) {
     </Link>
   )
 }
+

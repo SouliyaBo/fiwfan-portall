@@ -5,8 +5,9 @@ import Link from "next/link";
 import { Menu, MapPin, Users, Award, MessageCircle, Send, LogOut, ChevronRight, X, User } from "lucide-react";
 import { API_BASE_URL } from "../lib/constants";
 import { usePathname, useRouter } from 'next/navigation';
+import { getAuthToken } from "../lib/auth";
 
-export default function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({ children }: { children: React.ReactNode }) {
     const router = useRouter();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [telegramUrl, setTelegramUrl] = useState("");
@@ -20,7 +21,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
     // Check login status on mount and when path changes
     useEffect(() => {
-        const token = localStorage.getItem("token");
+        const token = getAuthToken();
         setIsLoggedIn(!!token);
     }, [pathname]);
 

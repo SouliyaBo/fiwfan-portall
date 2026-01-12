@@ -10,6 +10,7 @@ import { getImageUrl } from "../../../lib/images";
 import { uploadS3File } from "../../../lib/upload";
 import { toast } from 'react-toastify';
 import { User, X, Image as ImageIcon } from "lucide-react";
+import { getAuthToken } from "../../../lib/auth";
 
 
 
@@ -55,8 +56,7 @@ interface CreatorDetail {
     };
 }
 
-export default function SidelineDetailPage() {
-    const params = useParams();
+export default function SidelineDetail({ params }: { params: { id: string } }) {
     const router = useRouter();
     const [creator, setCreator] = useState<CreatorDetail | null>(null);
     const [loading, setLoading] = useState(true);
@@ -80,7 +80,7 @@ export default function SidelineDetailPage() {
     const handleReviewSubmit = async () => {
         try {
             setSubmittingReview(true);
-            const token = localStorage.getItem("token");
+            const token = getAuthToken();
             if (!token) {
                 toast.error("กรุณาเข้าสู่ระบบก่อนรีวิว");
                 router.push("/auth");
@@ -130,7 +130,7 @@ export default function SidelineDetailPage() {
     const handleReport = async () => {
         try {
             setIsReporting(true);
-            const token = localStorage.getItem("token");
+            const token = getAuthToken();
             if (!token) {
                 toast.error("กรุณาเข้าสู่ระบบก่อนแจ้งรายงาน");
                 router.push("/auth");
@@ -232,7 +232,7 @@ export default function SidelineDetailPage() {
     };
 
     const recordView = async (id: string) => {
-        const token = localStorage.getItem("token");
+        const token = getAuthToken();
         if (!token) return;
         try {
             await fetch(`${API_BASE_URL}/users/views`, {
@@ -246,7 +246,7 @@ export default function SidelineDetailPage() {
     };
 
     const checkIfFavorited = async (id: string) => {
-        const token = localStorage.getItem("token");
+        const token = getAuthToken();
         if (!token) return;
         // Ideally we should have an endpoint to check this specific status or return it in getCreator
         // For now, let's fetch user profile to check favorites list
@@ -267,7 +267,7 @@ export default function SidelineDetailPage() {
     };
 
     const toggleFavorite = async () => {
-        const token = localStorage.getItem("token");
+        const token = getAuthToken();
         if (!token) {
             toast.error("กรุณาเข้าสู่ระบบ");
             router.push("/auth");

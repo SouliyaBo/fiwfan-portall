@@ -86,7 +86,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
 
     const fetchMyAgency = async () => {
         try {
-            const token = localStorage.getItem("token");
+            const token = getAuthToken();
             const res = await fetch(`${API_BASE_URL}/agencies/me`, {
                 headers: { "Authorization": `Bearer ${token}` }
             });
@@ -121,7 +121,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
 
     const handleUpdate = async () => {
         try {
-            const token = localStorage.getItem("token");
+            const token = getAuthToken();
             const res = await fetch(`${API_BASE_URL}/agencies/me`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
@@ -142,7 +142,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
         if (!e.target.files?.[0]) return;
         try {
             const url = await uploadS3File(e.target.files[0]);
-            const token = localStorage.getItem("token");
+            const token = getAuthToken();
             await fetch(`${API_BASE_URL}/agencies/me`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
@@ -158,7 +158,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
         if (!e.target.files?.[0]) return;
         try {
             const url = await uploadS3File(e.target.files[0]);
-            const token = localStorage.getItem("token");
+            const token = getAuthToken();
             await fetch(`${API_BASE_URL}/agencies/me`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
@@ -178,7 +178,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
 
     const confirmVerification = async () => {
         try {
-            const token = localStorage.getItem("token");
+            const token = getAuthToken();
             const res = await fetch(`${API_BASE_URL}/agencies/me/kyc`, {
                 method: "POST", headers: { "Authorization": `Bearer ${token}` }
             });
@@ -423,7 +423,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                                                                 onClick={async () => {
                                                                     if (!confirm("ยืนยันรับน้องเข้าสังกัด?")) return;
                                                                     try {
-                                                                        const token = localStorage.getItem("token");
+                                                                        const token = getAuthToken();
                                                                         await fetch(`${API_BASE_URL}/agencies/requests/${model._id}/approve`, {
                                                                             method: "POST", headers: { "Authorization": `Bearer ${token}` }
                                                                         });
@@ -438,7 +438,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                                                                 onClick={async () => {
                                                                     if (!confirm("ปฏิเสธคำขอ?")) return;
                                                                     try {
-                                                                        const token = localStorage.getItem("token");
+                                                                        const token = getAuthToken();
                                                                         await fetch(`${API_BASE_URL}/agencies/requests/${model._id}/reject`, {
                                                                             method: "POST", headers: { "Authorization": `Bearer ${token}` }
                                                                         });
@@ -642,7 +642,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
 
     const fetchDashboardStats = async () => {
         try {
-            const token = localStorage.getItem("token");
+            const token = getAuthToken();
             const res = await fetch(`${API_BASE_URL}/users/me/dashboard`, {
                 headers: { "Authorization": `Bearer ${token}` }
             });
@@ -658,7 +658,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
     const fetchMyReviews = async () => {
         try {
             setLoading(true);
-            const token = localStorage.getItem("token");
+            const token = getAuthToken();
             const res = await fetch(`${API_BASE_URL}/reviews/me`, {
                 headers: { "Authorization": `Bearer ${token}` }
             });
@@ -676,7 +676,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
     const fetchMyHistory = async () => {
         try {
             setLoading(true);
-            const token = localStorage.getItem("token");
+            const token = getAuthToken();
             const res = await fetch(`${API_BASE_URL}/users/history`, {
                 headers: { "Authorization": `Bearer ${token}` }
             });
@@ -694,7 +694,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
     const fetchMyFavorites = async () => {
         try {
             setLoading(true);
-            const token = localStorage.getItem("token");
+            const token = getAuthToken();
             const res = await fetch(`${API_BASE_URL}/users/favorites`, {
                 headers: { "Authorization": `Bearer ${token}` }
             });
@@ -712,7 +712,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
     const handleUpdate = async () => {
         try {
             setLoading(true);
-            const token = localStorage.getItem("token");
+            const token = getAuthToken();
             const res = await fetch(`${API_BASE_URL}/users/me`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
@@ -735,7 +735,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
         if (!e.target.files?.[0]) return;
         try {
             const url = await uploadS3File(e.target.files[0]);
-            const token = localStorage.getItem("token");
+            const token = getAuthToken();
             const res = await fetch(`${API_BASE_URL}/users/me`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
@@ -757,7 +757,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
     const handleSavePreferences = async () => {
         try {
             setLoading(true);
-            const token = localStorage.getItem("token");
+            const token = getAuthToken();
             const res = await fetch(`${API_BASE_URL}/users/me/preferences`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
@@ -1202,6 +1202,8 @@ const UserDashboard = ({ user, onLogout }: any) => {
     );
 };
 
+import { getAuthToken } from "../../lib/auth";
+
 export default function Dashboard() {
     const router = useRouter();
     const [user, setUser] = useState<any>(null);
@@ -1294,7 +1296,7 @@ export default function Dashboard() {
 
     useEffect(() => {
         const init = async () => {
-            const token = localStorage.getItem("token");
+            const token = getAuthToken();
             const storedUser = localStorage.getItem("user");
 
             if (!token || !storedUser) {
@@ -1383,7 +1385,7 @@ export default function Dashboard() {
 
     const fetchMyStories = async () => {
         try {
-            const token = localStorage.getItem("token");
+            const token = getAuthToken();
             const res = await fetch(`${API_BASE_URL}/stories/me`, {
                 headers: { "Authorization": `Bearer ${token}` }
             });
@@ -1402,7 +1404,7 @@ export default function Dashboard() {
         try {
             const file = e.target.files[0];
             const url = await uploadS3File(file, "stories");
-            const token = localStorage.getItem("token");
+            const token = getAuthToken();
 
             const mediaType = file.type.startsWith('video') ? 'video' : 'image';
 
@@ -1427,7 +1429,7 @@ export default function Dashboard() {
     const handleStoryDelete = async (id: string) => {
         if (!confirm("ต้องการลบสตอรี่นี้?")) return;
         try {
-            const token = localStorage.getItem("token");
+            const token = getAuthToken();
             await fetch(`${API_BASE_URL}/stories/${id}`, {
                 method: "DELETE",
                 headers: { "Authorization": `Bearer ${token}` }
@@ -1533,7 +1535,7 @@ export default function Dashboard() {
 
         setIsPosting(true);
         try {
-            const token = localStorage.getItem("token");
+            const token = getAuthToken();
             let imageUrl = previewUrl;
 
             if (selectedFile) {
@@ -1588,7 +1590,7 @@ export default function Dashboard() {
 
         try {
             const url = await uploadS3File(file);
-            const token = localStorage.getItem("token");
+            const token = getAuthToken();
             const res = await fetch(`${API_BASE_URL}/users/me`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
@@ -1614,7 +1616,7 @@ export default function Dashboard() {
 
         try {
             const url = await uploadS3File(file);
-            const token = localStorage.getItem("token");
+            const token = getAuthToken();
             const res = await fetch(`${API_BASE_URL}/creators/me`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
@@ -1640,7 +1642,7 @@ export default function Dashboard() {
             const uploadPromises = files.map(file => uploadS3File(file));
             const distinctUrls = await Promise.all(uploadPromises);
 
-            const token = localStorage.getItem("token");
+            const token = getAuthToken();
             const currentImages = creator?.images || [];
             const newImages = [...currentImages, ...distinctUrls];
 
@@ -1674,7 +1676,7 @@ export default function Dashboard() {
             const currentImages = creator?.images || [];
             const newImages = currentImages.filter((_: any, i: number) => i !== indexToDelete);
 
-            const token = localStorage.getItem("token");
+            const token = getAuthToken();
             const res = await fetch(`${API_BASE_URL}/creators/me`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
@@ -1695,7 +1697,7 @@ export default function Dashboard() {
 
     const handleProfileUpdate = async () => {
         try {
-            const token = localStorage.getItem("token");
+            const token = getAuthToken();
             const payload = {
                 ...editForm,
                 services: editForm.services.split(",").map((s: string) => s.trim()).filter((s: string) => s),

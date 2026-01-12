@@ -1,9 +1,10 @@
 import React from "react";
 import { API_BASE_URL } from "./constants";
+import { getAuthToken } from "./auth";
 
-export const uploadS3File = async (input: File | React.ChangeEvent<HTMLInputElement> | any, folder: string = "images"): Promise<string> => {
+export const uploadS3File = async (input: File | React.ChangeEvent<HTMLInputElement> | any, folder: string = "creators"): Promise<string> => {
     try {
-        const token = localStorage.getItem("token");
+        const token = getAuthToken();
         if (!token) throw new Error("No authentication token found");
 
         // 1. Resolve File Object

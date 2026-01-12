@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Star, CheckCircle2, MoreHorizontal, X, AlertTriangle } from "lucide-react";
 import { API_BASE_URL } from "../../lib/constants";
+import { getAuthToken } from "../../lib/auth";
 import { getImageUrl } from "../../lib/images";
 import { toast } from "react-toastify";
 
@@ -84,7 +85,7 @@ export default function CheckHomeworkPage() {
 
         try {
             setIsSubmitting(true);
-            const token = localStorage.getItem("token");
+            const token = getAuthToken();
             if (!token) {
                 toast.error("กรุณาเข้าสู่ระบบก่อนแจ้งปัญหา");
                 return;

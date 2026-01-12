@@ -10,6 +10,7 @@ import { Eye, EyeOff, Loader2, MessageCircle, AlertCircle, ChevronLeft } from "l
 import { API_BASE_URL } from "../../lib/constants";
 import TelegramLoginButton from "../components/TelegramLoginButton";
 import TermsModal from "@/components/TermsModal";
+import { setAuthSession, getAuthToken } from "../../lib/auth";
 
 // Schemas
 const loginSchema = z.object({
@@ -77,6 +78,7 @@ function AuthForm() {
     const [showPassword, setShowPassword] = useState(false);
     const [showTerms, setShowTerms] = useState(false);
     const [error, setError] = useState("");
+    const [rememberMe, setRememberMe] = useState(true);
 
     // Calculate max date for 20 years age restriction
     const today = new Date();
@@ -111,9 +113,9 @@ function AuthForm() {
 
     // Check if user is already logged in or returning from Telegram auth
     useEffect(() => {
-        const token = localStorage.getItem("token");
+        const token = getAuthToken();
         if (token) {
-            // router.push("/feed"); 
+            router.push("/dashboard");
         }
 
         // Handle Telegram Redirect Login
@@ -153,8 +155,7 @@ function AuthForm() {
 
             if (!res.ok) throw new Error(result.error || "อีเมลหรือรหัสผ่านไม่ถูกต้อง");
 
-            localStorage.setItem("token", result.token);
-            localStorage.setItem("user", JSON.stringify(result.user));
+            setAuthSession(result.token, result.user, rememberMe);
 
             router.push("/dashboard");
 
@@ -188,8 +189,7 @@ function AuthForm() {
 
             // Auto login logic
             if (result.token && result.user) {
-                localStorage.setItem("token", result.token);
-                localStorage.setItem("user", JSON.stringify(result.user));
+                setAuthSession(result.token, result.user, true);
                 router.push("/dashboard");
             } else {
                 router.push("/auth?mode=login");
@@ -311,8 +311,7 @@ function AuthForm() {
 
             if (!res.ok) throw new Error(result.message || "การเข้าสู่ระบบด้วย Telegram ล้มเหลว");
 
-            localStorage.setItem("token", result.token);
-            localStorage.setItem("user", JSON.stringify(result.user));
+            setAuthSession(result.token, result.user, true);
 
             router.push("/dashboard");
 
@@ -339,9 +338,7 @@ function AuthForm() {
             const result = await res.json();
             if (!res.ok) throw new Error(result.message || "การลงทะเบียนล้มเหลว");
 
-            localStorage.setItem("token", result.token);
-            localStorage.setItem("user", JSON.stringify(result.user));
-
+            setAuthSession(result.token, result.user, true); // Auto login defaults to persistent
             router.push("/dashboard");
         } catch (err: any) {
             setError(err.message);
@@ -520,7 +517,12 @@ function AuthForm() {
 
                             <div className="flex items-center justify-between text-sm">
                                 <label className="flex items-center gap-2 cursor-pointer text-gray-600">
-                                    <input type="checkbox" className="rounded border-gray-300 text-pink-500 focus:ring-pink-500" />
+                                    <input
+                                        type="checkbox"
+                                        checked={rememberMe}
+                                        onChange={(e) => setRememberMe(e.target.checked)}
+                                        className="rounded border-gray-300 text-pink-500 focus:ring-pink-500"
+                                    />
                                     จดจำฉัน
                                 </label>
                                 <button type="button" onClick={() => setMode("forgot-password")} className="text-pink-500 hover:underline cursor-pointer">ลืมรหัสผ่าน?</button>
