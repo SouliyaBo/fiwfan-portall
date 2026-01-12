@@ -58,10 +58,12 @@ function HomeContent() {
 
     // Parse query params
     const filters: any = {};
+    const country = searchParams.get('country');
     const province = searchParams.get('province');
     const location = searchParams.get('location'); // Zone
     const name = searchParams.get('name');
 
+    if (country) filters.country = country;
     if (province) filters.province = province;
     if (location) filters.location = location;
     if (name) filters.name = name;
@@ -178,6 +180,7 @@ function HomeContent() {
         if (search.name) searchParams.append("name", search.name);
         if (search.lineId) searchParams.append("lineId", search.lineId);
         if (search.gender) searchParams.append("gender", search.gender);
+        if (search.country) searchParams.append("country", search.country);
         if (search.province) searchParams.append("province", search.province);
         if (search.location) searchParams.append("location", search.location);
         // if (search.ageMin) searchParams.append("ageMin", search.ageMin.toString());

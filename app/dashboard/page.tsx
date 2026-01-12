@@ -194,7 +194,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
     if (loading) return <div>Loading Agency...</div>;
 
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-[#020617] pb-24">
+        <div className="min-h-screen bg-[#020617] pb-24">
             {/* Header / Banner */}
             <div className="bg-[#1e1b4b] text-white p-6 pb-8 rounded-b-[40px] shadow-2xl mb-8 relative overflow-hidden h-[300px]">
                 {agency?.bannerUrl ? (
@@ -215,7 +215,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                     </div>
 
                     <div className="flex items-end gap-6 pb-4">
-                        <div className="w-24 h-24 rounded-2xl bg-white p-1 relative group cursor-pointer shadow-lg">
+                        <div className="w-24 h-24 rounded-2xl bg-white/10 backdrop-blur p-1 relative group cursor-pointer shadow-lg">
                             <div className="w-full h-full rounded-xl bg-gray-100 overflow-hidden relative">
                                 {agency?.logoUrl ? (
                                     <Image src={getImageUrl(agency.logoUrl)} fill className="object-cover" alt="Logo" />
@@ -489,7 +489,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
             {/* KYC Modal */}
             {isVerificationModalOpen && (
                 <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in">
-                    <div className="bg-white dark:bg-[#1e1b4b] w-full max-w-md p-6 rounded-2xl border border-white/10 shadow-2xl relative">
+                    <div className="bg-[#1e1b4b] w-full max-w-md p-6 rounded-2xl border border-white/10 shadow-2xl relative">
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="text-xl font-bold flex items-center gap-2 text-white">
                                 <ShieldCheck className="text-[#F84E6E]" /> ยืนยันตัวตน (KYC)
@@ -572,10 +572,12 @@ const UserDashboard = ({ user, onLogout }: any) => {
     const [availableCountries, setAvailableCountries] = useState<any[]>([]);
 
     // Profile Form
+    // Profile Form
     const [form, setForm] = useState({
         displayName: user.displayName || "",
         age: user.age || "",
         gender: user.gender || "Male",
+        country: user.country || "Thailand",
         province: user.province || "",
         location: user.location || "",
         zones: user.zones || [] as string[]
@@ -898,18 +900,18 @@ const UserDashboard = ({ user, onLogout }: any) => {
                         )}
 
                         {activeTab === 'info' && (
-                            <div className="bg-white dark:bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/5 animate-in fade-in slide-in-from-bottom-4">
-                                <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-6 flex items-center gap-2"><Edit className="text-[#F84E6E]" /> แก้ไขข้อมูลส่วนตัว</h3>
+                            <div className="bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/5 animate-in fade-in slide-in-from-bottom-4">
+                                <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2"><Edit className="text-[#F84E6E]" /> แก้ไขข้อมูลส่วนตัว</h3>
                                 <div className="space-y-4">
                                     <InputField label="ชื่อที่ใช้แสดง" value={form.displayName} onChange={(e: any) => setForm({ ...form, displayName: e.target.value })} icon={UserIcon} />
                                     <div className="grid grid-cols-3 gap-4">
                                         <InputField label="อายุ" type="number" value={form.age} onChange={(e: any) => setForm({ ...form, age: Number(e.target.value) })} />
                                         <div className="space-y-1.5">
-                                            <label className="text-xs font-medium text-gray-500 dark:text-white/70 ml-1">เพศ</label>
+                                            <label className="text-xs font-medium text-white/70 ml-1">เพศ</label>
                                             <select
                                                 value={form.gender}
                                                 onChange={(e) => setForm({ ...form, gender: e.target.value })}
-                                                className="w-full bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-xl py-2.5 px-4 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none"
+                                                className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none"
                                             >
                                                 <option value="Male">ชาย (Male)</option>
                                                 <option value="Female">หญิง (Female)</option>
@@ -919,7 +921,26 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-1.5">
-                                            <label className="text-xs font-medium text-gray-500 dark:text-white/70 ml-1">จังหวัด3</label>
+                                            <label className="text-xs font-medium text-white/70 ml-1">ประเทศ</label>
+                                            <select
+                                                value={form.country}
+                                                onChange={(e) => {
+                                                    const country = e.target.value;
+                                                    setForm({ ...form, country, province: "", zones: [] });
+                                                    const selectedCountry = availableCountries.find((c: any) => c.name === country);
+                                                    setAvailableLocations(selectedCountry ? selectedCountry.provinces : []);
+                                                    setAvailableZones([]);
+                                                }}
+                                                className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none"
+                                            >
+                                                <option value="">เลือกประเทศ</option>
+                                                {availableCountries.map((c: any) => (
+                                                    <option key={c.code} value={c.name} className="bg-slate-900">{c.name}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <label className="text-xs font-medium text-white/70 ml-1">จังหวัด</label>
                                             <select
                                                 value={form.province}
                                                 onChange={(e) => {
@@ -928,7 +949,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                                     const selectedLoc = availableLocations.find((l: any) => l.name === prov);
                                                     setAvailableZones(selectedLoc ? selectedLoc.zones : []);
                                                 }}
-                                                className="w-full bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-xl py-2.5 px-4 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none"
+                                                className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none"
                                             >
                                                 <option value="">เลือกจังหวัด</option>
                                                 {availableLocations.map((loc: any) => (
@@ -936,14 +957,16 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                                 ))}
                                             </select>
                                         </div>
+                                    </div>
+                                    <div className="mt-4">
                                         <InputField label="รายละเอียดที่ตั้ง (เช่น ถนน, ซอย)" value={form.location} onChange={(e: any) => setForm({ ...form, location: e.target.value })} icon={MapPin} />
                                     </div>
 
                                     {/* Zone Selection */}
                                     {form.province && (
                                         <div className="space-y-2">
-                                            <label className="text-xs font-medium text-gray-500 dark:text-white/70 ml-1">โซนที่คุณรับงาน (เลือกได้หลายโซน)</label>
-                                            <div className="p-4 bg-gray-50 dark:bg-black/20 rounded-xl border border-gray-200 dark:border-white/10 max-h-40 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                            <label className="text-xs font-medium text-white/70 ml-1">โซนที่คุณรับงาน (เลือกได้หลายโซน)</label>
+                                            <div className="p-4 bg-black/20 rounded-xl border border-white/10 max-h-40 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-2">
                                                 {availableZones.length > 0 ? availableZones.map((zone) => (
                                                     <div
                                                         key={zone}
@@ -955,7 +978,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                                                 setForm({ ...form, zones: [...currentZones, zone] });
                                                             }
                                                         }}
-                                                        className={`px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition text-center border ${form.zones?.includes(zone) ? 'bg-[#F84E6E] border-[#F84E6E] text-white' : 'bg-white border-gray-200 text-gray-600 dark:bg-white/5 dark:border-white/10 dark:text-white/60 hover:bg-gray-100 dark:hover:bg-white/10'}`}
+                                                        className={`px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition text-center border ${form.zones?.includes(zone) ? 'bg-[#F84E6E] border-[#F84E6E] text-white' : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'}`}
                                                     >
                                                         {zone}
                                                     </div>
@@ -979,17 +1002,17 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                 {reviews.length > 0 ? (
                                     <div className="grid gap-4">
                                         {reviews.map((review: any) => (
-                                            <div key={review._id} className="bg-white dark:bg-[#1e1b4b]/50 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-white/5">
+                                            <div key={review._id} className="bg-[#1e1b4b]/50 p-6 rounded-2xl shadow-sm border border-white/5">
                                                 <div className="flex justify-between mb-4">
                                                     <div>
-                                                        <h4 className="font-bold text-gray-800 dark:text-white">To: {review.creator?.displayName}</h4>
+                                                        <h4 className="font-bold text-white">To: {review.creator?.displayName}</h4>
                                                         <div className="flex items-center gap-1 text-yellow-500 text-sm mt-1">
                                                             <Star size={14} fill="currentColor" /> {review.rating?.toFixed(1)}
                                                         </div>
                                                     </div>
                                                     <span className="text-xs text-gray-400">{new Date(review.createdAt).toLocaleDateString()}</span>
                                                 </div>
-                                                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">&quot;{review.comment}&quot;</p>
+                                                <p className="text-gray-300 text-sm mb-4">&quot;{review.comment}&quot;</p>
                                                 {review.images && review.images.length > 0 && (
                                                     <div className="flex gap-2 mt-2">
                                                         {review.images.map((img: string, i: number) => (
@@ -1016,14 +1039,14 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                 {favorites.length > 0 ? (
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                         {favorites.map((creator: any) => (
-                                            <div key={creator._id} onClick={() => router.push(`/sideline/${creator._id}`)} className="bg-white dark:bg-[#1e1b4b]/50 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-white/5 cursor-pointer hover:bg-white/5 transition flex items-center gap-4">
+                                            <div key={creator._id} onClick={() => router.push(`/sideline/${creator._id}`)} className="bg-[#1e1b4b]/50 p-4 rounded-xl shadow-sm border border-white/5 cursor-pointer hover:bg-white/5 transition flex items-center gap-4">
                                                 <div className="w-16 h-16 rounded-full bg-gray-800 overflow-hidden relative border border-white/10">
                                                     {(creator.images?.[0] || creator.user?.avatarUrl) && (
                                                         <Image src={getImageUrl(creator.images?.[0] || creator.user?.avatarUrl)} fill className="object-cover" alt="" />
                                                     )}
                                                 </div>
                                                 <div>
-                                                    <h4 className="font-bold text-gray-800 dark:text-white">{creator.displayName}</h4>
+                                                    <h4 className="font-bold text-white">{creator.displayName}</h4>
                                                     <p className="text-xs text-[#F84E6E]">Favorite</p>
                                                 </div>
                                             </div>
@@ -1048,7 +1071,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                             if (!creator) return null;
 
                                             return (
-                                                <div key={i} onClick={() => router.push(`/sideline/${creator._id}`)} className="bg-white dark:bg-[#1e1b4b]/50 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-white/5 cursor-pointer hover:bg-white/5 transition flex justify-between items-center">
+                                                <div key={i} onClick={() => router.push(`/sideline/${creator._id}`)} className="bg-[#1e1b4b]/50 p-4 rounded-xl shadow-sm border border-white/5 cursor-pointer hover:bg-white/5 transition flex justify-between items-center">
                                                     <div className="flex items-center gap-4">
                                                         <div className="w-12 h-12 rounded-lg bg-gray-800 overflow-hidden relative">
                                                             {(creator.images?.[0] || creator.user?.avatarUrl) && (
@@ -1056,7 +1079,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                                             )}
                                                         </div>
                                                         <div>
-                                                            <h4 className="font-bold text-gray-800 dark:text-white">{creator.displayName}</h4>
+                                                            <h4 className="font-bold text-white">{creator.displayName}</h4>
                                                             <p className="text-xs text-gray-500">Viewed {new Date(item.viewedAt).toLocaleDateString()}</p>
                                                         </div>
                                                     </div>
@@ -1089,7 +1112,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     {/* Column 1: Basics & Ranges */}
                                     <div className="space-y-8">
-                                        <div className="bg-white dark:bg-[#1e1b4b]/50 p-6 rounded-2xl border border-gray-100 dark:border-white/5 space-y-6">
+                                        <div className="bg-[#1e1b4b]/50 p-6 rounded-2xl border border-white/5 space-y-6">
                                             <h3 className="font-bold text-sm text-[#F84E6E] flex items-center gap-2">
                                                 <Users size={16} /> เพศที่สนใจ
                                             </h3>
@@ -1110,7 +1133,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                             </div>
                                         </div>
 
-                                        <div className="bg-white dark:bg-[#1e1b4b]/50 p-6 rounded-2xl border border-gray-100 dark:border-white/5 space-y-6">
+                                        <div className="bg-[#1e1b4b]/50 p-6 rounded-2xl border border-white/5 space-y-6">
                                             <h3 className="font-bold text-sm text-[#F84E6E] flex items-center gap-2">
                                                 <Scissors size={16} /> ช่วงสัดส่วนและอายุ
                                             </h3>
@@ -1150,7 +1173,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
 
                                     {/* Column 2: Service Types & Tags */}
                                     <div className="space-y-8">
-                                        <div className="bg-white dark:bg-[#1e1b4b]/50 p-6 rounded-2xl border border-gray-100 dark:border-white/5 space-y-6">
+                                        <div className="bg-[#1e1b4b]/50 p-6 rounded-2xl border border-white/5 space-y-6">
                                             <h3 className="font-bold text-sm text-[#F84E6E] flex items-center gap-2">
                                                 <Zap size={16} /> ประเภทงาน
                                             </h3>
@@ -1171,7 +1194,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                             </div>
                                         </div>
 
-                                        <div className="bg-white dark:bg-[#1e1b4b]/50 p-6 rounded-2xl border border-gray-100 dark:border-white/5 space-y-6">
+                                        <div className="bg-[#1e1b4b]/50 p-6 rounded-2xl border border-white/5 space-y-6">
                                             <h3 className="font-bold text-sm text-[#F84E6E] flex items-center gap-2">
                                                 <Hash size={16} /> แท็กความต้องการพิเศษ
                                             </h3>
@@ -1766,7 +1789,7 @@ export default function Dashboard() {
 
     // --- RENDER CREATOR VIEW ---
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-[#020617] pb-24">
+        <div className="min-h-screen bg-[#020617] pb-24">
             {/* Header */}
             <div className="bg-[#1e1b4b] text-white p-6 pb-8 rounded-b-[40px] shadow-2xl mb-8 relative overflow-hidden">
                 {/* Decorative bg or Banner */}
@@ -1796,7 +1819,7 @@ export default function Dashboard() {
                     </div>
 
                     <div className="flex items-center gap-6">
-                        <div className="w-24 h-24 shrink-0 rounded-full bg-white p-1 relative group cursor-pointer shadow-lg animate-in zoom-in-50 duration-500">
+                        <div className="w-24 h-24 shrink-0 rounded-full bg-white/10 backdrop-blur p-1 relative group cursor-pointer shadow-lg animate-in zoom-in-50 duration-500">
                             <div className="w-full h-full rounded-full bg-gray-100 overflow-hidden relative">
                                 {(creator?.images?.[0] || user?.avatarUrl) ? (
                                     <Image
@@ -1844,22 +1867,22 @@ export default function Dashboard() {
             <div className="container mx-auto max-w-2xl px-4 -mt-10 relative z-20">
                 {/* Stats Cards */}
                 <div className="grid grid-cols-3 gap-4 mb-8">
-                    <div className="bg-white dark:bg-[#1e1b4b]/80 backdrop-blur p-4 rounded-2xl shadow-lg border border-white/5 text-center">
+                    <div className="bg-[#1e1b4b]/80 backdrop-blur p-4 rounded-2xl shadow-lg border border-white/5 text-center">
                         <h3 className="text-gray-400 text-xs font-bold uppercase mb-1">Posts</h3>
                         <p className="text-2xl font-bold text-white">{stats.posts}</p>
                     </div>
-                    <div className="bg-white dark:bg-[#1e1b4b]/80 backdrop-blur p-4 rounded-2xl shadow-lg border border-white/5 text-center">
+                    <div className="bg-[#1e1b4b]/80 backdrop-blur p-4 rounded-2xl shadow-lg border border-white/5 text-center">
                         <h3 className="text-gray-400 text-xs font-bold uppercase mb-1">Likes</h3>
                         <p className="text-2xl font-bold text-white">{stats.likes}</p>
                     </div>
-                    <div className="bg-white dark:bg-[#1e1b4b]/80 backdrop-blur p-4 rounded-2xl shadow-lg border border-white/5 text-center">
+                    <div className="bg-[#1e1b4b]/80 backdrop-blur p-4 rounded-2xl shadow-lg border border-white/5 text-center">
                         <h3 className="text-gray-400 text-xs font-bold uppercase mb-1">Views</h3>
                         <p className="text-2xl font-bold text-white">{stats.views}</p>
                     </div>
                 </div>
 
                 {isEditing ? (
-                    <div className="bg-white dark:bg-[#1e1b4b]/80 backdrop-blur rounded-3xl p-6 shadow-xl border border-white/5 animate-in fade-in slide-in-from-bottom-8">
+                    <div className="bg-[#1e1b4b]/80 backdrop-blur rounded-3xl p-6 shadow-xl border border-white/5 animate-in fade-in slide-in-from-bottom-8">
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="text-xl font-bold text-white flex items-center gap-2"><Edit className="text-[#F84E6E]" /> แก้ไขโปรไฟล์</h3>
                             <button onClick={() => setIsEditing(false)} className="text-sm text-gray-400 hover:text-white cursor-pointer">ยกเลิก</button>
@@ -2169,7 +2192,7 @@ export default function Dashboard() {
                         <div className="grid grid-cols-1 gap-4">
                             <button
                                 onClick={() => setIsEditing(true)}
-                                className="bg-white dark:bg-[#1e1b4b]/50 backdrop-blur border border-white/10 hover:bg-white/5 text-white py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-lg cursor-pointer"
+                                className="bg-[#1e1b4b]/50 backdrop-blur border border-white/10 hover:bg-white/5 text-white py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-lg cursor-pointer"
                             >
                                 <Edit size={18} className="text-[#F84E6E] cursor-pointer" /> แก้ไขข้อมูล
                             </button>
@@ -2194,7 +2217,7 @@ export default function Dashboard() {
                         )}
 
                         {/* New Post Input */}
-                        <div className="bg-white dark:bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-4 shadow-xl border border-white/5">
+                        <div className="bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-4 shadow-xl border border-white/5">
                             {/* Subscription Barrier */}
                             {!hasSubscription && (
                                 <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-6 text-center animate-pulse mb-4">
@@ -2336,7 +2359,7 @@ export default function Dashboard() {
 
                             {myPosts.length > 0 ? (
                                 myPosts.map((post) => (
-                                    <div key={post._id} className="bg-white dark:bg-[#1e1b4b]/80 backdrop-blur rounded-2xl overflow-hidden shadow-xl border border-white/5">
+                                    <div key={post._id} className="bg-[#1e1b4b]/80 backdrop-blur rounded-2xl overflow-hidden shadow-xl border border-white/5">
                                         <div className="p-4 flex items-center gap-3">
                                             <div className="w-10 h-10 rounded-full bg-gray-700 overflow-hidden relative">
                                                 <Image

@@ -446,7 +446,7 @@ export default function SidelineDetail() {
 
                             {/* Bio & Details */}
                             <div className="space-y-4">
-                                <div className="text-sm leading-relaxed whitespace-pre-line text-zinc-700 dark:text-zinc-300">
+                                <div className="text-sm leading-relaxed whitespace-pre-line text-white">
                                     {creator.bio ? creator.bio : "สวัสดีค่ะ ยินดีต้อนรับสู่โปรไฟล์ของฉัน 💖"}
                                 </div>
 
@@ -456,7 +456,7 @@ export default function SidelineDetail() {
                                     ))}
                                 </div>
 
-                                <div className="text-xl font-bold text-zinc-900 dark:text-white">
+                                <div className="text-xl font-bold text-white">
                                     {creator.price}.- <span className="text-sm font-normal text-zinc-400">/ {creator.priceTime || '1 ชม.'} (ราคาเริ่มต้น)</span>
                                 </div>
 
@@ -574,7 +574,7 @@ export default function SidelineDetail() {
                                             )}
                                         </div>
                                         <div>
-                                            <div className="font-bold text-sm text-zinc-900 dark:text-white">{review.user?.displayName || "Anonymous"}</div>
+                                            <div className="font-bold text-sm text-white">{review.user?.displayName || "Anonymous"}</div>
                                             <div className="text-xs text-zinc-500">{new Date(review.createdAt).toLocaleDateString()}</div>
                                         </div>
                                     </div>
@@ -584,8 +584,8 @@ export default function SidelineDetail() {
                                     </div>
                                 </div>
 
-                                <h3 className="font-bold text-lg mb-2 text-zinc-800 dark:text-zinc-200">{review.title}</h3>
-                                <p className="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed mb-4">{review.comment}</p>
+                                <h3 className="font-bold text-lg mb-2 text-white">{review.title}</h3>
+                                <p className="text-zinc-300 text-sm leading-relaxed mb-4">{review.comment}</p>
 
                                 {review.images && review.images.length > 0 && (
                                     <div className="flex gap-2 overflow-x-auto pb-2">
@@ -653,8 +653,8 @@ export default function SidelineDetail() {
                                         </div>
                                     </div>
                                     <div className="p-4">
-                                        <h3 className="font-bold text-zinc-800 text-white truncate group-hover:text-[#F84E6E] transition">{item.displayName}</h3>
-                                        <div className="flex items-center gap-1 text-[10px] text-zinc-500 mt-1">
+                                        <h3 className="font-bold text-white truncate group-hover:text-[#F84E6E] transition">{item.displayName}</h3>
+                                        <div className="flex items-center gap-1 text-[10px] text-gray-400 mt-1">
                                             <MapPin size={10} />
                                             {item.province || "กรุงเทพมหานคร"}
                                         </div>

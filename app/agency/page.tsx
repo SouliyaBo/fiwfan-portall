@@ -63,7 +63,7 @@ export default function AgencyPage() {
     };
 
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-[#020617] text-zinc-900 dark:text-white">
+        <div className="min-h-screen bg-[#020617] text-white">
             {/* Header */}
             <header className="bg-gradient-to-r from-rose-600 via-pink-600 to-blue-800 text-white py-12 px-4 shadow-lg">
                 <div className="container mx-auto">
@@ -108,7 +108,7 @@ export default function AgencyPage() {
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-4">
                                     <div className="w-2 h-10 bg-[#d94459] rounded-sm" />
-                                    <h2 className="text-3xl font-bold text-zinc-800 dark:text-zinc-200">{agency.name}</h2>
+                                    <h2 className="text-3xl font-bold text-white">{agency.name}</h2>
                                 </div>
                                 <Link href={`/agency/${agency._id}`}>
                                     <button className="bg-[#0f391b] hover:bg-[#1a5c2b] text-white px-6 py-2 rounded font-medium transition shadow-sm cursor-pointer">
@@ -120,8 +120,8 @@ export default function AgencyPage() {
                             {/* Content Row */}
                             <div className="flex flex-col md:flex-row gap-6">
                                 {/* Agency Profile Card */}
-                                <div className="w-full md:w-64 bg-white dark:bg-[#1e1b4b]/20 border border-zinc-200 dark:border-white/5 rounded-2xl p-6 flex flex-col items-center justify-center text-center shadow-sm shrink-0">
-                                    <div className="w-32 h-32 rounded-full bg-slate-200 dark:bg-slate-700 mb-4 overflow-hidden relative border-4 border-white dark:border-white/10 shadow-lg">
+                                <div className="w-full md:w-64 bg-[#1e1b4b]/20 border border-white/5 rounded-2xl p-6 flex flex-col items-center justify-center text-center shadow-sm shrink-0">
+                                    <div className="w-32 h-32 rounded-full bg-slate-700 mb-4 overflow-hidden relative border-4 border-white/10 shadow-lg">
                                         {agency.logoUrl ? (
                                             <Image src={getImageUrl(agency.logoUrl)} alt={agency.name} fill className="object-cover" />
                                         ) : (
@@ -131,7 +131,7 @@ export default function AgencyPage() {
                                         )}
                                     </div>
                                     <h3 className="text-xl font-bold mb-1">{agency.name}</h3>
-                                    <p className="text-zinc-500 text-sm">{agency.location || "Thailand"}</p>
+                                    <p className="text-zinc-400 text-sm">{agency.location || "Thailand"}</p>
                                 </div>
 
                                 {/* Models Horizontal Scroll */}
@@ -142,7 +142,7 @@ export default function AgencyPage() {
                                                 <ModelCard key={creator._id} creator={creator} index={i} />
                                             ))
                                         ) : (
-                                            <div className="w-full h-72 flex items-center justify-center text-zinc-400 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl">
+                                            <div className="w-full h-72 flex items-center justify-center text-zinc-400 border-2 border-dashed border-white/10 rounded-xl">
                                                 ยังไม่มีน้องๆ ในสังกัด
                                             </div>
                                         )}

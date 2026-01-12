@@ -31,6 +31,7 @@ export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalPr
     });
     const [availableCountries, setAvailableCountries] = useState<any[]>([]);
     const [availableProvinces, setAvailableProvinces] = useState<any[]>([]);
+    const [availableZones, setAvailableZones] = useState<string[]>([]);
 
     useEffect(() => {
         const fetchLocations = async () => {
@@ -64,7 +65,7 @@ export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalPr
                     <X size={20} />
                 </button>
 
-                <h3 className="text-xl font-bold mb-6 text-center text-zinc-900 dark:text-white">ค้นหา</h3>
+                <h3 className="text-xl font-bold mb-6 text-center text-white">ค้นหา</h3>
 
                 <div className="space-y-4">
                     {/* Name */}
@@ -118,45 +119,56 @@ export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalPr
                             value={filters.country}
                             onChange={(e) => {
                                 const country = e.target.value;
-                                setFilters({ ...filters, country, province: "" });
+                                setFilters({ ...filters, country, province: "", location: "" });
                                 const selectedCountry = availableCountries.find((c: any) => c.name === country);
                                 setAvailableProvinces(selectedCountry ? selectedCountry.provinces : []);
+                                setAvailableZones([]);
                             }}
                             className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-white appearance-none cursor-pointer"
                         >
                             <option value="">ทุกประเทศ</option>
                             {availableCountries.map((c: any) => (
-                                <option key={c.code} value={c.name}>{c.name}</option>
+                                <option key={c.code} value={c.name} className="bg-slate-900">{c.name}</option>
                             ))}
                         </select>
                     </div>
 
                     {/* Province */}
                     <div>
-                        <label className="block text-sm font-medium mb-1 text-zinc-300">จังหวัด</label>
+                        <label className="block text-sm font-medium mb-1 text-zinc-300">จังหวัด sss</label>
                         <select
                             value={filters.province}
-                            onChange={(e) => setFilters({ ...filters, province: e.target.value })}
+                            onChange={(e) => {
+                                const prov = e.target.value;
+                                setFilters({ ...filters, province: prov, location: "" });
+                                const selectedProvince = availableProvinces.find((p: any) => p.name === prov);
+                                setAvailableZones(selectedProvince ? selectedProvince.zones : []);
+                            }}
                             className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-white appearance-none cursor-pointer"
                         >
-                            <option value="">ทุกจังหวัด</option>
+                            <option value="" className="bg-slate-900">ทุกจังหวัด</option>
                             {availableProvinces.map((p: any) => (
-                                <option key={p.id} value={p.name}>{p.name}</option>
+                                <option key={p.id} value={p.name} className="bg-slate-900">{p.name}</option>
                             ))}
                         </select>
                     </div>
 
                     {/* Location/Zone */}
                     <div>
-                        <label className="block text-sm font-medium mb-1 text-zinc-300">ที่ตั้ง / โซน</label>
+                        <label className="block text-sm font-medium mb-1 text-zinc-300">โซน (Zone)</label>
                         <div className="relative">
-                            <input
+                            <select
                                 value={filters.location}
                                 onChange={(e) => setFilters({ ...filters, location: e.target.value })}
-                                className="w-full bg-black/30 border border-white/10 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-white placeholder-zinc-500"
-                                placeholder="ระบุโซน เช่น รัชดา, ลาดพร้าว..."
-                            />
-                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
+                                disabled={!filters.province}
+                                className={`w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-white appearance-none cursor-pointer ${!filters.province ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                                <option value="" className="bg-slate-900">ทุกโซน</option>
+                                {availableZones.map((z: string) => (
+                                    <option key={z} value={z} className="bg-slate-900">{z}</option>
+                                ))}
+                            </select>
+                            <MapPin className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none" size={18} />
                         </div>
                     </div>
 
