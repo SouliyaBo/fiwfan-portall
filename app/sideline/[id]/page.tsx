@@ -791,7 +791,7 @@ export default function SidelineDetail() {
 
             {/* Zone Stats */}
             <div className="container mx-auto max-w-6xl px-4 mt-8 border-t border-zinc-200 dark:border-white/10 pt-8">
-                <h2 className="text-xl md:text-2xl font-bold mb-6 text-zinc-900 text-white flex items-center gap-3">
+                <h2 className="text-xl md:text-2xl font-bold mb-6 text-white flex items-center gap-3">
                     <span className="w-1 h-8 bg-[#F84E6E] rounded-full"></span>
                     พบกับความงดงามที่น่าทึ่งในคืนนี้ได้ที่ laoangel.app
                 </h2>

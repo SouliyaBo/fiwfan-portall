@@ -40,7 +40,7 @@ function StarRating({ rating }: { rating: number }) {
                 <Star
                     key={i}
                     size={14}
-                    className={`${i < rating ? "fill-yellow-400 text-yellow-400" : "fill-zinc-200 text-zinc-200 dark:fill-zinc-700 dark:text-zinc-700"}`}
+                    className={`${i < rating ? "fill-yellow-400 text-yellow-400" : "fill-zinc-700 text-zinc-700"}`}
                 />
             ))}
         </div>
@@ -122,12 +122,12 @@ export default function CheckHomeworkPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#f3f4f6] dark:bg-[#020617] pb-20 pt-8 px-4" onClick={() => setOpenMenuId(null)}>
+        <div className="min-h-screen bg-[#020617] pb-20 pt-8 px-4" onClick={() => setOpenMenuId(null)}>
             <div className="container mx-auto max-w-4xl">
                 {/* Header */}
                 <div className="flex items-center gap-3 mb-6">
                     <div className="w-1.5 h-8 bg-[#F84E6E] rounded-full"></div>
-                    <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-zinc-800 to-zinc-600 dark:from-white dark:to-zinc-400">
+                    <h1 className="text-2xl font-bold text-white">
                         สรุปการบ้าน
                     </h1>
                 </div>
@@ -157,7 +157,7 @@ export default function CheckHomeworkPage() {
                             const userAvatar = getImageUrl(post.user?.avatarUrl);
 
                             return (
-                                <div key={post._id} className="bg-white dark:bg-[#1e1b4b]/50 rounded-2xl shadow-sm border border-zinc-200 dark:border-white/5 overflow-hidden flex flex-col md:flex-row hover:shadow-md transition">
+                                <div key={post._id} className="bg-[#1e1b4b]/50 rounded-2xl shadow-sm border border-white/5 overflow-hidden flex flex-col md:flex-row hover:shadow-md transition">
 
                                     {/* Left: Creator Info (Mobile: Top, Desktop: Left) */}
                                     <div className="relative w-full md:w-64 h-64 md:h-auto group shrink-0">
@@ -191,7 +191,7 @@ export default function CheckHomeworkPage() {
                                         {/* User Header */}
                                         <div className="flex items-center justify-between mb-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="relative w-10 h-10 rounded-full overflow-hidden border border-zinc-200 dark:border-zinc-700">
+                                                <div className="relative w-10 h-10 rounded-full overflow-hidden border border-white/10">
                                                     <Image
                                                         src={userAvatar}
                                                         alt={post.user.username}
@@ -201,7 +201,7 @@ export default function CheckHomeworkPage() {
                                                 </div>
                                                 <div>
                                                     <div className="flex items-center gap-1">
-                                                        <span className="font-bold text-sm dark:text-white">{post.user.username}</span>
+                                                        <span className="font-bold text-sm text-white">{post.user.username}</span>
                                                     </div>
                                                     <div className="text-xs text-zinc-400">{new Date(post.createdAt).toLocaleDateString("th-TH")}</div>
                                                 </div>
@@ -218,9 +218,9 @@ export default function CheckHomeworkPage() {
                                                 </button>
 
                                                 {openMenuId === post._id && (
-                                                    <div className="absolute right-0 top-full mt-1 bg-white dark:bg-[#020617] border border-zinc-200 dark:border-white/10 rounded-lg shadow-xl z-10 w-32 overflow-hidden">
+                                                    <div className="absolute right-0 top-full mt-1 bg-[#020617] border border-white/10 rounded-lg shadow-xl z-10 w-32 overflow-hidden">
                                                         <button
-                                                            className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 cursor-pointer transition"
+                                                            className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-900/20 cursor-pointer transition"
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 openReportModal(post._id);
@@ -234,7 +234,7 @@ export default function CheckHomeworkPage() {
                                         </div>
 
                                         {/* Ratings Grid */}
-                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4 bg-zinc-50 dark:bg-black/20 p-3 rounded-lg">
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4 bg-black/20 p-3 rounded-lg">
                                             <div className="flex flex-col gap-1">
                                                 <span className="text-xs text-zinc-500 font-medium">ตามที่แสดงในภาพ</span>
                                                 <StarRating rating={post.accuracyRating} />
@@ -251,7 +251,7 @@ export default function CheckHomeworkPage() {
 
                                         {/* Content */}
                                         <div className="flex-1">
-                                            <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4">
+                                            <p className="text-sm text-zinc-400 leading-relaxed mb-4">
                                                 {post.comment}
                                             </p>
 
@@ -259,7 +259,7 @@ export default function CheckHomeworkPage() {
                                             {reviewImages.length > 0 && (
                                                 <div className="flex gap-2">
                                                     {reviewImages.map((img, i) => (
-                                                        <div key={i} className="relative w-16 h-16 rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-700 hover:opacity-80 transition cursor-pointer">
+                                                        <div key={i} className="relative w-16 h-16 rounded-lg overflow-hidden border border-zinc-700 hover:opacity-80 transition cursor-pointer">
                                                             <Image
                                                                 src={getImageUrl(img)}
                                                                 alt="Proof"
@@ -283,25 +283,25 @@ export default function CheckHomeworkPage() {
             {/* Report Modal */}
             {reportModal.isOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-                    <div className="bg-white dark:bg-[#1e1b4b] rounded-2xl w-full max-w-md p-6 shadow-2xl border border-zinc-200 dark:border-white/10">
+                    <div className="bg-[#1e1b4b] rounded-2xl w-full max-w-md p-6 shadow-2xl border border-white/10">
                         <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-xl font-bold flex items-center gap-2 text-zinc-900 dark:text-white">
+                            <h3 className="text-xl font-bold flex items-center gap-2 text-white">
                                 <AlertTriangle className="text-red-500" /> แจ้งลบรีวิว
                             </h3>
                             <button
                                 onClick={() => setReportModal({ isOpen: false, reviewId: null })}
-                                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition"
+                                className="text-zinc-400 hover:text-zinc-200 transition"
                             >
                                 <X size={24} />
                             </button>
                         </div>
 
-                        <p className="text-zinc-600 dark:text-zinc-300 text-sm mb-4">
+                        <p className="text-zinc-300 text-sm mb-4">
                             โปรดระบุเหตุผลที่คุณต้องการแจ้งลบรีวิวนี้ เพื่อให้ทีมงานตรวจสอบ
                         </p>
 
                         <textarea
-                            className="w-full bg-zinc-50 dark:bg-black/30 border border-zinc-200 dark:border-white/10 rounded-xl p-4 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-red-500/50 min-h-[120px] mb-6 resize-none"
+                            className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-red-500/50 min-h-[120px] mb-6 resize-none"
                             placeholder="ระบุเหตุผล (เช่น เนื้อหาไม่สุภาพ, สแปม, ข้อมูลเท็จ...)"
                             value={reportReason}
                             onChange={(e) => setReportReason(e.target.value)}
@@ -310,7 +310,7 @@ export default function CheckHomeworkPage() {
                         <div className="flex gap-3">
                             <button
                                 onClick={() => setReportModal({ isOpen: false, reviewId: null })}
-                                className="flex-1 py-3 bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 text-zinc-700 dark:text-white rounded-xl font-medium transition"
+                                className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl font-medium transition"
                                 disabled={isSubmitting}
                             >
                                 ยกเลิก
