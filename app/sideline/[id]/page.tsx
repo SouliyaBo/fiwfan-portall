@@ -328,6 +328,26 @@ export default function SidelineDetail() {
         }
     };
 
+    const handleShare = async () => {
+        if (!creator) return;
+        const shareData = {
+            title: `Lao Angel - ${creator.displayName}`,
+            text: `ดูโปรไฟล์ของ ${creator.displayName} บน Lao Angel`,
+            url: window.location.href,
+        };
+
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+            } else {
+                await navigator.clipboard.writeText(window.location.href);
+                toast.success('คัดลอกลิงก์เรียบร้อยแล้ว');
+            }
+        } catch (err) {
+            console.error('Error sharing:', err);
+        }
+    };
+
     if (loading) return <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-[#020617] text-zinc-500">Loading...</div>;
     if (!creator) return <div className="min-h-screen flex items-center justify-center text-red-500">Creator not found</div>;
 
@@ -337,7 +357,7 @@ export default function SidelineDetail() {
             <div className="md:hidden sticky top-0 z-50 bg-[#1e1b4b] text-white p-4 flex justify-between items-center shadow-md">
                 <button onClick={() => router.back()} className="cursor-pointer"><ArrowLeft size={24} /></button>
                 <div className="font-bold">{creator.displayName}</div>
-                <button className="cursor-pointer"><Share2 size={24} /></button>
+                <button onClick={handleShare} className="cursor-pointer"><Share2 size={24} /></button>
             </div>
 
             <div className="container mx-auto max-w-6xl p-0 md:p-6 md:pt-10">
