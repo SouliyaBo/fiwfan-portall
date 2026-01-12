@@ -69,17 +69,22 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         // Now locations are Countries -> Provinces -> Zones
         // We want Header = Country Name
         // List = Province Names
+        // SubList = Zone Names
         return locations.map((country: any) => ({
             header: country.name,
-            list: (country.provinces || []).map((p: any) => ({
-                name: p.name,
-                count: 0 // We don't have province-level counts readily available from /creators/zones (which returns zone counts)
-                // To get province count we'd need to sum up p.zones counts from zoneStats
-            })).map((p: any) => {
-                // Try to calculate count if possible
-                const provinceCount = (country.provinces.find((prov: any) => prov.name === p.name)?.zones || [])
-                    .reduce((acc: number, z: string) => acc + (zoneStats[z] || 0), 0);
-                return { ...p, count: provinceCount };
+            list: (country.provinces || []).map((p: any) => {
+                // Calculate province count
+                const provinceCount = (p.zones || []).reduce((acc: number, z: string) => acc + (zoneStats[z] || 0), 0);
+
+                return {
+                    name: p.name,
+                    count: provinceCount,
+                    // Map zones to objects
+                    subList: (p.zones || []).map((z: string) => ({
+                        name: z,
+                        count: zoneStats[z] || 0
+                    }))
+                };
             })
         }));
     };
@@ -215,8 +220,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     );
 }
 
+// Updated interface to support nested zones
+interface LocationItem {
+    name: string;
+    count: number;
+    subList?: LocationItem[]; // Recursive structure for Zones
+}
 
-function SidebarItemWithSubmenu({ icon, label, items, onNavigate }: { icon: React.ReactNode, label: string, items: { header: string, list: { name: string, count: number }[] }[], onNavigate?: () => void }) {
+function SidebarItemWithSubmenu({ icon, label, items, onNavigate }: { icon: React.ReactNode, label: string, items: { header: string, list: LocationItem[] }[], onNavigate?: () => void }) {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
@@ -237,7 +248,7 @@ function SidebarItemWithSubmenu({ icon, label, items, onNavigate }: { icon: Reac
             {isOpen && (
                 <div className="pl-4 pr-2 pb-2 flex flex-col gap-1 animate-in slide-in-from-top-2 duration-200">
                     {items.map((group, idx) => (
-                        <CollapsibleGroup
+                        <CountryCollapsible
                             key={idx}
                             header={group.header}
                             list={group.list}
@@ -250,7 +261,7 @@ function SidebarItemWithSubmenu({ icon, label, items, onNavigate }: { icon: Reac
     )
 }
 
-function CollapsibleGroup({ header, list, onNavigate }: { header: string, list: { name: string, count: number }[], onNavigate?: () => void }) {
+function CountryCollapsible({ header, list, onNavigate }: { header: string, list: LocationItem[], onNavigate?: () => void }) {
     const [isExpanded, setIsExpanded] = useState(false);
 
     return (
@@ -267,12 +278,71 @@ function CollapsibleGroup({ header, list, onNavigate }: { header: string, list: 
 
             {isExpanded && (
                 <div className="flex flex-col gap-1 border-l border-white/10 pl-3 ml-3 mt-1 animate-in slide-in-from-top-1 duration-150">
-                    {list.map((item, i) => (
-                        <Link key={i} href={`/?province=${item.name}`} onClick={onNavigate} className="flex items-center justify-between text-sm text-white/60 hover:text-white py-1.5 px-2 rounded hover:bg-white/5 group transition">
-                            <span>{item.name}</span>
-                            {item.count > 0 && (
-                                <span className="bg-white/10 text-white group-hover:bg-[#F84E6E] group-hover:text-white px-2 py-0.5 rounded-full text-[10px] font-bold transition">
-                                    {item.count}
+                    {list.map((province, i) => (
+                        // If province has zones, use another collapsible, otherwise just link
+                        province.subList && province.subList.length > 0 ? (
+                            <ProvinceCollapsible
+                                key={i}
+                                province={province}
+                                onNavigate={onNavigate}
+                            />
+                        ) : (
+                            <Link key={i} href={`/?province=${province.name}`} onClick={onNavigate} className="flex items-center justify-between text-sm text-white/60 hover:text-white py-1.5 px-2 rounded hover:bg-white/5 group transition">
+                                <span>{province.name}</span>
+                                {province.count > 0 && (
+                                    <span className="bg-white/10 text-white group-hover:bg-[#F84E6E] group-hover:text-white px-2 py-0.5 rounded-full text-[10px] font-bold transition">
+                                        {province.count}
+                                    </span>
+                                )}
+                            </Link>
+                        )
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
+function ProvinceCollapsible({ province, onNavigate }: { province: LocationItem, onNavigate?: () => void }) {
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    return (
+        <div className="flex flex-col">
+            <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="flex items-center justify-between text-sm text-white/60 hover:text-white py-1.5 px-2 rounded hover:bg-white/5 group transition w-full cursor-pointer"
+            >
+                <span className="">{province.name}</span>
+                <div className="flex items-center gap-2">
+                    {province.count > 0 && (
+                        <span className="bg-white/10 text-white group-hover:bg-[#F84E6E] group-hover:text-white px-2 py-0.5 rounded-full text-[10px] font-bold transition">
+                            {province.count}
+                        </span>
+                    )}
+                    <div className={`transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}>
+                        <ChevronRight size={12} className="text-white/40" />
+                    </div>
+                </div>
+            </button>
+
+            {isExpanded && (
+                <div className="flex flex-col gap-1 border-l border-white/10 pl-3 ml-2 mt-1 animate-in slide-in-from-top-1 duration-150">
+                    {/* Link to All in Province */}
+                    <Link href={`/?province=${province.name}`} onClick={onNavigate} className="text-xs text-[#F84E6E] hover:text-[#ff7590] py-1 px-2 mb-1">
+                        ทั้งหมดใน {province.name}
+                    </Link>
+
+                    {province.subList?.map((zone, i) => (
+                        <Link
+                            key={i}
+                            href={`/?province=${province.name}&location=${zone.name}`}
+                            onClick={onNavigate}
+                            className="flex items-center justify-between text-xs text-white/50 hover:text-white py-1 px-2 rounded hover:bg-white/5 group transition"
+                        >
+                            <span>{zone.name}</span>
+                            {zone.count > 0 && (
+                                <span className="text-[9px] text-white/30 group-hover:text-white transition">
+                                    {zone.count}
                                 </span>
                             )}
                         </Link>
@@ -280,5 +350,5 @@ function CollapsibleGroup({ header, list, onNavigate }: { header: string, list: 
                 </div>
             )}
         </div>
-    );
+    )
 }

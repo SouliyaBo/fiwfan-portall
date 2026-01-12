@@ -1227,19 +1227,6 @@ export default function Dashboard() {
     const [availableZones, setAvailableZones] = useState<string[]>([]);
     const [availableCountries, setAvailableCountries] = useState<any[]>([]);
 
-    useEffect(() => {
-        const initLocs = async () => {
-            try {
-                const res = await fetch(`${API_BASE_URL}/settings/locations`);
-                if (res.ok) {
-                    const data = await res.json();
-                    setAvailableCountries(data);
-                }
-            } catch (e) { }
-        };
-        initLocs();
-    }, []);
-
     // Main editForm state
     const [isEditing, setIsEditing] = useState(false);
     const [editForm, setEditForm] = useState<{
@@ -1328,8 +1315,21 @@ export default function Dashboard() {
             try {
                 const res = await fetch(`${API_BASE_URL}/settings/locations`);
                 if (res.ok) {
-                    const data = await res.json();
-                    setAvailableLocations(data);
+                    const countries = await res.json();
+                    setAvailableCountries(countries);
+
+                    // Set initial provinces based on user's country
+                    const userCountryName = parsedUser.country || "Thailand";
+                    const countryData = countries.find((c: any) => c.name === userCountryName);
+
+                    if (countryData) {
+                        setAvailableLocations(countryData.provinces);
+                        // Also set zones if user has province
+                        if (parsedUser.province) {
+                            const loc = countryData.provinces.find((l: any) => l.name === parsedUser.province);
+                            if (loc) setAvailableZones(loc.zones);
+                        }
+                    }
                 }
             } catch (e) {
                 console.error(e);

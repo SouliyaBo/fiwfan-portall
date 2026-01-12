@@ -217,7 +217,14 @@ export default function SidelineDetailPage() {
             const res = await fetch(`${API_BASE_URL}/creators/zones`);
             if (res.ok) {
                 const data = await res.json();
-                setZones(data);
+                // Group by country
+                const grouped: any = {};
+                data.forEach((z: any) => {
+                    const c = z.country || "Thailand";
+                    if (!grouped[c]) grouped[c] = [];
+                    grouped[c].push(z);
+                });
+                setZones(Object.entries(grouped).map(([country, items]) => ({ country, items })));
             }
         } catch (error) {
             console.error("Failed to fetch zones", error);
@@ -785,18 +792,25 @@ export default function SidelineDetailPage() {
                 </h2>
 
                 {zones.length > 0 && (
-                    <div className="flex flex-wrap gap-2 justify-center">
-                        {zones.map((zone: any, i: number) => (
-                            <Link
-                                href={`/?location=${zone.name}`}
-                                key={i}
-                                className="flex items-center gap-2 bg-white text-zinc-800 px-3 py-1.5 rounded-full text-sm font-bold shadow-sm hover:scale-105 transition group border border-zinc-200"
-                            >
-                                <span className="group-hover:text-[#F84E6E] transition">{zone.name}</span>
-                                <span className="bg-[#1e1b4b] text-white text-[10px] px-1.5 py-0.5 rounded-md font-bold min-w-[20px] text-center group-hover:bg-[#F84E6E] transition">
-                                    {zone.count}
-                                </span>
-                            </Link>
+                    <div className="space-y-4">
+                        {zones.map((group: any) => (
+                            <div key={group.country} className="space-y-2">
+                                <h3 className="text-zinc-500 dark:text-white/50 text-xs font-semibold uppercase tracking-wider text-center">{group.country}</h3>
+                                <div className="flex flex-wrap gap-2 justify-center">
+                                    {group.items.map((zone: any, i: number) => (
+                                        <Link
+                                            href={`/?location=${zone.name}`}
+                                            key={i}
+                                            className="flex items-center gap-2 bg-white text-zinc-800 px-3 py-1.5 rounded-full text-sm font-bold shadow-sm hover:scale-105 transition group border border-zinc-200"
+                                        >
+                                            <span className="group-hover:text-[#F84E6E] transition">{zone.name}</span>
+                                            <span className="bg-[#1e1b4b] text-white text-[10px] px-1.5 py-0.5 rounded-md font-bold min-w-[20px] text-center group-hover:bg-[#F84E6E] transition">
+                                                {zone.count}
+                                            </span>
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
                         ))}
                     </div>
                 )}
