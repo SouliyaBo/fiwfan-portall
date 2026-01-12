@@ -56,7 +56,8 @@ interface CreatorDetail {
     };
 }
 
-export default function SidelineDetail({ params }: { params: { id: string } }) {
+export default function SidelineDetail() {
+    const params = useParams();
     const router = useRouter();
     const [creator, setCreator] = useState<CreatorDetail | null>(null);
     const [loading, setLoading] = useState(true);
@@ -204,13 +205,13 @@ export default function SidelineDetail({ params }: { params: { id: string } }) {
     const [zones, setZones] = useState<any[]>([]);
 
     useEffect(() => {
-        if (params.id) {
+        if (params?.id) {
             fetchCreator(params.id as string);
             recordView(params.id as string);
             checkIfFavorited(params.id as string);
         }
         fetchZones();
-    }, [params.id]);
+    }, [params?.id]);
 
     const fetchZones = async () => {
         try {
