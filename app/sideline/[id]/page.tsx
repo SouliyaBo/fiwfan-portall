@@ -633,7 +633,7 @@ export default function SidelineDetail() {
                                         </div>
                                     </div>
                                     <div className="p-4">
-                                        <h3 className="font-bold text-zinc-800 dark:text-white truncate group-hover:text-[#F84E6E] transition">{item.displayName}</h3>
+                                        <h3 className="font-bold text-zinc-800 text-white truncate group-hover:text-[#F84E6E] transition">{item.displayName}</h3>
                                         <div className="flex items-center gap-1 text-[10px] text-zinc-500 mt-1">
                                             <MapPin size={10} />
                                             {item.province || "กรุงเทพมหานคร"}
