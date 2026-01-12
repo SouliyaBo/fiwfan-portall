@@ -58,7 +58,7 @@ export default function AgencyDetailPage() {
     if (!agency) return <div className="min-h-screen flex items-center justify-center text-white">Agency not found</div>;
 
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-[#020617] pb-24">
+        <div className="min-h-screen bg-[#020617] pb-24">
 
             {/* Header / Banner */}
             <div className="relative h-[250px] md:h-[350px]">

@@ -332,7 +332,7 @@ export default function SidelineDetail() {
     if (!creator) return <div className="min-h-screen flex items-center justify-center text-red-500">Creator not found</div>;
 
     return (
-        <div className="min-h-screen bg-white dark:bg-[#020617] text-zinc-900 dark:text-white pb-20">
+        <div className="min-h-screen bg-[#020617] text-white pb-20">
             {/* Mobile Header */}
             <div className="md:hidden sticky top-0 z-50 bg-[#1e1b4b] text-white p-4 flex justify-between items-center shadow-md">
                 <button onClick={() => router.back()} className="cursor-pointer"><ArrowLeft size={24} /></button>

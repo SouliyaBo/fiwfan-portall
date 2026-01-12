@@ -56,10 +56,10 @@ export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalPr
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
-            <div className="bg-white dark:bg-[#0f172a] w-full max-w-lg rounded-3xl shadow-2xl p-6 relative max-h-[90vh] overflow-y-auto">
+            <div className="bg-[#0f172a] w-full max-w-lg rounded-3xl shadow-2xl p-6 relative max-h-[90vh] overflow-y-auto text-white">
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 p-2 bg-zinc-100 dark:bg-white/10 rounded-full hover:bg-zinc-200 dark:hover:bg-white/20 transition cursor-pointer"
+                    className="absolute top-4 right-4 p-2 bg-white/10 rounded-full hover:bg-white/20 transition cursor-pointer"
                 >
                     <X size={20} />
                 </button>
@@ -69,12 +69,12 @@ export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalPr
                 <div className="space-y-4">
                     {/* Name */}
                     <div>
-                        <label className="block text-sm font-medium mb-1 text-zinc-700 dark:text-zinc-300">ค้นหาชื่อ</label>
+                        <label className="block text-sm font-medium mb-1 text-zinc-300">ค้นหาชื่อ</label>
                         <div className="relative">
                             <input
                                 value={filters.name}
                                 onChange={(e) => setFilters({ ...filters, name: e.target.value })}
-                                className="w-full bg-zinc-50 dark:bg-black/30 border border-zinc-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] dark:text-white"
+                                className="w-full bg-black/30 border border-white/10 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-white placeholder-zinc-500"
                                 placeholder="พิมพ์ชื่อน้อง..."
                             />
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
@@ -97,11 +97,11 @@ export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalPr
 
                     {/* Gender */}
                     <div>
-                        <label className="block text-sm font-medium mb-1 text-zinc-700 dark:text-zinc-300">เพศ</label>
+                        <label className="block text-sm font-medium mb-1 text-zinc-300">เพศ</label>
                         <select
                             value={filters.gender}
                             onChange={(e) => setFilters({ ...filters, gender: e.target.value })}
-                            className="w-full bg-zinc-50 dark:bg-black/30 border border-zinc-200 dark:border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] dark:text-white appearance-none cursor-pointer"
+                            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-white appearance-none cursor-pointer"
                         >
                             <option value="">ทั้งหมด</option>
                             <option value="ผู้หญิง">ผู้หญิง</option>
@@ -113,7 +113,7 @@ export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalPr
 
                     {/* Country */}
                     <div>
-                        <label className="block text-sm font-medium mb-1 text-zinc-700 dark:text-zinc-300">ประเทศ</label>
+                        <label className="block text-sm font-medium mb-1 text-zinc-300">ประเทศ</label>
                         <select
                             value={filters.country}
                             onChange={(e) => {
@@ -122,7 +122,7 @@ export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalPr
                                 const selectedCountry = availableCountries.find((c: any) => c.name === country);
                                 setAvailableProvinces(selectedCountry ? selectedCountry.provinces : []);
                             }}
-                            className="w-full bg-zinc-50 dark:bg-black/30 border border-zinc-200 dark:border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] dark:text-white appearance-none cursor-pointer"
+                            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-white appearance-none cursor-pointer"
                         >
                             <option value="">ทุกประเทศ</option>
                             {availableCountries.map((c: any) => (
@@ -133,11 +133,11 @@ export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalPr
 
                     {/* Province */}
                     <div>
-                        <label className="block text-sm font-medium mb-1 text-zinc-700 dark:text-zinc-300">จังหวัด</label>
+                        <label className="block text-sm font-medium mb-1 text-zinc-300">จังหวัด</label>
                         <select
                             value={filters.province}
                             onChange={(e) => setFilters({ ...filters, province: e.target.value })}
-                            className="w-full bg-zinc-50 dark:bg-black/30 border border-zinc-200 dark:border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] dark:text-white appearance-none cursor-pointer"
+                            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-white appearance-none cursor-pointer"
                         >
                             <option value="">ทุกจังหวัด</option>
                             {availableProvinces.map((p: any) => (
@@ -148,12 +148,12 @@ export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalPr
 
                     {/* Location/Zone */}
                     <div>
-                        <label className="block text-sm font-medium mb-1 text-zinc-700 dark:text-zinc-300">ที่ตั้ง / โซน</label>
+                        <label className="block text-sm font-medium mb-1 text-zinc-300">ที่ตั้ง / โซน</label>
                         <div className="relative">
                             <input
                                 value={filters.location}
                                 onChange={(e) => setFilters({ ...filters, location: e.target.value })}
-                                className="w-full bg-zinc-50 dark:bg-black/30 border border-zinc-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] dark:text-white"
+                                className="w-full bg-black/30 border border-white/10 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-white placeholder-zinc-500"
                                 placeholder="ระบุโซน เช่น รัชดา, ลาดพร้าว..."
                             />
                             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
