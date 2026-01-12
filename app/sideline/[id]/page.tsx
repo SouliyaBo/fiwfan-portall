@@ -4,11 +4,26 @@ import { API_BASE_URL } from '../../../lib/constants';
 
 async function fetchCreator(id: string): Promise<CreatorDetail | null> {
     try {
-        const res = await fetch(`${API_BASE_URL}/creators/${id}`, { cache: 'no-store' }); // Ensure fresh data
-        if (!res.ok) return null;
-        return res.json();
+        const isDev = process.env.NODE_ENV === 'development';
+        // Force localhost in dev mode to ensure we hit the local backend
+        const baseUrl = isDev ? 'http://localhost:8000' : API_BASE_URL;
+        const url = `${baseUrl}/creators/${id}`;
+
+        console.log(`[SEO Debug] Fetching creator from: ${url} (Env: ${process.env.NODE_ENV})`);
+
+        const res = await fetch(url, { cache: 'no-store' }); // Ensure fresh data
+        console.log(`[SEO Debug] Response status: ${res.status}`);
+
+        if (!res.ok) {
+            console.error(`[SEO Debug] Fetch failed: ${res.statusText}`);
+            return null;
+        }
+
+        const data = await res.json();
+        console.log(`[SEO Debug] Data fetched successfully:`, data?.displayName);
+        return data;
     } catch (error) {
-        console.error("Failed to fetch creator for metadata:", error);
+        console.error("[SEO Debug] Start Failed to fetch creator for metadata:", error);
         return null;
     }
 }
