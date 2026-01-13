@@ -30,6 +30,9 @@ export interface CreatorDetail {
     height?: number;
     weight?: number;
     gender?: string;
+    chest?: number;
+    waist?: number;
+    hips?: number;
     proportions?: string;
     price: number;
     priceTime?: string;
