@@ -176,15 +176,44 @@ function HomeContent() {
 
     return (
         <div className="pb-20">
-
             {/* Search Hero */}
             <section className="text-center py-8">
-                <h1 className="text-3xl md:text-4xl font-extrabold mb-6 flex items-center justify-center gap-1.5 tracking-wide">
-                    <Sparkles className="text-pink-400 animate-pulse" size={24} />
-                    <span className="bg-gradient-to-r from-pink-300 via-pink-400 to-rose-400 text-transparent bg-clip-text drop-shadow-[0_0_10px_rgba(244,114,182,0.5)]">Phu</span>
+                <p className="text-3xl md:text-5xl font-extrabold mb-4 flex items-center justify-center gap-2 tracking-wide">
+                    <Sparkles className="text-pink-400 animate-pulse" size={32} />
+                    <span className="bg-gradient-to-r from-pink-300 via-pink-400 to-rose-400 text-transparent bg-clip-text drop-shadow-[0_0_15px_rgba(244,114,182,0.6)]">Phusao</span>
                     <span className="text-white drop-shadow-md">sao</span>
                     <span className="text-pink-400">💕</span>
-                </h1>
+                </p>
+
+                <div className="max-w-4xl mx-auto px-4 mb-8 space-y-4">
+                    <h1 className="text-xl md:text-2xl font-bold text-white leading-relaxed">
+                        Phusao (ผู้สาว) – แพลตฟอร์มหาคู่เดทและเด็กเอน อันดับ 1 ในลาวและไทย
+                    </h1>
+                    <p className="text-sm md:text-base text-white/70 leading-relaxed max-w-3xl mx-auto">
+                        ยินดีต้อนรับสู่ <span className="text-pink-400 font-bold">Phusao.com</span> แพลตฟอร์มที่เป็นคำตอบของทุกการค้นหา
+                        <span className="text-white font-medium"> หาคู่เดท (Dating)</span> ไม่ว่าคุณจะพิมพ์ค้นหาด้วยคำว่า
+                        สาวลาว, เด็กเอน, พีอาร์, หรือ ไซด์ไลน์ เราคือที่เดียวที่รวบรวมโปรไฟล์ที่ปลอดภัยและ "ตรงปก" ที่สุด
+                    </p>
+
+                    <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3 py-2">
+                        <span className="flex items-center gap-1.5 bg-green-500/10 border border-green-500/20 text-green-400 px-2 py-1 rounded text-[10px] md:text-xs">
+                            <span className="bg-green-500 rounded-full p-0.5"><svg className="w-2 md:w-2.5 h-2 md:h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg></span>
+                            ยืนยันตัวตน (Green Tick)
+                        </span>
+                        <span className="flex items-center gap-1.5 bg-blue-500/10 border border-blue-500/20 text-blue-400 px-2 py-1 rounded text-[10px] md:text-xs">
+                            <span className="text-base md:text-lg">🎥</span> มีคลิปวิดีโอสั้น
+                        </span>
+                        <span className="flex items-center gap-1.5 bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 px-2 py-1 rounded text-[10px] md:text-xs">
+                            <span className="text-base md:text-lg">⭐</span> รีวิวจากลูกค้าจริง
+                        </span>
+                        <span className="flex items-center gap-1.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 px-2 py-1 rounded text-[10px] md:text-xs">
+                            <span className="text-base md:text-lg">📲</span> ติดต่อผ่าน LINE/WhatsApp
+                        </span>
+                        <span className="flex items-center gap-1.5 bg-pink-500/10 border border-pink-500/20 text-pink-400 px-2 py-1 rounded text-[10px] md:text-xs">
+                            <span className="text-base md:text-lg">📍</span> ค้นหาตามพื้นที่
+                        </span>
+                    </div>
+                </div>
 
                 <div className="relative max-w-md mx-auto px-4">
                     <div
@@ -201,7 +230,7 @@ function HomeContent() {
             </section>
 
 
-            {/* Stories Section (Mock) */}{" "}
+            {/* Stories Section (Mock) */} {" "}
             <section className="mb-8 pt-4">
                 <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide px-4">
                     {stories.length === 0 ? (
@@ -294,11 +323,13 @@ function HomeContent() {
             </section>
 
             {/* Floating Telegram Button */}
-            {telegramUrl && (
-                <a href={telegramUrl} target="_blank" rel="noopener noreferrer" className="fixed bottom-6 right-6 w-14 h-14 bg-[#229ED9] rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition z-40 animate-bounce">
-                    <Send size={28} className="text-white fill-white ml-1 mt-1" />
-                </a>
-            )}
+            {
+                telegramUrl && (
+                    <a href={telegramUrl} target="_blank" rel="noopener noreferrer" className="fixed bottom-6 right-6 w-14 h-14 bg-[#229ED9] rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition z-40 animate-bounce">
+                        <Send size={28} className="text-white fill-white ml-1 mt-1" />
+                    </a>
+                )
+            }
 
             {/* Story Viewer Modal */}
             {
@@ -324,7 +355,7 @@ function HomeContent() {
             <div className="mt-8 border-t border-white/10 pt-8 px-4">
                 <h2 className="text-xl md:text-2xl font-bold mb-6 text-white flex items-center gap-3">
                     <span className="w-1 h-8 bg-[#F84E6E] rounded-full"></span>
-                    พบกับความงดงามที่น่าทึ่งในคืนนี้ได้ที่ phusao.com
+                    รวมนางฟ้าฝั่งลาวไว้ที่นี่... เจอกันคืนนี้ที่ phusao.com
                 </h2>
 
                 {zones.length > 0 && (
@@ -374,7 +405,7 @@ function CreatorCard({ creator }: { creator: Creator }) {
             {/* Content */}
             <div className="absolute bottom-3 left-3 right-3 text-white">
                 <div className="flex items-center gap-1 mb-1">
-                    <span className="font-bold text-sm truncate">{creator.displayName}</span>
+                    <h2 className="font-bold text-sm truncate">{creator.displayName}</h2>
                     <div className="w-4 h-4 rounded-full bg-green-500/20 flex items-center justify-center">
                         <div className="w-2 h-2 rounded-full bg-green-500" />
                     </div>

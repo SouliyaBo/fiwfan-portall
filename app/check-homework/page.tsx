@@ -171,7 +171,7 @@ export default function CheckHomeworkPage() {
 
                                         <div className="absolute top-2 left-2 flex flex-wrap gap-1">
                                             {post.creator?.isVerified && (
-                                                <span className="bg-[#F84E6E] text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg">
+                                                <span className="bg-[#008000] text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg">
                                                     VERIFIED
                                                 </span>
                                             )}
@@ -179,8 +179,8 @@ export default function CheckHomeworkPage() {
 
                                         <div className="absolute bottom-3 left-3 right-3 text-white">
                                             <div className="font-bold text-lg">{post.creator?.displayName}</div>
-                                            <Link href={post.creator?._id ? `/sideline/${post.creator._id}` : "#"} className="text-xs text-pink-300 hover:text-pink-200 hover:underline flex items-center gap-1 cursor-pointer">
-                                                ดูโปรไฟล์ทั้งหมด &rarr;
+                                            <Link href={post.creator?._id ? `/sideline/${post.creator._id}` : "#"} className="mt-2 inline-flex items-center gap-1.5 px-4 py-1.5 bg-gradient-to-r from-[#F84E6E] to-pink-600 text-white text-xs font-bold rounded-full shadow-lg shadow-pink-500/20 hover:scale-105 transition-all hover:shadow-pink-500/40 hover:from-pink-500 hover:to-[#F84E6E]">
+                                                ดูโปรไฟล์ทั้งหมด <span className="text-lg leading-none">&rarr;</span>
                                             </Link>
                                         </div>
                                     </div>

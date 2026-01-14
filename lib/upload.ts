@@ -1,6 +1,7 @@
 import React from "react";
 import { API_BASE_URL } from "./constants";
 import { getAuthToken } from "./auth";
+import { compressImage } from "./image";
 
 export const uploadS3File = async (input: File | React.ChangeEvent<HTMLInputElement> | any, folder: string = "creators"): Promise<string> => {
     try {
@@ -30,6 +31,19 @@ export const uploadS3File = async (input: File | React.ChangeEvent<HTMLInputElem
         ];
         if (!allowedTypes.includes(data.type)) {
             throw new Error("Invalid file type. Allowed: JPEG, PNG, GIF, WebP, MP4, WebM, MOV.");
+        }
+
+        // --- NEW: Convert Image to WebP ---
+        // Skip for GIF/Video
+        if (data.type.startsWith('image/') && data.type !== 'image/gif' && data.type !== 'image/webp') {
+            try {
+                console.log(`Converting ${data.name} to WebP...`);
+                data = await compressImage(data);
+                // Update type and name for consistency after conversion
+                // Note: compressImage returns a new File object with correct type/name
+            } catch (error) {
+                console.warn("WebP conversion failed, falling back to original", error);
+            }
         }
 
         // 4. Generate Random Filename
