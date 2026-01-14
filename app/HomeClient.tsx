@@ -11,6 +11,7 @@ import SearchModal from "@/app/components/SearchModal";
 import { Loader2 } from "lucide-react";
 import { useSearchParams } from 'next/navigation';
 import { getAuthToken } from "../lib/auth";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface Creator {
     _id: string;
@@ -35,6 +36,7 @@ interface Agency {
 }
 
 function HomeContent() {
+    const { t } = useLanguage();
     const searchParams = useSearchParams();
     const [creators, setCreators] = useState<Creator[]>([]);
     const [agencies, setAgencies] = useState<Agency[]>([]);
@@ -187,30 +189,26 @@ function HomeContent() {
 
                 <div className="max-w-4xl mx-auto px-4 mb-8 space-y-4">
                     <h1 className="text-xl md:text-2xl font-bold text-white leading-relaxed">
-                        Phusao (ผู้สาว) – แพลตฟอร์มหาคู่เดทและเด็กเอน อันดับ 1 ในลาวและไทย
+                        {t('home.hero_title')}
                     </h1>
-                    <p className="text-sm md:text-base text-white/70 leading-relaxed max-w-3xl mx-auto">
-                        ยินดีต้อนรับสู่ <span className="text-pink-400 font-bold">Phusao.com</span> แพลตฟอร์มที่เป็นคำตอบของทุกการค้นหา
-                        <span className="text-white font-medium"> หาคู่เดท (Dating)</span> ไม่ว่าคุณจะพิมพ์ค้นหาด้วยคำว่า
-                        สาวลาว, เด็กเอน, พีอาร์, หรือ ไซด์ไลน์ เราคือที่เดียวที่รวบรวมโปรไฟล์ที่ปลอดภัยและ "ตรงปก" ที่สุด
-                    </p>
+                    <p className="text-sm md:text-base text-white/70 leading-relaxed max-w-3xl mx-auto" dangerouslySetInnerHTML={{ __html: t('home.hero_desc') }}></p>
 
                     <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3 py-2">
                         <span className="flex items-center gap-1.5 bg-green-500/10 border border-green-500/20 text-green-400 px-2 py-1 rounded text-[10px] md:text-xs">
                             <span className="bg-green-500 rounded-full p-0.5"><svg className="w-2 md:w-2.5 h-2 md:h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg></span>
-                            ยืนยันตัวตน (Green Tick)
+                            {t('home.tag_verified')}
                         </span>
                         <span className="flex items-center gap-1.5 bg-blue-500/10 border border-blue-500/20 text-blue-400 px-2 py-1 rounded text-[10px] md:text-xs">
-                            <span className="text-base md:text-lg">🎥</span> มีคลิปวิดีโอสั้น
+                            <span className="text-base md:text-lg">🎥</span> {t('home.tag_video')}
                         </span>
                         <span className="flex items-center gap-1.5 bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 px-2 py-1 rounded text-[10px] md:text-xs">
-                            <span className="text-base md:text-lg">⭐</span> รีวิวจากลูกค้าจริง
+                            <span className="text-base md:text-lg">⭐</span> {t('home.tag_review')}
                         </span>
                         <span className="flex items-center gap-1.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 px-2 py-1 rounded text-[10px] md:text-xs">
-                            <span className="text-base md:text-lg">📲</span> ติดต่อผ่าน LINE/WhatsApp
+                            <span className="text-base md:text-lg">📲</span> {t('home.tag_contact')}
                         </span>
                         <span className="flex items-center gap-1.5 bg-pink-500/10 border border-pink-500/20 text-pink-400 px-2 py-1 rounded text-[10px] md:text-xs">
-                            <span className="text-base md:text-lg">📍</span> ค้นหาตามพื้นที่
+                            <span className="text-base md:text-lg">📍</span> {t('home.tag_location')}
                         </span>
                     </div>
                 </div>
@@ -221,9 +219,9 @@ function HomeContent() {
                         className="w-full bg-[#1e1b4b]/80 h-14 rounded-full flex items-center px-6 cursor-pointer shadow-lg hover:scale-105 transition duration-300 border border-white/10 text-white"
                     >
                         <Search className="text-[#F84E6E] mr-3" />
-                        <span className="text-zinc-400 font-medium">ค้นหา ชื่อ, จังหวัด, โซน, อายุ...</span>
+                        <span className="text-zinc-400 font-medium">{t('home.search_placeholder')}</span>
                         <button className="ml-auto bg-[#1e1b4b] text-white px-6 py-2 rounded-full font-bold text-sm">
-                            ค้นหา
+                            {t('home.search_btn')}
                         </button>
                     </div>
                 </div>
@@ -234,7 +232,7 @@ function HomeContent() {
             <section className="mb-8 pt-4">
                 <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide px-4">
                     {stories.length === 0 ? (
-                        <div className="text-white/40 text-xs w-full text-center py-4">ยังไม่มีสตอรี่</div>
+                        <div className="text-white/40 text-xs w-full text-center py-4">{t('home.stories_empty')}</div>
                     ) : stories.map((creator: any, index: number) => (
                         <div key={creator._id} className="flex-shrink-0 flex flex-col items-center gap-1 cursor-pointer" onClick={() => setSelectedStoryCreatorIndex(index)}>
                             <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-pink-500 to-yellow-500 p-[2px]">
@@ -256,15 +254,15 @@ function HomeContent() {
             {/* Top Agencies */}
             <section className="mb-8 px-4">
                 <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-bold border-l-4 border-[#F84E6E] pl-3">Top Agencies Phusao</h2>
+                    <h2 className="text-lg font-bold border-l-4 border-[#F84E6E] pl-3">{t('home.agencies_title')}</h2>
                     <Link href="/agency" className="text-xs text-pink-500 flex items-center">
-                        ดูทั้งหมด <ChevronRight size={14} />
+                        {t('common.view_all')} <ChevronRight size={14} />
                     </Link>
                 </div>
 
                 {agencies.length === 0 ? (
                     <div className="text-white/40 text-sm text-center py-4 bg-white/5 rounded-xl border border-white/5">
-                        ยังไม่มีข้อมูลสังกัด
+                        {t('home.agencies_empty')}
                     </div>
                 ) : (
                     <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
@@ -293,7 +291,7 @@ function HomeContent() {
             {/* Creator Feed Grid */}
             <section className="px-4">
                 <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-bold border-l-4 border-[#F84E6E] pl-3">Superstar Phusao</h2>
+                    <h2 className="text-lg font-bold border-l-4 border-[#F84E6E] pl-3">{t('home.creators_title')}</h2>
 
                     {isLoggedIn && (
                         <button
@@ -305,14 +303,14 @@ function HomeContent() {
                             className={`text-xs flex items-center gap-2 px-3 py-1.5 rounded-full transition-all border cursor-pointer ${usePreferences ? 'bg-pink-500/10 border-pink-500 text-pink-500' : 'bg-white/5 border-white/10 text-white/50'}`}
                         >
                             <Search size={12} />
-                            {usePreferences ? "กรองตามความชอบแล้ว" : "กรองตามความชอบ"}
+                            {usePreferences ? t('home.filter_active') : t('home.filter_inactive')}
                         </button>
                     )}
                 </div>
                 {loading ? (
-                    <div className="text-center py-20 text-white/50">Loading...</div>
+                    <div className="text-center py-20 text-white/50">{t('common.loading')}</div>
                 ) : creators.length === 0 ? (
-                    <div className="text-center py-20 text-white/50">ยังไม่มีข้อมูลน้องๆ ในขณะนี้</div>
+                    <div className="text-center py-20 text-white/50">{t('home.creators_empty')}</div>
                 ) : (
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {creators.map((creator) => (
@@ -355,7 +353,7 @@ function HomeContent() {
             <div className="mt-8 border-t border-white/10 pt-8 px-4">
                 <h2 className="text-xl md:text-2xl font-bold mb-6 text-white flex items-center gap-3">
                     <span className="w-1 h-8 bg-[#F84E6E] rounded-full"></span>
-                    รวมนางฟ้าฝั่งลาวไว้ที่นี่... เจอกันคืนนี้ที่ phusao.com
+                    {t('home.zone_title')}
                 </h2>
 
                 {zones.length > 0 && (

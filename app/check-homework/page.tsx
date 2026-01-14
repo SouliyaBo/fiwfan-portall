@@ -8,6 +8,7 @@ import { API_BASE_URL } from "../../lib/constants";
 import { getAuthToken } from "../../lib/auth";
 import { getImageUrl } from "../../lib/images";
 import { toast } from "react-toastify";
+import { useLanguage } from "../../contexts/LanguageContext";
 
 
 
@@ -48,6 +49,7 @@ function StarRating({ rating }: { rating: number }) {
 }
 
 export default function CheckHomeworkPage() {
+    const { t } = useLanguage();
     const [reviews, setReviews] = useState<Review[]>([]);
     const [loading, setLoading] = useState(true);
     const [openMenuId, setOpenMenuId] = useState<string | null>(null);
@@ -128,16 +130,16 @@ export default function CheckHomeworkPage() {
                 <div className="flex items-center gap-3 mb-6">
                     <div className="w-1.5 h-8 bg-[#F84E6E] rounded-full"></div>
                     <h1 className="text-2xl font-bold text-white">
-                        สรุปการบ้าน
+                        {t('reviews.title')}
                     </h1>
                 </div>
 
                 {/* Feed List */}
                 <div className="space-y-6">
                     {loading ? (
-                        <div className="text-center py-20 text-zinc-500">Loading reviews...</div>
+                        <div className="text-center py-20 text-zinc-500">{t('common.loading')}</div>
                     ) : reviews.length === 0 ? (
-                        <div className="text-center py-20 text-zinc-500">ยังไม่มีการบ้าน (รีวิว) ในขณะนี้</div>
+                        <div className="text-center py-20 text-zinc-500">{t('reviews.empty')}</div>
                     ) : (
                         reviews.map((post) => {
                             // Parse images safely
@@ -172,7 +174,7 @@ export default function CheckHomeworkPage() {
                                         <div className="absolute top-2 left-2 flex flex-wrap gap-1">
                                             {post.creator?.isVerified && (
                                                 <span className="bg-[#008000] text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg">
-                                                    VERIFIED
+                                                    {t('reviews.verified')}
                                                 </span>
                                             )}
                                         </div>
@@ -180,7 +182,7 @@ export default function CheckHomeworkPage() {
                                         <div className="absolute bottom-3 left-3 right-3 text-white">
                                             <div className="font-bold text-lg">{post.creator?.displayName}</div>
                                             <Link href={post.creator?._id ? `/sideline/${post.creator._id}` : "#"} className="mt-2 inline-flex items-center gap-1.5 px-4 py-1.5 bg-gradient-to-r from-[#F84E6E] to-pink-600 text-white text-xs font-bold rounded-full shadow-lg shadow-pink-500/20 hover:scale-105 transition-all hover:shadow-pink-500/40 hover:from-pink-500 hover:to-[#F84E6E]">
-                                                ดูโปรไฟล์ทั้งหมด <span className="text-lg leading-none">&rarr;</span>
+                                                {t('reviews.view_profile')} <span className="text-lg leading-none">&rarr;</span>
                                             </Link>
                                         </div>
                                     </div>
@@ -226,7 +228,7 @@ export default function CheckHomeworkPage() {
                                                                 openReportModal(post._id);
                                                             }}
                                                         >
-                                                            แจ้งลบรีวิว
+                                                            {t('reviews.report')}
                                                         </button>
                                                     </div>
                                                 )}
@@ -236,15 +238,15 @@ export default function CheckHomeworkPage() {
                                         {/* Ratings Grid */}
                                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4 bg-black/20 p-3 rounded-lg">
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-xs text-zinc-500 font-medium">ตามที่แสดงในภาพ</span>
+                                                <span className="text-xs text-zinc-500 font-medium">{t('reviews.rating_accuracy')}</span>
                                                 <StarRating rating={post.accuracyRating} />
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-xs text-zinc-500 font-medium">บริการ</span>
+                                                <span className="text-xs text-zinc-500 font-medium">{t('reviews.rating_service')}</span>
                                                 <StarRating rating={post.serviceRating} />
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-xs text-zinc-500 font-medium">คุ้มค่าเงิน</span>
+                                                <span className="text-xs text-zinc-500 font-medium">{t('reviews.rating_value')}</span>
                                                 <StarRating rating={post.valueRating} />
                                             </div>
                                         </div>
@@ -286,7 +288,7 @@ export default function CheckHomeworkPage() {
                     <div className="bg-[#1e1b4b] rounded-2xl w-full max-w-md p-6 shadow-2xl border border-white/10">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-xl font-bold flex items-center gap-2 text-white">
-                                <AlertTriangle className="text-red-500" /> แจ้งลบรีวิว
+                                <AlertTriangle className="text-red-500" /> {t('reviews.modal_title')}
                             </h3>
                             <button
                                 onClick={() => setReportModal({ isOpen: false, reviewId: null })}
@@ -297,12 +299,12 @@ export default function CheckHomeworkPage() {
                         </div>
 
                         <p className="text-zinc-300 text-sm mb-4">
-                            โปรดระบุเหตุผลที่คุณต้องการแจ้งลบรีวิวนี้ เพื่อให้ทีมงานตรวจสอบ
+                            {t('reviews.modal_desc')}
                         </p>
 
                         <textarea
                             className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-red-500/50 min-h-[120px] mb-6 resize-none"
-                            placeholder="ระบุเหตุผล (เช่น เนื้อหาไม่สุภาพ, สแปม, ข้อมูลเท็จ...)"
+                            placeholder={t('reviews.modal_placeholder')}
                             value={reportReason}
                             onChange={(e) => setReportReason(e.target.value)}
                         />
@@ -313,14 +315,14 @@ export default function CheckHomeworkPage() {
                                 className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl font-medium transition"
                                 disabled={isSubmitting}
                             >
-                                ยกเลิก
+                                {t('common.cancel')}
                             </button>
                             <button
                                 onClick={submitReport}
                                 className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-red-500/20"
                                 disabled={isSubmitting || !reportReason.trim()}
                             >
-                                {isSubmitting ? "กำลังส่ง..." : "แจ้งลบรีวิว"}
+                                {isSubmitting ? t('reviews.modal_sending') : t('reviews.modal_submit')}
                             </button>
                         </div>
                     </div>

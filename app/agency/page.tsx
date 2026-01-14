@@ -6,6 +6,7 @@ import { User, ChevronRight, Search, Menu, Send, Flame } from "lucide-react";
 import { useState, useEffect } from "react";
 import { API_BASE_URL } from "../../lib/constants";
 import { getImageUrl } from "../../lib/images";
+import { useLanguage } from "../../contexts/LanguageContext";
 
 interface Creator {
     _id: string;
@@ -28,6 +29,7 @@ interface Agency {
 }
 
 export default function AgencyPage() {
+    const { t } = useLanguage();
     const [agencies, setAgencies] = useState<Agency[]>([]);
     const [loading, setLoading] = useState(true);
     const [telegramUrl, setTelegramUrl] = useState("");
@@ -78,29 +80,29 @@ export default function AgencyPage() {
                                 rel="noopener noreferrer"
                                 className="bg-white/20 hover:bg-white/30 px-3 py-1.5 md:px-4 md:py-2 text-sm md:text-base rounded-full flex items-center gap-2 backdrop-blur-sm transition cursor-pointer whitespace-nowrap"
                             >
-                                <Send size={16} className="md:w-[18px] md:h-[18px]" /> เข้าร่วมบนโทรเลข
+                                <Send size={16} className="md:w-[18px] md:h-[18px]" /> {t('home.agency_join_telegram')}
                             </a>
                             <Link href="/auth?mode=register" className="bg-[#d94459] hover:brightness-110 px-3 py-1.5 md:px-4 md:py-2 text-sm md:text-base rounded-md font-bold shadow-md transition whitespace-nowrap">
-                                สมัครสมาชิก
+                                {t('nav.register')}
                             </Link>
                         </div>
                     </div>
 
                     <h1 className="text-3xl md:text-5xl font-bold mb-4 drop-shadow-md">
-                        พบกับเอเจนซี่ชั้นนำของ Phusao ที่มีสาวแฟนตาซีตัวจริง!
+                        {t('home.agency_hero_title')}
                     </h1>
-                    <p className="text-xl opacity-90 mb-4">ผู้หญิงจริง. พูดจริง. ล่อ</p>
+                    <p className="text-xl opacity-90 mb-4">{t('home.agency_hero_subtitle')}</p>
                     <p className="text-sm opacity-80 max-w-4xl">
-                        สำรวจรายชื่อโปรไฟล์สุดพิเศษในประเทศไทยที่พร้อมจะพบกับคนพิเศษ...
+                        {t('home.agency_hero_desc')}
                     </p>
                 </div>
             </header>
 
             <main className="container mx-auto px-4 py-8 space-y-12">
                 {loading ? (
-                    <div className="text-center py-20 text-zinc-500">Loading agencies...</div>
+                    <div className="text-center py-20 text-zinc-500">{t('common.loading')}</div>
                 ) : agencies.length === 0 ? (
-                    <div className="text-center py-20 text-zinc-500">ไม่พบข้อมูลเอเจนซี่</div>
+                    <div className="text-center py-20 text-zinc-500">{t('home.agency_empty')}</div>
                 ) : (
                     agencies.map((agency) => (
                         <div key={agency._id} className="flex flex-col gap-6">
@@ -112,7 +114,7 @@ export default function AgencyPage() {
                                 </div>
                                 <Link href={`/agency/${agency._id}`}>
                                     <button className="bg-[#0f391b] hover:bg-[#1a5c2b] text-white px-6 py-2 rounded font-medium transition shadow-sm cursor-pointer">
-                                        View All Models
+                                        {t('home.agency_view_all_models')}
                                     </button>
                                 </Link>
                             </div>
@@ -143,7 +145,7 @@ export default function AgencyPage() {
                                             ))
                                         ) : (
                                             <div className="w-full h-72 flex items-center justify-center text-zinc-400 border-2 border-dashed border-white/10 rounded-xl">
-                                                ยังไม่มีน้องๆ ในสังกัด
+                                                {t('home.agency_no_models')}
                                             </div>
                                         )}
                                     </div>

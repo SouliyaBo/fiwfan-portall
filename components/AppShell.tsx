@@ -6,9 +6,11 @@ import { Menu, MapPin, Users, Award, MessageCircle, Send, LogOut, ChevronRight, 
 import { API_BASE_URL } from "../lib/constants";
 import { usePathname, useRouter } from 'next/navigation';
 import { getAuthToken } from "../lib/auth";
+import { useLanguage } from "../contexts/LanguageContext";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
     const router = useRouter();
+    const { language, setLanguage, t } = useLanguage();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [telegramUrl, setTelegramUrl] = useState("");
     const [locations, setLocations] = useState<any[]>([]);
@@ -114,15 +116,26 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     </div>
 
                     <div className="flex items-center gap-4">
+                        <select
+                            value={language}
+                            onChange={(e) => setLanguage(e.target.value as any)}
+                            className="bg-white/10 text-white text-xs rounded px-2 py-1 outline-none border border-white/10 cursor-pointer appearance-none text-center font-bold uppercase tracking-wider hover:bg-white/20 transition"
+                        >
+                            <option value="th" className="bg-slate-900">🇹🇭 TH</option>
+                            <option value="lo" className="bg-slate-900">🇱🇦 LO</option>
+                            <option value="zh" className="bg-slate-900">🇨🇳 ZH</option>
+                            <option value="en" className="bg-slate-900">🇬🇧 EN</option>
+                        </select>
+
                         {telegramUrl && (
                             <a href={telegramUrl} target="_blank" rel="noopener noreferrer" className="hidden md:flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition">
                                 <Send size={16} />
-                                <span>เข้าร่วมบนโทรเลข</span>
+                                <span>{t('nav.join_telegram')}</span>
                             </a>
                         )}
                         {!isLoggedIn && (
                             <Link href="/auth?mode=register" className="hidden md:block px-4 py-1.5 bg-[#F84E6E] hover:bg-[#d63d5b] text-white text-sm font-bold rounded-full transition shadow-[0_0_15px_rgba(248,78,110,0.3)]">
-                                สมัครสมาชิก
+                                {t('nav.register')}
                             </Link>
                         )}
                         <button
@@ -156,34 +169,34 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                         <nav className="flex-1 flex flex-col gap-2 overflow-y-auto -mx-2 px-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
                             <SidebarItemWithSubmenu
                                 icon={<MapPin size={20} className="text-green-500" />}
-                                label="สถานที่"
+                                label={t('nav.locations')}
                                 onNavigate={() => setIsSidebarOpen(false)}
                                 items={getLocationItems()}
                             />
                             <Link href="/agency" onClick={() => setIsSidebarOpen(false)} className="flex items-center gap-3 p-3 text-white/80 hover:bg-white/5 rounded-lg transition">
                                 <Users size={20} className="text-blue-400" />
-                                <span className="font-medium">หน่วยงาน</span>
+                                <span className="font-medium">{t('nav.agencies')}</span>
                             </Link>
 
                             <Link href="/leaderboard" onClick={() => setIsSidebarOpen(false)} className="flex items-center gap-3 p-3 text-white/80 hover:bg-white/5 rounded-lg transition">
                                 <Award size={20} className="text-yellow-500" />
-                                <span className="font-medium">ตารางจัดอันดับครับ</span>
+                                <span className="font-medium">{t('nav.leaderboard')}</span>
                             </Link>
 
                             <Link href="/check-homework" onClick={() => setIsSidebarOpen(false)} className="flex items-center gap-3 p-3 text-white/80 hover:bg-white/5 rounded-lg transition">
                                 <MessageCircle size={20} className="text-pink-400" />
-                                <span className="font-medium">ตรวจการบ้าน</span>
+                                <span className="font-medium">{t('nav.check_homework')}</span>
                             </Link>
                             {isLoggedIn && (
                                 <Link href="/dashboard" onClick={() => setIsSidebarOpen(false)} className="flex items-center gap-3 p-3 text-white/80 hover:bg-white/5 rounded-lg transition">
                                     <User size={20} className="text-[#F84E6E]" />
-                                    <span className="font-medium">Profile</span>
+                                    <span className="font-medium">{t('nav.profile')}</span>
                                 </Link>
                             )}
                             {telegramUrl && (
                                 <a href={telegramUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 text-white/80 hover:bg-white/5 rounded-lg transition">
                                     <Send size={20} className="text-blue-400" />
-                                    <span>เข้าร่วมบนโทรเลข</span>
+                                    <span>{t('nav.join_telegram')}</span>
                                 </a>
                             )}
                         </nav>
@@ -192,10 +205,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                             {!isLoggedIn && (
                                 <div className="flex gap-4">
                                     <Link href="/auth?mode=login" onClick={() => setIsSidebarOpen(false)} className="flex-1 py-2 rounded-lg border border-white/20 text-center text-sm font-medium hover:bg-white/5">
-                                        Login
+                                        {t('nav.login')}
                                     </Link>
                                     <Link href="/auth?mode=register" onClick={() => setIsSidebarOpen(false)} className="flex-1 py-2 rounded-lg bg-white/10 text-center text-sm font-medium hover:bg-white/20">
-                                        Register
+                                        {t('nav.register')}
                                     </Link>
                                 </div>
                             )}
@@ -205,7 +218,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                                     className="flex items-center gap-2 text-white/40 text-sm hover:text-white/60 cursor-pointer"
                                 >
                                     <LogOut size={16} />
-                                    ออกจากระบบ
+                                    <LogOut size={16} />
+                                    {t('nav.logout')}
                                 </button>
                             )}
                         </div>

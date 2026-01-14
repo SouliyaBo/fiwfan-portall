@@ -1,5 +1,7 @@
 "use client";
 
+import { useLanguage } from "../../contexts/LanguageContext";
+
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -48,6 +50,7 @@ const InputField = ({ label, value, onChange, placeholder, type = "text", icon: 
 
 // --- AGENCY DASHBOARD COMPONENT ---
 const AgencyDashboard = ({ user, onLogout }: any) => {
+    const { t } = useLanguage();
     const [agency, setAgency] = useState<any>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -131,10 +134,10 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                 const updated = await res.json();
                 setAgency(updated);
                 setIsEditing(false);
-                toast.success("บันทึกข้อมูลสำเร็จ");
+                toast.success(t('common.saved_success'));
             }
         } catch (error) {
-            toast.error("บันทึกไม่สำเร็จ");
+            toast.error(t('common.error'));
         }
     };
 
@@ -185,7 +188,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
             if (res.ok) {
                 const updated = await res.json();
                 setAgency(updated);
-                toast.info("ส่งเรื่องตรวจสอบแล้ว รอแอดมินอนุมัติ");
+                toast.info(t('common.agency_verify_pending'));
                 setIsVerificationModalOpen(false);
             }
         } catch (e) { toast.error("Error"); }
@@ -208,7 +211,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
 
                 <div className="relative z-10 h-full flex flex-col justify-between">
                     <div className="flex justify-between items-center">
-                        <h1 className="text-xl font-bold flex items-center gap-2"><Building size={20} /> Agency Manager</h1>
+                        <h1 className="text-xl font-bold flex items-center gap-2"><Building size={20} /> {t('dashboard.agency_manager')}</h1>
                         <button onClick={onLogout} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition backdrop-blur-md">
                             <LogOut size={20} />
                         </button>
@@ -230,10 +233,10 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                         </div>
                         <div className="flex-1">
                             <h2 className="text-3xl font-bold flex items-center gap-2">
-                                {agency?.name || "ตั้งชื่อสังกัดของคุณ"}
+                                {agency?.name || t('dashboard.agency_name')}
                                 {agency?.isVerified && <ShieldCheck className="text-blue-400" size={24} />}
                             </h2>
-                            <p className="text-white/80 max-w-lg truncate">{agency?.description || "ใส่คำอธิบายสังกัด..."}</p>
+                            <p className="text-white/80 max-w-lg truncate">{agency?.description || t('dashboard.agency_desc')}</p>
                         </div>
                         {/* Edit Cover Trigger */}
                         <label className="absolute top-6 right-16 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full text-xs cursor-pointer backdrop-blur transition">
@@ -249,10 +252,10 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                     {/* Sidebar / Stats */}
                     <div className="space-y-6">
                         <div className="bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/5">
-                            <h3 className="text-gray-500 dark:text-gray-400 text-sm font-bold uppercase mb-4">สถิติสังกัด</h3>
+                            <h3 className="text-gray-500 dark:text-gray-400 text-sm font-bold uppercase mb-4">{t('dashboard.agency_stats')}</h3>
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between">
-                                    <span className="flex items-center gap-2 text-white"><Users size={16} /> เด็กในสังกัด</span>
+                                    <span className="flex items-center gap-2 text-white"><Users size={16} /> {t('dashboard.agency_members')}</span>
                                     <span className="font-bold text-2xl text-[#F84E6E]">{agency?.creators?.length || 0}</span>
                                 </div>
                                 <div className="h-px bg-white/10" />
@@ -260,7 +263,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                                     onClick={() => setIsEditing(!isEditing)}
                                     className="w-full py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white border border-white/10 transition flex items-center justify-center gap-2"
                                 >
-                                    <Edit size={16} /> แก้ไขข้อมูลร้าน
+                                    <Edit size={16} /> {t('dashboard.agency_edit')}
                                 </button>
                             </div>
                         </div>
@@ -270,11 +273,11 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                     <div className="md:col-span-2 space-y-6">
                         {isEditing ? (
                             <div className="bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/5 animate-in fade-in slide-in-from-bottom-4">
-                                <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2"><Edit className="text-[#F84E6E]" /> แก้ไขข้อมูลสังกัด</h3>
+                                <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2"><Edit className="text-[#F84E6E]" /> {t('dashboard.agency_edit')}</h3>
                                 <div className="space-y-4">
-                                    <InputField label="ชื่อสังกัด" value={form.name} onChange={(e: any) => setForm({ ...form, name: e.target.value })} />
+                                    <InputField label={t('dashboard.agency_name')} value={form.name} onChange={(e: any) => setForm({ ...form, name: e.target.value })} />
                                     <div className="space-y-1">
-                                        <label className="text-xs font-medium text-white/70 ml-1">คำอธิบาย</label>
+                                        <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.agency_desc')}</label>
                                         <textarea
                                             value={form.description}
                                             onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -284,7 +287,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-1.5">
-                                        <label className="text-xs font-medium text-white/70 ml-1">ประเทศ</label>
+                                        <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.agency_country')}</label>
                                         <select
                                             value={form.country}
                                             onChange={(e) => {
@@ -302,7 +305,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                                         </select>
                                     </div>
                                     <div className="space-y-1.5">
-                                        <label className="text-xs font-medium text-white/70 ml-1">จังหวัด</label>
+                                        <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.agency_province')}</label>
                                         <select
                                             value={form.province}
                                             onChange={(e) => {
@@ -325,7 +328,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                                 {/* Zone Selection (Multi-select) */}
                                 {form.province && (
                                     <div className="space-y-2">
-                                        <label className="text-xs font-medium text-white/70 ml-1">โซนที่คุณรับงาน (เลือกได้หลายโซน)</label>
+                                        <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.agency_zone')}</label>
                                         <div className="p-4 bg-black/20 rounded-xl border border-white/10 max-h-40 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-2">
                                             {availableZones.length > 0 ? availableZones.map((zone) => (
                                                 <div
@@ -349,17 +352,17 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                                     </div>
                                 )}
                                 <div className="grid grid-cols-2 gap-4">
-                                    <InputField label="เบอร์โทรศัพท์" value={form.phone} onChange={(e: any) => setForm({ ...form, phone: e.target.value })} icon={Phone} />
-                                    <InputField label="เว็บไซต์" value={form.website} onChange={(e: any) => setForm({ ...form, website: e.target.value })} icon={Share2} />
+                                    <InputField label={t('dashboard.agency_phone')} value={form.phone} onChange={(e: any) => setForm({ ...form, phone: e.target.value })} icon={Phone} />
+                                    <InputField label={t('dashboard.agency_website')} value={form.website} onChange={(e: any) => setForm({ ...form, website: e.target.value })} icon={Share2} />
                                 </div>
 
                                 <button onClick={handleUpdate} className="w-full bg-[#F84E6E] text-white py-3 rounded-xl font-bold hover:brightness-110 shadow-lg shadow-pink-500/20 mt-4">
-                                    บันทึกการเปลี่ยนแปลง
+                                    {t('dashboard.agency_save')}
                                 </button>
                             </div>
                         ) : (
                             <div className="bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/5">
-                                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><Users className="text-[#F84E6E]" /> รายชื่อเด็กในสังกัด</h3>
+                                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><Users className="text-[#F84E6E]" /> {t('dashboard.agency_member_list')}</h3>
 
                                 {/* Tabs or Sections */}
                                 <div className="space-y-6">
@@ -508,10 +511,9 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                                     <Building size={20} />
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-[#F84E6E] text-sm">ยืนยันสังกัดและเจ้าของ</h4>
+                                    <h4 className="font-bold text-[#F84E6E] text-sm">{t('dashboard.agency_verify_title')}</h4>
                                     <p className="text-xs text-white/70 mt-1">
-                                        ระบบจะทำการตรวจสอบข้อมูลสังกัดของคุณ <br />
-                                        เพื่อเปิดให้คุณสามารถรับสมาชิกเข้าสังกัดได้
+                                        {t('dashboard.agency_verify_desc')}
                                     </p>
                                 </div>
                             </div>
@@ -536,7 +538,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                                 onClick={confirmVerification}
                                 className="py-3 rounded-xl bg-gradient-to-r from-[#F84E6E] to-[#e11d48] text-white font-bold shadow-lg hover:shadow-xl hover:scale-[1.02] transition"
                             >
-                                ยืนยันการส่ง
+                                {t('confirm')}
                             </button>
                         </div>
                     </div>
@@ -557,6 +559,7 @@ const SERVICE_TAGS = [
 ];
 
 const UserDashboard = ({ user, onLogout }: any) => {
+    const { t } = useLanguage();
     const router = useRouter();
     const [activeTab, setActiveTab] = useState("dashboard"); // dashboard, info, reviews, favorites
     const [stats, setStats] = useState({ profilesSeen: 0, myReviews: 0, myFavorites: 0 });
@@ -722,7 +725,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
             });
             if (res.ok) {
                 const updated = await res.json();
-                toast.success("บันทึกข้อมูลสำเร็จ");
+                toast.success(t('common.saved_success'));
                 const storedUser = JSON.parse(localStorage.getItem("user") || "{ }");
                 localStorage.setItem("user", JSON.stringify({ ...storedUser, ...updated }));
             }
@@ -746,7 +749,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
 
             if (res.ok) {
                 const updated = await res.json();
-                toast.success("อัปเดตรูปโปรไฟล์สำเร็จ");
+                toast.success(t('common.profile_updated'));
                 const storedUser = JSON.parse(localStorage.getItem("user") || "{ }");
                 localStorage.setItem("user", JSON.stringify({ ...storedUser, avatarUrl: url }));
                 window.location.reload();
@@ -767,7 +770,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
             });
             if (res.ok) {
                 const updated = await res.json();
-                toast.success("บันทึกการตั้งค่าสำเร็จ");
+                toast.success(t('common.saved_success'));
                 const storedUser = JSON.parse(localStorage.getItem("user") || "{ }");
                 localStorage.setItem("user", JSON.stringify({ ...storedUser, ...updated }));
             }
@@ -812,10 +815,10 @@ const UserDashboard = ({ user, onLogout }: any) => {
                             </div>
 
                             <nav className="space-y-1">
-                                <SidebarItem id="dashboard" label="แดชบอร์ด" icon={Zap} />
-                                <SidebarItem id="info" label="ข้อมูลส่วนตัว" icon={UserIcon} />
-                                <SidebarItem id="reviews" label="รีวิวของฉัน" icon={Star} />
-                                <SidebarItem id="favorites" label="รายการโปรด" icon={Heart} />
+                                <SidebarItem id="dashboard" label={t('dashboard.tab_dashboard')} icon={Zap} />
+                                <SidebarItem id="info" label={t('dashboard.tab_info')} icon={UserIcon} />
+                                <SidebarItem id="reviews" label={t('dashboard.tab_reviews')} icon={Star} />
+                                <SidebarItem id="favorites" label={t('dashboard.tab_favorites')} icon={Heart} />
                                 <SidebarItem id="preferences" label="ตั้งค่าฟิลเตอร์" icon={Settings} />
                                 {/* <button onClick={() => window.open(telegramUrl, '_blank')} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/5 transition">
                                     <Send size={18} /> เข้าร่วมบน Telegram
@@ -832,7 +835,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                         {activeTab === 'dashboard' && (
                             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                                 <div className="bg-[#1e1b4b]/50 rounded-2xl p-6 shadow-sm border border-white/5">
-                                    <h2 className="font-bold text-xl mb-2 dark:text-white">My Dashboard</h2>
+                                    <h2 className="font-bold text-xl mb-2 dark:text-white">{t('dashboard.title')}</h2>
                                     <p className="text-gray-500 text-sm">Welcome back! Here&apos;s your Phusao activity overview</p>
                                 </div>
 
@@ -842,10 +845,6 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                         className="bg-[#1e1b4b]/50 p-6 rounded-2xl shadow-sm border border-white/5 flex flex-col justify-between h-[140px] cursor-pointer hover:bg-white/5 transition"
                                     >
                                         <div className="flex justify-between items-start">
-                                            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Profiles Seen</span>
-                                            <Eye size={18} className="text-[#F84E6E]" />
-                                        </div>
-                                        <div className="flex justify-between items-end">
                                             <span className="text-3xl font-bold dark:text-white">{stats.profilesSeen}</span>
                                             <MoreHorizontal size={18} className="text-gray-400" />
                                         </div>
@@ -856,10 +855,6 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                         className="bg-[#1e1b4b]/50 p-6 rounded-2xl shadow-sm border border-white/5 flex flex-col justify-between h-[140px] cursor-pointer hover:bg-white/5 transition"
                                     >
                                         <div className="flex justify-between items-start">
-                                            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">My Reviews</span>
-                                            <Star size={18} className="text-orange-400" />
-                                        </div>
-                                        <div className="flex justify-between items-end">
                                             <span className="text-3xl font-bold dark:text-white">{stats.myReviews}</span>
                                             <MoreHorizontal size={18} className="text-gray-400" />
                                         </div>
@@ -870,10 +865,6 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                         className="bg-[#1e1b4b]/50 p-6 rounded-2xl shadow-sm border border-white/5 flex flex-col justify-between h-[140px] cursor-pointer hover:bg-white/5 transition"
                                     >
                                         <div className="flex justify-between items-start">
-                                            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">My Favorites</span>
-                                            <Heart size={18} className="text-pink-500" />
-                                        </div>
-                                        <div className="flex justify-between items-end">
                                             <span className="text-3xl font-bold dark:text-white">{stats.myFavorites}</span>
                                             <MoreHorizontal size={18} className="text-gray-400" />
                                         </div>
@@ -901,13 +892,13 @@ const UserDashboard = ({ user, onLogout }: any) => {
 
                         {activeTab === 'info' && (
                             <div className="bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/5 animate-in fade-in slide-in-from-bottom-4">
-                                <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2"><Edit className="text-[#F84E6E]" /> แก้ไขข้อมูลส่วนตัว</h3>
+                                <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2"><Edit className="text-[#F84E6E]" /> {t('dashboard.tab_info')}</h3>
                                 <div className="space-y-4">
-                                    <InputField label="ชื่อที่ใช้แสดง" value={form.displayName} onChange={(e: any) => setForm({ ...form, displayName: e.target.value })} icon={UserIcon} />
+                                    <InputField label={t('dashboard.profile_display_name')} value={form.displayName} onChange={(e: any) => setForm({ ...form, displayName: e.target.value })} icon={UserIcon} />
                                     <div className="grid grid-cols-3 gap-4">
-                                        <InputField label="อายุ" type="number" value={form.age} onChange={(e: any) => setForm({ ...form, age: Number(e.target.value) })} />
+                                        <InputField label={t('dashboard.profile_age')} type="number" value={form.age} onChange={(e: any) => setForm({ ...form, age: Number(e.target.value) })} />
                                         <div className="space-y-1.5">
-                                            <label className="text-xs font-medium text-white/70 ml-1">เพศ</label>
+                                            <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.profile_gender')}</label>
                                             <select
                                                 value={form.gender}
                                                 onChange={(e) => setForm({ ...form, gender: e.target.value })}
@@ -921,7 +912,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-1.5">
-                                            <label className="text-xs font-medium text-white/70 ml-1">ประเทศ</label>
+                                            <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.profile_country')}</label>
                                             <select
                                                 value={form.country}
                                                 onChange={(e) => {
@@ -940,7 +931,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                             </select>
                                         </div>
                                         <div className="space-y-1.5">
-                                            <label className="text-xs font-medium text-white/70 ml-1">จังหวัด</label>
+                                            <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.profile_province')}</label>
                                             <select
                                                 value={form.province}
                                                 onChange={(e) => {
@@ -959,13 +950,13 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                         </div>
                                     </div>
                                     <div className="mt-4">
-                                        <InputField label="รายละเอียดที่ตั้ง (เช่น ถนน, ซอย)" value={form.location} onChange={(e: any) => setForm({ ...form, location: e.target.value })} icon={MapPin} />
+                                        <InputField label={t('dashboard.profile_location_placeholder')} value={form.location} onChange={(e: any) => setForm({ ...form, location: e.target.value })} icon={MapPin} />
                                     </div>
 
                                     {/* Zone Selection */}
                                     {form.province && (
                                         <div className="space-y-2">
-                                            <label className="text-xs font-medium text-white/70 ml-1">โซนที่คุณรับงาน (เลือกได้หลายโซน)</label>
+                                            <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.profile_zone')}</label>
                                             <div className="p-4 bg-black/20 rounded-xl border border-white/10 max-h-40 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-2">
                                                 {availableZones.length > 0 ? availableZones.map((zone) => (
                                                     <div
@@ -990,7 +981,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                     )}
 
                                     <button onClick={handleUpdate} disabled={loading} className="w-full bg-[#F84E6E] text-white py-3 rounded-xl font-bold hover:brightness-110 shadow-lg shadow-pink-500/20 mt-4">
-                                        {loading ? "กำลังบันทึก..." : "บันทึกการเปลี่ยนแปลง"}
+                                        {loading ? t('common.loading') : t('dashboard.agency_save')}
                                     </button>
                                 </div>
                             </div>
@@ -998,7 +989,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
 
                         {activeTab === 'reviews' && (
                             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-                                <h2 className="font-bold text-xl dark:text-white">รีวิวของฉัน ({reviews.length})</h2>
+                                <h2 className="font-bold text-xl dark:text-white">{t('dashboard.tab_reviews')} ({reviews.length})</h2>
                                 {reviews.length > 0 ? (
                                     <div className="grid gap-4">
                                         {reviews.map((review: any) => (
@@ -1035,7 +1026,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
 
                         {activeTab === 'favorites' && (
                             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-                                <h2 className="font-bold text-xl dark:text-white">รายการโปรด ({favorites.length})</h2>
+                                <h2 className="font-bold text-xl dark:text-white">{t('dashboard.tab_favorites')} ({favorites.length})</h2>
                                 {favorites.length > 0 ? (
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                         {favorites.map((creator: any) => (
@@ -1062,7 +1053,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
 
                         {activeTab === 'history' && (
                             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-                                <h2 className="font-bold text-xl dark:text-white">ประวัติการเข้าชม ({history.length})</h2>
+                                <h2 className="font-bold text-xl dark:text-white">{t('dashboard.tab_history')} ({history.length})</h2>
                                 {history.length > 0 ? (
                                     <div className="space-y-4">
                                         {history.map((item: any, i: number) => {
@@ -1080,7 +1071,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                                         </div>
                                                         <div>
                                                             <h4 className="font-bold text-white">{creator.displayName}</h4>
-                                                            <p className="text-xs text-gray-500">Viewed {new Date(item.viewedAt).toLocaleDateString()}</p>
+                                                            <p className="text-xs text-gray-500">{t('dashboard.history_viewed')} {new Date(item.viewedAt).toLocaleDateString()}</p>
                                                         </div>
                                                     </div>
                                                     <ChevronRight size={18} className="text-gray-400" />
@@ -1090,7 +1081,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                     </div>
                                 ) : (
                                     <div className="text-center py-12 text-gray-400 bg-white/5 rounded-2xl border border-dashed border-white/10">
-                                        ไม่พบประวัติการเข้าชม
+                                        {t('dashboard.history_empty')}
                                     </div>
                                 )}
                             </div>
@@ -1099,13 +1090,13 @@ const UserDashboard = ({ user, onLogout }: any) => {
                         {activeTab === 'preferences' && (
                             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
                                 <div className="flex justify-between items-center">
-                                    <h2 className="font-bold text-xl dark:text-white underline-offset-8 underline decoration-[#F84E6E]">ตั้งค่าฟิลเตอร์ที่ต้องการ</h2>
+                                    <h2 className="font-bold text-xl dark:text-white underline-offset-8 underline decoration-[#F84E6E]">{t('dashboard.pref_title')}</h2>
                                     <button
                                         onClick={handleSavePreferences}
                                         disabled={loading}
                                         className="bg-[#F84E6E] text-white px-6 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-[#d43f5b] transition shadow-lg shadow-pink-500/20 disabled:opacity-50"
                                     >
-                                        <Save size={18} /> {loading ? 'กำลังบันทึก...' : 'บันทึกการตั้งค่า'}
+                                        <Save size={18} /> {loading ? t('common.loading') : t('dashboard.pref_save_settings')}
                                     </button>
                                 </div>
 
@@ -1114,7 +1105,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                     <div className="space-y-8">
                                         <div className="bg-[#1e1b4b]/50 p-6 rounded-2xl border border-white/5 space-y-6">
                                             <h3 className="font-bold text-sm text-[#F84E6E] flex items-center gap-2">
-                                                <Users size={16} /> เพศที่สนใจ
+                                                <Users size={16} /> {t('dashboard.pref_gender_interest')}
                                             </h3>
                                             <div className="grid grid-cols-2 gap-3">
                                                 {GENDER_OPTIONS.map(g => (
@@ -1135,16 +1126,16 @@ const UserDashboard = ({ user, onLogout }: any) => {
 
                                         <div className="bg-[#1e1b4b]/50 p-6 rounded-2xl border border-white/5 space-y-6">
                                             <h3 className="font-bold text-sm text-[#F84E6E] flex items-center gap-2">
-                                                <Scissors size={16} /> ช่วงสัดส่วนและอายุ
+                                                <Scissors size={16} /> {t('dashboard.pref_stats_age')}
                                             </h3>
                                             <div className="space-y-4">
                                                 {[
-                                                    { label: "อายุ", key: "ageRange" },
-                                                    { label: "ส่วนสูง", key: "heightRange" },
-                                                    { label: "น้ำหนัก", key: "weightRange" },
-                                                    { label: "หน้าอก", key: "chestRange" },
-                                                    { label: "เอว", key: "waistRange" },
-                                                    { label: "สะโพก", key: "buttsRange" },
+                                                    { label: t('dashboard.profile_age'), key: "ageRange" },
+                                                    { label: t('dashboard.pref_height'), key: "heightRange" },
+                                                    { label: t('dashboard.pref_weight'), key: "weightRange" },
+                                                    { label: t('dashboard.pref_chest'), key: "chestRange" },
+                                                    { label: t('dashboard.pref_waist'), key: "waistRange" },
+                                                    { label: t('dashboard.pref_hips'), key: "buttsRange" },
                                                 ].map((item: any) => (
                                                     <div key={item.key} className="grid grid-cols-2 gap-4">
                                                         <InputField
@@ -1175,7 +1166,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                     <div className="space-y-8">
                                         <div className="bg-[#1e1b4b]/50 p-6 rounded-2xl border border-white/5 space-y-6">
                                             <h3 className="font-bold text-sm text-[#F84E6E] flex items-center gap-2">
-                                                <Zap size={16} /> ประเภทงาน
+                                                <Zap size={16} /> {t('dashboard.pref_service_types')}
                                             </h3>
                                             <div className="grid grid-cols-2 gap-3">
                                                 {SERVICE_TYPES.map(s => (
@@ -1196,7 +1187,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
 
                                         <div className="bg-[#1e1b4b]/50 p-6 rounded-2xl border border-white/5 space-y-6">
                                             <h3 className="font-bold text-sm text-[#F84E6E] flex items-center gap-2">
-                                                <Hash size={16} /> แท็กความต้องการพิเศษ
+                                                <Hash size={16} /> {t('dashboard.pref_service_tags')}
                                             </h3>
                                             <div className="grid grid-cols-2 gap-3">
                                                 {SERVICE_TAGS.map(t => (
@@ -1229,6 +1220,7 @@ import { getAuthToken } from "../../lib/auth";
 
 export default function Dashboard() {
     const router = useRouter();
+    const { t } = useLanguage();
     const [user, setUser] = useState<any>(null);
     const [creator, setCreator] = useState<any>(null);
     const [loading, setLoading] = useState(true);
@@ -1329,7 +1321,7 @@ export default function Dashboard() {
 
             const parsedUser = JSON.parse(storedUser);
             if (parsedUser.role !== "CREATOR" && parsedUser.role !== "AGENCY" && parsedUser.role !== "USER") {
-                toast.warn("Unknown Role");
+                toast.warn(t('common.unknown_role'));
                 router.push("/");
                 return;
             }
@@ -1438,7 +1430,7 @@ export default function Dashboard() {
             });
 
             if (res.ok) {
-                toast.success("อัปโหลดสตอรี่เรียบร้อย");
+                toast.success(t('common.story_uploaded'));
                 fetchMyStories();
             }
         } catch (error) {
@@ -1450,7 +1442,7 @@ export default function Dashboard() {
     };
 
     const handleStoryDelete = async (id: string) => {
-        if (!confirm("ต้องการลบสตอรี่นี้?")) return;
+        if (!confirm(t('common.confirm_delete_story'))) return;
         try {
             const token = getAuthToken();
             await fetch(`${API_BASE_URL}/stories/${id}`, {
@@ -1458,7 +1450,7 @@ export default function Dashboard() {
                 headers: { "Authorization": `Bearer ${token}` }
             });
             fetchMyStories();
-            toast.success("Deleted");
+            toast.success(t('common.deleted'));
         } catch (e) { toast.error("Error"); }
     };
 
@@ -1554,7 +1546,7 @@ export default function Dashboard() {
 
     const handlePostSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!selectedFile && !previewUrl) return toast.warn("กรุณาเลือกรูปภาพ");
+        if (!selectedFile && !previewUrl) return toast.warn(t('common.select_image'));
 
         setIsPosting(true);
         try {
@@ -1565,7 +1557,7 @@ export default function Dashboard() {
                 try {
                     imageUrl = await uploadS3File(selectedFile);
                 } catch (err: any) {
-                    toast.error(err.message || "Upload failed");
+                    toast.error(err.message || t('common.upload_failed'));
                     setIsPosting(false);
                     return;
                 }
@@ -1589,19 +1581,19 @@ export default function Dashboard() {
                 setCaption("");
                 setSelectedFile(null);
                 setPreviewUrl("");
-                toast.success("โพสต์เรียบร้อยแล้ว!");
+                toast.success(t('common.post_success'));
             } else {
                 const err = await res.json();
                 if (err.code === 'SUBSCRIPTION_REQUIRED') {
-                    toast.error("กรุณาซื้อแพ็กเกจก่อนทำการโพสต์");
+                    toast.error(t('common.subscription_required'));
                     router.push('/plans');
                 } else {
-                    toast.error("เกิดข้อผิดพลาดในการโพสต์");
+                    toast.error(t('common.post_failed'));
                 }
             }
         } catch (error) {
             console.error(error);
-            toast.error("เกิดข้อผิดพลาด");
+            toast.error(t('common.error'));
         } finally {
             setIsPosting(false);
         }
@@ -1625,11 +1617,11 @@ export default function Dashboard() {
                 setUser({ ...user, avatarUrl: url });
                 const storageUser = JSON.parse(localStorage.getItem("user") || "{ }");
                 localStorage.setItem("user", JSON.stringify({ ...storageUser, avatarUrl: url }));
-                toast.success("อัปเดตรูปโปรไฟล์สำเร็จ");
+                toast.success(t('common.profile_updated'));
             }
         } catch (error) {
             console.error(error);
-            toast.error("อัปโหลดไม่สำเร็จ");
+            toast.error(t('common.upload_failed'));
         }
     };
 
@@ -1648,11 +1640,11 @@ export default function Dashboard() {
 
             if (res.ok) {
                 setCreator({ ...creator, bannerUrl: url });
-                toast.success("อัปเดตปกสำเร็จ");
+                toast.success(t('common.cover_updated'));
             }
         } catch (error) {
             console.error(error);
-            toast.error("อัปโหลดไม่สำเร็จ");
+            toast.error(t('common.upload_failed'));
         }
     };
 
@@ -1661,7 +1653,7 @@ export default function Dashboard() {
         const files = Array.from(e.target.files);
 
         try {
-            toast.info(`กำลังอัปโหลด ${files.length} รูป... กรุณารอสักครู่`);
+            toast.info(t('common.uploading'));
             const uploadPromises = files.map(file => uploadS3File(file));
             const distinctUrls = await Promise.all(uploadPromises);
 
@@ -1677,13 +1669,13 @@ export default function Dashboard() {
 
             if (res.ok) {
                 setCreator({ ...creator, images: newImages });
-                toast.success("อัปโหลดรูปผลงานสำเร็จ");
+                toast.success(t('common.gallery_uploaded'));
             } else {
                 const err = await res.json();
                 if (err.code === 'SUBSCRIPTION_REQUIRED') {
-                    toast.error("กรุณาซื้อแพ็กเกจก่อนอัปโหลดรูปผลงาน");
+                    toast.error(t('common.subscription_required'));
                 } else {
-                    toast.error("อัปโหลดไม่สำเร็จ");
+                    toast.error(t('common.upload_failed'));
                 }
             }
         } catch (error) {
@@ -1810,8 +1802,8 @@ export default function Dashboard() {
                 <div className="relative z-10">
                     <div className="flex justify-between items-center mb-8">
                         <div>
-                            <h1 className="text-2xl font-bold">Creator Dashboard</h1>
-                            <p className="text-white/60 text-sm">จัดการข้อมูลและผลงานของคุณ</p>
+                            <h1 className="text-2xl font-bold">{t('dashboard.creator_title')}</h1>
+                            <p className="text-white/60 text-sm">{t('dashboard.creator_subtitle')}</p>
                         </div>
                         <button onClick={handleLogout} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition backdrop-blur-md cursor-pointer">
                             <LogOut size={20} />
@@ -1834,7 +1826,7 @@ export default function Dashboard() {
                                     </div>
                                 )}
                                 <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition text-white text-xs cursor-pointer rounded-full">
-                                    เปลี่ยนรูป
+                                    {t('dashboard.creator_change_photo')}
                                     <input type="file" hidden onChange={handleAvatarUpload} />
                                 </label>
                             </div>
@@ -1845,7 +1837,7 @@ export default function Dashboard() {
 
                         <div className="min-w-0">
                             <h2 className="text-3xl font-bold">{creator?.displayName || user?.username}</h2>
-                            <p className="text-white/70 text-sm max-w-xs truncate">{creator?.bio || "ยังไม่มีคำอธิบายตัวตน"}</p>
+                            <p className="text-white/70 text-sm max-w-xs truncate">{creator?.bio || t('dashboard.creator_no_bio')}</p>
 
                             {/* Tags or Badges */}
                             <div className="flex gap-2 mt-3">
@@ -1857,7 +1849,7 @@ export default function Dashboard() {
 
                         {/* Banner Edit Trigger (Absolute) */}
                         <label className="absolute bottom-0 right-0 mb-8 mr-0 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full text-xs cursor-pointer backdrop-blur transition flex items-center gap-2">
-                            <Camera size={14} /> เปลี่ยนปก
+                            <Camera size={14} /> {t('dashboard.creator_change_cover')}
                             <input type="file" hidden onChange={handleBannerUpload} />
                         </label>
                     </div>
@@ -1868,15 +1860,15 @@ export default function Dashboard() {
                 {/* Stats Cards */}
                 <div className="grid grid-cols-3 gap-4 mb-8">
                     <div className="bg-[#1e1b4b]/80 backdrop-blur p-4 rounded-2xl shadow-lg border border-white/5 text-center">
-                        <h3 className="text-gray-400 text-xs font-bold uppercase mb-1">Posts</h3>
+                        <h3 className="text-gray-400 text-xs font-bold uppercase mb-1">{t('dashboard.creator_stats_posts')}</h3>
                         <p className="text-2xl font-bold text-white">{stats.posts}</p>
                     </div>
                     <div className="bg-[#1e1b4b]/80 backdrop-blur p-4 rounded-2xl shadow-lg border border-white/5 text-center">
-                        <h3 className="text-gray-400 text-xs font-bold uppercase mb-1">Likes</h3>
+                        <h3 className="text-gray-400 text-xs font-bold uppercase mb-1">{t('dashboard.creator_stats_likes')}</h3>
                         <p className="text-2xl font-bold text-white">{stats.likes}</p>
                     </div>
                     <div className="bg-[#1e1b4b]/80 backdrop-blur p-4 rounded-2xl shadow-lg border border-white/5 text-center">
-                        <h3 className="text-gray-400 text-xs font-bold uppercase mb-1">Views</h3>
+                        <h3 className="text-gray-400 text-xs font-bold uppercase mb-1">{t('dashboard.creator_stats_views')}</h3>
                         <p className="text-2xl font-bold text-white">{stats.views}</p>
                     </div>
                 </div>
@@ -1884,27 +1876,27 @@ export default function Dashboard() {
                 {isEditing ? (
                     <div className="bg-[#1e1b4b]/80 backdrop-blur rounded-3xl p-6 shadow-xl border border-white/5 animate-in fade-in slide-in-from-bottom-8">
                         <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-xl font-bold text-white flex items-center gap-2"><Edit className="text-[#F84E6E]" /> แก้ไขโปรไฟล์</h3>
-                            <button onClick={() => setIsEditing(false)} className="text-sm text-gray-400 hover:text-white cursor-pointer">ยกเลิก</button>
+                            <h3 className="text-xl font-bold text-white flex items-center gap-2"><Edit className="text-[#F84E6E]" /> {t('dashboard.creator_edit_profile')}</h3>
+                            <button onClick={() => setIsEditing(false)} className="text-sm text-gray-400 hover:text-white cursor-pointer">{t('dashboard.creator_cancel')}</button>
                         </div>
 
                         <div className="space-y-5">
-                            <InputField label="ชื่อที่ใช้แสดง (Display Name)" value={editForm.displayName} onChange={(e: any) => setEditForm({ ...editForm, displayName: e.target.value })} />
+                            <InputField label={t('dashboard.creator_display_name')} value={editForm.displayName} onChange={(e: any) => setEditForm({ ...editForm, displayName: e.target.value })} />
 
                             <div className="space-y-1.5">
-                                <label className="text-xs font-medium text-white/70 ml-1">คำอธิบายตัวเอง (Bio)</label>
+                                <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.creator_bio')}</label>
                                 <textarea
                                     value={editForm.bio}
                                     onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
                                     className="w-full bg-black/20 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] min-h-[100px] text-sm"
-                                    placeholder="แนะนำตัวเองสั้นๆ..."
+                                    placeholder={t('dashboard.creator_bio_placeholder')}
                                 />
                             </div>
 
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                <InputField label="อายุ" type="number" value={editForm.age} onChange={(e: any) => setEditForm({ ...editForm, age: parseInt(e.target.value) })} />
+                                <InputField label={t('dashboard.creator_age')} type="number" value={editForm.age} onChange={(e: any) => setEditForm({ ...editForm, age: parseInt(e.target.value) })} />
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-medium text-white/70 ml-1">เพศ (Gender)</label>
+                                    <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.creator_gender')}</label>
                                     <select
                                         value={editForm.gender}
                                         onChange={(e) => setEditForm({ ...editForm, gender: e.target.value })}
@@ -1915,14 +1907,14 @@ export default function Dashboard() {
                                         ))}
                                     </select>
                                 </div>
-                                <InputField label="ราคา (เริ่มต้น)" type="number" value={editForm.price} onChange={(e: any) => setEditForm({ ...editForm, price: parseInt(e.target.value) })} icon={DollarSign} />
-                                <InputField label="ระยะเวลา" value={editForm.priceTime || ''} onChange={(e: any) => setEditForm({ ...editForm, priceTime: e.target.value })} placeholder="1 ชม." />
+                                <InputField label={t('dashboard.creator_price_start')} type="number" value={editForm.price} onChange={(e: any) => setEditForm({ ...editForm, price: parseInt(e.target.value) })} icon={DollarSign} />
+                                <InputField label={t('dashboard.creator_duration')} value={editForm.priceTime || ''} onChange={(e: any) => setEditForm({ ...editForm, priceTime: e.target.value })} placeholder={t('dashboard.creator_duration_placeholder')} />
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="space-y-1.5">
-                                        <label className="text-xs font-medium text-white/70 ml-1">ประเทศ</label>
+                                        <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.profile_country')}</label>
                                         <select
                                             value={editForm.country}
                                             onChange={(e) => {
@@ -1935,14 +1927,14 @@ export default function Dashboard() {
                                             disabled={!hasSubscription}
                                             className={`w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none ${!hasSubscription ? 'opacity-50 cursor-not-allowed' : ''}`}
                                         >
-                                            <option value="" className="bg-slate-900">เลือกประเทศ</option>
+                                            <option value="" className="bg-slate-900">{t('dashboard.profile_country')}</option>
                                             {availableCountries.map((c: any) => (
                                                 <option key={c.code} value={c.name} className="bg-slate-900">{c.name}</option>
                                             ))}
                                         </select>
                                     </div>
                                     <div className="space-y-1.5">
-                                        <label className="text-xs font-medium text-white/70 ml-1">จังหวัด</label>
+                                        <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.profile_province')}</label>
                                         <select
                                             value={editForm.province}
                                             onChange={(e) => {
@@ -1954,25 +1946,25 @@ export default function Dashboard() {
                                             disabled={!hasSubscription}
                                             className={`w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none ${!hasSubscription ? 'opacity-50 cursor-not-allowed' : ''}`}
                                         >
-                                            <option value="" className="bg-slate-900">เลือกจังหวัด</option>
+                                            <option value="" className="bg-slate-900">{t('dashboard.profile_province')}</option>
                                             {availableLocations.map((loc: any) => (
                                                 <option key={loc.id} value={loc.name} className="bg-slate-900">{loc.name}</option>
                                             ))}
                                         </select>
                                     </div>
-                                    <InputField label="สถานที่ (ระบุโซน/ถนน)" value={editForm.location} onChange={(e: any) => setEditForm({ ...editForm, location: e.target.value })} icon={MapPin} />
+                                    <InputField label={t('dashboard.creator_location')} value={editForm.location} onChange={(e: any) => setEditForm({ ...editForm, location: e.target.value })} icon={MapPin} />
                                 </div>
 
                                 {/* Zones Selection */}
                                 {editForm.province && (
                                     <div className="space-y-2">
-                                        <label className="text-xs font-medium text-white/70 ml-1">โซนที่รับงาน (เลือกได้หลายโซน)</label>
+                                        <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.agency_zone')}</label>
 
                                         {!hasSubscription ? (
                                             <div className="p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-center">
                                                 <p className="text-yellow-500 text-xs flex items-center justify-center gap-2">
                                                     <Zap size={14} />
-                                                    ต้องมีแพ็กเกจเพื่อเลือกโซนรับงาน
+                                                    {t('dashboard.creator_zone_required')}
                                                 </p>
                                             </div>
                                         ) : (
@@ -2001,33 +1993,33 @@ export default function Dashboard() {
                                 )}
 
                                 <div className="col-span-2">
-                                    <label className="text-xs font-medium text-white/70 ml-1 mb-1 block">สัดส่วน (อก-เอว-สะโพก)</label>
+                                    <label className="text-xs font-medium text-white/70 ml-1 mb-1 block">{t('dashboard.creator_proportions')}</label>
                                     <div className="grid grid-cols-3 gap-2">
-                                        <InputField label="อก (นิ้ว)" type="number" value={editForm.chest} onChange={(e: any) => setEditForm({ ...editForm, chest: parseInt(e.target.value) })} />
-                                        <InputField label="เอว (นิ้ว)" type="number" value={editForm.waist} onChange={(e: any) => setEditForm({ ...editForm, waist: parseInt(e.target.value) })} />
-                                        <InputField label="สะโพก (นิ้ว)" type="number" value={editForm.hips} onChange={(e: any) => setEditForm({ ...editForm, hips: parseInt(e.target.value) })} />
+                                        <InputField label={t('dashboard.creator_chest')} type="number" value={editForm.chest} onChange={(e: any) => setEditForm({ ...editForm, chest: parseInt(e.target.value) })} />
+                                        <InputField label={t('dashboard.creator_waist')} type="number" value={editForm.waist} onChange={(e: any) => setEditForm({ ...editForm, waist: parseInt(e.target.value) })} />
+                                        <InputField label={t('dashboard.creator_hips')} type="number" value={editForm.hips} onChange={(e: any) => setEditForm({ ...editForm, hips: parseInt(e.target.value) })} />
                                     </div>
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
-                                <InputField label="ส่วนสูง (cm)" value={editForm.height} onChange={(e: any) => setEditForm({ ...editForm, height: e.target.value })} />
-                                <InputField label="น้ำหนัก (kg)" value={editForm.weight} onChange={(e: any) => setEditForm({ ...editForm, weight: e.target.value })} />
+                                <InputField label={t('dashboard.creator_height')} value={editForm.height} onChange={(e: any) => setEditForm({ ...editForm, height: e.target.value })} />
+                                <InputField label={t('dashboard.creator_weight')} value={editForm.weight} onChange={(e: any) => setEditForm({ ...editForm, weight: e.target.value })} />
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="text-xs font-medium text-white/70 ml-1">งานที่รับ (Services)</label>
+                                <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.creator_services')}</label>
                                 <input
                                     value={editForm.services}
                                     onChange={(e) => setEditForm({ ...editForm, services: e.target.value })}
-                                    placeholder="เช่น ทานข้าว, ถ่ายแบบ, งานเอ็น..."
+                                    placeholder={t('dashboard.creator_services_placeholder')}
                                     className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm"
                                 />
-                                <p className="text-[10px] text-white/40 ml-1">คั่นด้วยเครื่องหมายจุลภาค (,)</p>
+                                <p className="text-[10px] text-white/40 ml-1">{t('dashboard.creator_services_hint')}</p>
                             </div>
 
                             <div className="space-y-3 pt-4 border-t border-white/5">
-                                <label className="text-xs font-medium text-white/70 ml-1">ข้อมูลการติดต่อ (Contact Info)</label>
+                                <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.creator_contact_info')}</label>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <InputField
                                         label="Line ID"
@@ -2048,10 +2040,10 @@ export default function Dashboard() {
                                         placeholder="ชื่อบัญชี (ไม่ต้องมี @)..."
                                     />
                                     <InputField
-                                        label="เบอร์โทรศัพท์"
+                                        label={t('dashboard.creator_phone')}
                                         value={editForm.phone}
                                         onChange={(e: any) => setEditForm({ ...editForm, phone: e.target.value })}
-                                        placeholder="เบอร์โทร..."
+                                        placeholder={t('dashboard.creator_phone_placeholder')}
                                     />
                                 </div>
                             </div>
@@ -2059,7 +2051,7 @@ export default function Dashboard() {
                             {/* Package Management */}
                             <div className="space-y-3 pt-4 border-t border-white/5">
                                 <label className="text-xs font-medium text-white/70 ml-1 flex items-center gap-1">
-                                    <Zap size={12} /> แพ็กเกจราคา (Service Packages)
+                                    <Zap size={12} /> {t('dashboard.creator_packages')}
                                 </label>
 
                                 <div className="space-y-3">
@@ -2067,7 +2059,7 @@ export default function Dashboard() {
                                         <div key={idx} className="bg-black/20 border border-white/10 p-3 rounded-xl flex items-center gap-3">
                                             <div className="flex-1 grid grid-cols-3 gap-2">
                                                 <div className="col-span-1">
-                                                    <span className="text-[10px] text-white/40 block">ราคา</span>
+                                                    <span className="text-[10px] text-white/40 block">{t('dashboard.creator_package_price')}</span>
                                                     <input
                                                         type="number"
                                                         value={pkg.price}
@@ -2080,7 +2072,7 @@ export default function Dashboard() {
                                                     />
                                                 </div>
                                                 <div className="col-span-1">
-                                                    <span className="text-[10px] text-white/40 block">เวลา</span>
+                                                    <span className="text-[10px] text-white/40 block">{t('dashboard.creator_package_time')}</span>
                                                     <input
                                                         type="text"
                                                         value={pkg.time}
@@ -2089,12 +2081,12 @@ export default function Dashboard() {
                                                             newPackages[idx].time = e.target.value;
                                                             setEditForm({ ...editForm, packages: newPackages });
                                                         }}
-                                                        placeholder="40 นาที"
+                                                        placeholder={t('dashboard.creator_package_time_placeholder')}
                                                         className="w-full bg-transparent border-b border-white/10 text-white text-sm focus:outline-none focus:border-[#F84E6E]"
                                                     />
                                                 </div>
                                                 <div className="col-span-1">
-                                                    <span className="text-[10px] text-white/40 block">รายละเอียด</span>
+                                                    <span className="text-[10px] text-white/40 block">{t('dashboard.creator_package_details')}</span>
                                                     <input
                                                         type="text"
                                                         value={pkg.details}
@@ -2103,7 +2095,7 @@ export default function Dashboard() {
                                                             newPackages[idx].details = e.target.value;
                                                             setEditForm({ ...editForm, packages: newPackages });
                                                         }}
-                                                        placeholder="1 น้ำ"
+                                                        placeholder={t('dashboard.creator_package_details_placeholder')}
                                                         className="w-full bg-transparent border-b border-white/10 text-white text-sm focus:outline-none focus:border-[#F84E6E]"
                                                     />
                                                 </div>
@@ -2127,35 +2119,35 @@ export default function Dashboard() {
                                         })}
                                         className="w-full py-2 border border-dashed border-white/20 rounded-xl text-white/50 hover:text-white hover:border-white/40 transition text-xs font-bold flex items-center justify-center gap-2"
                                     >
-                                        <Plus size={14} /> เพิ่มแพ็กเกจ
+                                        <Plus size={14} /> {t('dashboard.creator_add_package')}
                                     </button>
                                 </div>
                             </div>
 
                             {/* Agency Integration */}
                             <div className="space-y-1.5 pt-2 border-t border-white/5 mt-4">
-                                <label className="text-xs font-medium text-white/70 ml-1 flex items-center gap-1"><Building size={12} /> สังกัด (Agency)</label>
+                                <label className="text-xs font-medium text-white/70 ml-1 flex items-center gap-1"><Building size={12} /> {t('dashboard.creator_agency')}</label>
                                 <select
                                     value={editForm.agency}
                                     onChange={(e) => setEditForm({ ...editForm, agency: e.target.value })}
                                     className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none"
                                 >
-                                    <option value="" className="bg-slate-900 text-white">-- ไม่มีสังกัด / อิสระ --</option>
+                                    <option value="" className="bg-slate-900 text-white">{t('dashboard.creator_no_agency')}</option>
                                     {agencies.map((agency) => (
                                         <option key={agency._id} value={agency._id} className="bg-slate-900 text-white">
                                             {agency.name} {agency.isVerified ? '✅' : ''}
                                         </option>
                                     ))}
                                 </select>
-                                <p className="text-[10px] text-yellow-500/80 ml-1">การเปลี่ยนสังกัดจะต้องรอการอนุมัติจากหัวหน้าสังกัดใหม่</p>
+                                <p className="text-[10px] text-yellow-500/80 ml-1">{t('dashboard.creator_agency_hint')}</p>
                             </div>
                             {/* 2. Gallery */}
                             <section className="space-y-4">
-                                <h3 className="text-[#F84E6E] font-bold text-sm uppercase tracking-wider flex items-center gap-2"><ImageIcon size={14} /> รูปผลงาน (Gallery)</h3>
+                                <h3 className="text-[#F84E6E] font-bold text-sm uppercase tracking-wider flex items-center gap-2"><ImageIcon size={14} /> {t('dashboard.creator_gallery')}</h3>
                                 {/* Subscription Barrier for Gallery */}
                                 {!hasSubscription && (
                                     <div className="text-center py-4 px-2 border border-yellow-500/30 bg-yellow-500/10 rounded-xl mb-2">
-                                        <p className="text-yellow-500 text-xs">คุณต้องมีแพ็กเกจจึงจะสามารถอัปโหลดรูปผลงานได้</p>
+                                        <p className="text-yellow-500 text-xs">{t('dashboard.creator_gallery_required')}</p>
                                     </div>
                                 )}
 
@@ -2175,14 +2167,14 @@ export default function Dashboard() {
                                     ))}
                                     <label className={`aspect-square rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 border-dashed flex flex-col items-center justify-center gap-2 cursor-pointer transition ${!hasSubscription ? 'opacity-50 cursor-not-allowed' : ''}`}>
                                         <Plus className="text-white/30" />
-                                        <span className="text-[10px] text-white/30 font-medium">เพิ่มรูป</span>
+                                        <span className="text-[10px] text-white/30 font-medium">{t('dashboard.creator_add_image')}</span>
                                         <input type="file" multiple accept="image/*" hidden onChange={handleGalleryUpload} disabled={!hasSubscription} />
                                     </label>
                                 </div>
                             </section>
 
                             <button onClick={handleProfileUpdate} className="w-full bg-[#F84E6E] text-white py-3 rounded-xl font-bold hover:brightness-110 shadow-lg shadow-pink-500/20 mt-4 text-sm">
-                                บันทึกการเปลี่ยนแปลง
+                                {t('dashboard.creator_save_changes')}
                             </button>
                         </div>
                     </div>
@@ -2194,7 +2186,7 @@ export default function Dashboard() {
                                 onClick={() => setIsEditing(true)}
                                 className="bg-[#1e1b4b]/50 backdrop-blur border border-white/10 hover:bg-white/5 text-white py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-lg cursor-pointer"
                             >
-                                <Edit size={18} className="text-[#F84E6E] cursor-pointer" /> แก้ไขข้อมูล
+                                <Edit size={18} className="text-[#F84E6E] cursor-pointer" /> {t('dashboard.creator_edit_profile')}
                             </button>
 
                         </div>
@@ -2208,8 +2200,8 @@ export default function Dashboard() {
                                         <Zap size={20} fill="currentColor" />
                                     </div>
                                     <div>
-                                        <h4 className="text-yellow-400 font-bold text-sm">Active Subscription</h4>
-                                        <p className="text-yellow-200/60 text-xs">คุณสามารถโพสต์งานได้ปกติ</p>
+                                        <h4 className="text-yellow-400 font-bold text-sm">{t('dashboard.creator_active_subscription')}</h4>
+                                        <p className="text-yellow-200/60 text-xs">{t('dashboard.creator_subscription_desc')}</p>
                                     </div>
                                 </div>
                                 {/* <button className="text-xs bg-yellow-500 text-black font-bold px-3 py-1.5 rounded-lg">View Plan</button> */}
@@ -2222,14 +2214,14 @@ export default function Dashboard() {
                             {!hasSubscription && (
                                 <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-6 text-center animate-pulse mb-4">
                                     <h3 className="text-yellow-500 font-bold text-lg mb-2 flex items-center justify-center gap-2">
-                                        <Zap /> กรุณาเลือกแพ็กเกจเพื่อเปิดใช้งานโปรไฟล์
+                                        <Zap /> {t('dashboard.creator_select_package_title')}
                                     </h3>
-                                    <p className="text-white/70 mb-4">คุณต้องมีแพ็กเกจที่ใช้งานอยู่เพื่อโพสต์รูปและแสดงผลในหน้าค้นหา</p>
+                                    <p className="text-white/70 mb-4">{t('dashboard.creator_select_package_desc')}</p>
                                     <button
                                         onClick={() => router.push('/plans')}
                                         className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-6 py-2 rounded-full shadow-lg transition"
                                     >
-                                        เลือกแพ็กเกจ (Start Now)
+                                        {t('dashboard.creator_select_package_btn')}
                                     </button>
                                 </div>
                             )}
@@ -2248,7 +2240,7 @@ export default function Dashboard() {
                                             type="text"
                                             value={caption}
                                             onChange={(e) => setCaption(e.target.value)}
-                                            placeholder="วันนี้ทำอะไรอยู่? บอกแฟนคลับหน่อย..."
+                                            placeholder={t('dashboard.creator_post_placeholder')}
                                             className="w-full bg-transparent text-white placeholder-white/40 focus:outline-none mb-3 py-2"
                                             disabled={!hasSubscription}
                                         />
@@ -2270,7 +2262,7 @@ export default function Dashboard() {
                                         <div className="flex justify-between items-center border-t border-white/10 pt-3">
                                             <label className={`flex items-center gap-2 text-sm text-[#F84E6E] font-medium hover:text-pink-400 cursor-pointer ${!hasSubscription ? 'opacity-50 cursor-not-allowed' : ''}`}>
                                                 <ImageIcon size={18} />
-                                                เพิ่มรูปภาพ
+                                                {t('dashboard.creator_add_image_btn')}
                                                 <input type="file" accept="image/*" hidden onChange={handleFileSelect} disabled={!hasSubscription} />
                                             </label>
                                             <button
@@ -2278,7 +2270,7 @@ export default function Dashboard() {
                                                 disabled={(!caption && !selectedFile) || isPosting || !hasSubscription}
                                                 className="bg-[#F84E6E] text-white px-6 py-2 rounded-full font-bold text-sm shadow-lg shadow-pink-500/20 disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-110 transition flex items-center gap-2"
                                             >
-                                                {isPosting ? 'Posting...' : <><Send size={16} /> โพสต์เลย</>}
+                                                {isPosting ? t('dashboard.creator_post_btn_loading') : <><Send size={16} /> {t('dashboard.creator_post_btn')}</>}
                                             </button>
                                         </div>
                                     </form>
@@ -2289,13 +2281,13 @@ export default function Dashboard() {
                         {/* Stories Section */}
                         <div className="space-y-4">
                             <h3 className="text-white font-bold text-lg flex items-center gap-2">
-                                <span className="bg-gradient-to-r from-pink-500 to-orange-500 text-transparent bg-clip-text">Stories (24h)</span>
+                                <span className="bg-gradient-to-r from-pink-500 to-orange-500 text-transparent bg-clip-text">{t('dashboard.creator_stories_title')}</span>
                             </h3>
 
                             {/* Subscription Barrier */}
                             {!hasSubscription ? (
                                 <div className="p-4 rounded-xl border border-yellow-500/30 bg-yellow-500/5 text-center">
-                                    <p className="text-yellow-500 text-sm">คุณต้องมีแพ็กเกจ active เพื่อใช้งานฟีเจอร์ Story</p>
+                                    <p className="text-yellow-500 text-sm">{t('dashboard.creator_story_required')}</p>
                                 </div>
                             ) : (
                                 <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
@@ -2304,7 +2296,7 @@ export default function Dashboard() {
                                         <div className="w-10 h-10 rounded-full bg-[#F84E6E] flex items-center justify-center text-white group-hover:scale-110 transition">
                                             {isStoryUploading ? <div className="animate-spin text-xl">C</div> : <Plus size={24} />}
                                         </div>
-                                        <span className="text-xs text-white/70 font-medium">Add Story</span>
+                                        <span className="text-xs text-white/70 font-medium">{t('dashboard.creator_add_story')}</span>
                                         <input
                                             type="file"
                                             accept="image/*,video/*"
@@ -2355,7 +2347,7 @@ export default function Dashboard() {
 
                         {/* Recent Posts Feed */}
                         <div className="space-y-4">
-                            <h3 className="text-white font-bold text-lg flex items-center gap-2"><ImageIcon size={20} className="text-[#F84E6E]" /> โพสต์ล่าสุดของคุณ</h3>
+                            <h3 className="text-white font-bold text-lg flex items-center gap-2"><ImageIcon size={20} className="text-[#F84E6E]" /> {t('dashboard.creator_stats_posts')}</h3>
 
                             {myPosts.length > 0 ? (
                                 myPosts.map((post) => (
