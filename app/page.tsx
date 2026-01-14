@@ -122,7 +122,7 @@ function HomeContent() {
             <div className="flex flex-wrap gap-2 justify-center">
               {group.items.map((zone: any, i: number) => (
                 <Link
-                  href={`/?location=${zone.name}`}
+                  href={`/location/${zone.name}`}
                   key={i}
                   className="flex items-center gap-2 bg-[#1e1b4b] text-white px-3 py-1.5 rounded-full text-sm font-bold shadow-sm hover:scale-105 transition group border border-white/10"
                 >
@@ -386,7 +386,7 @@ function HomeContent() {
                 <div className="flex flex-wrap gap-2 justify-center">
                   {group.items.map((zone: any, i: number) => (
                     <Link
-                      href={`/?location=${zone.name}`}
+                      href={`/location/${zone.name}`}
                       key={i}
                       className="flex items-center gap-2 bg-white text-zinc-800 px-3 py-1.5 rounded-full text-sm font-bold shadow-sm hover:scale-105 transition group"
                     >

@@ -135,7 +135,7 @@ export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalPr
 
                     {/* Province */}
                     <div>
-                        <label className="block text-sm font-medium mb-1 text-zinc-300">จังหวัด sss</label>
+                        <label className="block text-sm font-medium mb-1 text-zinc-300">จังหวัด</label>
                         <select
                             value={filters.province}
                             onChange={(e) => {

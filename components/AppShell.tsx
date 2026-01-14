@@ -288,7 +288,7 @@ function CountryCollapsible({ header, list, onNavigate }: { header: string, list
                                 onNavigate={onNavigate}
                             />
                         ) : (
-                            <Link key={i} href={`/?province=${province.name}`} onClick={onNavigate} className="flex items-center justify-between text-sm text-white/60 hover:text-white py-1.5 px-2 rounded hover:bg-white/5 group transition">
+                            <Link key={i} href={`/location/${province.name}`} onClick={onNavigate} className="flex items-center justify-between text-sm text-white/60 hover:text-white py-1.5 px-2 rounded hover:bg-white/5 group transition">
                                 <span>{province.name}</span>
                                 {province.count > 0 && (
                                     <span className="bg-white/10 text-white group-hover:bg-[#F84E6E] group-hover:text-white px-2 py-0.5 rounded-full text-[10px] font-bold transition">
@@ -329,14 +329,14 @@ function ProvinceCollapsible({ province, onNavigate }: { province: LocationItem,
             {isExpanded && (
                 <div className="flex flex-col gap-1 border-l border-white/10 pl-3 ml-2 mt-1 animate-in slide-in-from-top-1 duration-150">
                     {/* Link to All in Province */}
-                    <Link href={`/?province=${province.name}`} onClick={onNavigate} className="text-xs text-[#F84E6E] hover:text-[#ff7590] py-1 px-2 mb-1">
+                    <Link href={`/location/${province.name}`} onClick={onNavigate} className="text-xs text-[#F84E6E] hover:text-[#ff7590] py-1 px-2 mb-1">
                         ทั้งหมดใน {province.name}
                     </Link>
 
                     {province.subList?.map((zone, i) => (
                         <Link
                             key={i}
-                            href={`/?province=${province.name}&location=${zone.name}`}
+                            href={`/location/${zone.name}`}
                             onClick={onNavigate}
                             className="flex items-center justify-between text-xs text-white/50 hover:text-white py-1 px-2 rounded hover:bg-white/5 group transition"
                         >
