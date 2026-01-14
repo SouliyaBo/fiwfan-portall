@@ -9,7 +9,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         '/auth',
         '/plans',
     ].map((route) => ({
-        url: `https://laoangel.app${route}`,
+        url: `https://phusao.com${route}`,
         lastModified: new Date(),
         changeFrequency: 'daily' as const,
         priority: 1,
@@ -25,7 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         if (res.ok) {
             const creators = await res.json();
             creatorUrls = creators.map((creator: any) => ({
-                url: `https://laoangel.app/sideline/${creator._id}`,
+                url: `https://phusao.com/sideline/${creator._id}`,
                 lastModified: new Date(creator.updatedAt || new Date()),
                 changeFrequency: 'weekly' as const,
                 priority: 0.8,
@@ -42,7 +42,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         if (res.ok) {
             const agencies = await res.json();
             agencyUrls = agencies.map((agency: any) => ({
-                url: `https://laoangel.app/agency/${agency._id}`,
+                url: `https://phusao.com/agency/${agency._id}`,
                 lastModified: new Date(agency.updatedAt || new Date()),
                 changeFrequency: 'weekly' as const,
                 priority: 0.9,
@@ -52,5 +52,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         console.error("Sitemap fetch agencies failed", error);
     }
 
-    return [...routes, ...creatorUrls, ...agencyUrls];
+    // Fetch Locations (Zones)
+    let locationUrls: MetadataRoute.Sitemap = [];
+    try {
+        const res = await fetch(`${API_BASE_URL}/creators/zones`);
+        if (res.ok) {
+            const zones = await res.json();
+            locationUrls = zones.map((zone: any) => ({
+                url: `https://phusao.com/location/${zone.name}`,
+                lastModified: new Date(),
+                changeFrequency: 'daily' as const,
+                priority: 0.8,
+            }));
+        }
+    } catch (error) {
+        console.error("Sitemap fetch zones failed", error);
+    }
+
+    return [...routes, ...creatorUrls, ...agencyUrls, ...locationUrls];
 }

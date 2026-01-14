@@ -348,8 +348,8 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
     const handleShare = async () => {
         if (!creator) return;
         const shareData = {
-            title: `Lao Angel - ${creator.displayName}`,
-            text: `ดูโปรไฟล์ของ ${creator.displayName} บน Lao Angel`,
+            title: `Phusao - ${creator.displayName}`,
+            text: `ดูโปรไฟล์ของ ${creator.displayName} บน Phusao`,
             url: window.location.href,
         };
 
@@ -511,7 +511,7 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
 
                             {/* Promo Banner */}
                             {/* <div className="bg-gradient-to-r from-[#F84E6E] to-[#ff758f] text-white p-3 rounded-xl text-center text-sm font-medium shadow-lg shadow-pink-500/20 card-hover">
-                                使用โค้ด: <span className="font-bold bg-white/20 px-2 py-0.5 rounded">LaoAngel</span> เพื่อบริการที่ดีขึ้นขณะเชื่อมต่อบน LINE
+                                使用โค้ด: <span className="font-bold bg-white/20 px-2 py-0.5 rounded">Phusao</span> เพื่อบริการที่ดีขึ้นขณะเชื่อมต่อบน LINE
                             </div> */}
 
                             {/* Action Buttons */}
@@ -629,7 +629,7 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                 {recommendedCreators.length > 0 && (
                     <div className="mt-20 mb-10">
                         <div className="flex items-center gap-2 mb-8 border-l-4 border-[#F84E6E] pl-4">
-                            <h2 className="text-2xl font-bold dark:text-white">ค้นพบคู่ที่ยอดเยี่ยมครั้งต่อไปของคุณได้ที่ Lao Angel 🔥</h2>
+                            <h2 className="text-2xl font-bold dark:text-white">ค้นพบคู่ที่ยอดเยี่ยมครั้งต่อไปของคุณได้ที่ Phusao 🔥</h2>
                         </div>
 
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">

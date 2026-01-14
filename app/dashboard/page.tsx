@@ -833,7 +833,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                                 <div className="bg-[#1e1b4b]/50 rounded-2xl p-6 shadow-sm border border-white/5">
                                     <h2 className="font-bold text-xl mb-2 dark:text-white">My Dashboard</h2>
-                                    <p className="text-gray-500 text-sm">Welcome back! Here&apos;s your Lao Angel activity overview</p>
+                                    <p className="text-gray-500 text-sm">Welcome back! Here&apos;s your Phusao activity overview</p>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -1758,8 +1758,8 @@ export default function Dashboard() {
         if (navigator.share) {
             try {
                 await navigator.share({
-                    title: `Check out ${creator.displayName}'s profile on Lao Angel`,
-                    text: `Visit ${creator.displayName} on Lao Angel!`,
+                    title: `Check out ${creator.displayName}'s profile on Phusao`,
+                    text: `Visit ${creator.displayName} on Phusao!`,
                     url: shareUrl
                 });
             } catch (error) {

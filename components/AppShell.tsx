@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, MapPin, Users, Award, MessageCircle, Send, LogOut, ChevronRight, X, User } from "lucide-react";
+import { Menu, MapPin, Users, Award, MessageCircle, Send, LogOut, ChevronRight, X, User, Sparkles } from "lucide-react";
 import { API_BASE_URL } from "../lib/constants";
 import { usePathname, useRouter } from 'next/navigation';
 import { getAuthToken } from "../lib/auth";
@@ -106,9 +106,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <nav className="fixed top-0 left-0 right-0 h-16 bg-[#020617]/80 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-4 z-50">
                     <div className="flex items-center gap-2">
                         {/* Logo */}
-                        <Link href="/" className="text-2xl font-bold tracking-tight">
-                            <span className="text-white">Lao</span>
-                            <span className="text-[#F84E6E]">Angel</span>
+                        <Link href="/" className="text-2xl font-bold tracking-tight flex items-center gap-1">
+                            <Sparkles className="text-pink-400 animate-pulse" size={20} />
+                            <span className="bg-gradient-to-r from-pink-300 via-pink-400 to-rose-400 text-transparent bg-clip-text drop-shadow-[0_0_5px_rgba(244,114,182,0.5)]">Phu</span>
+                            <span className="text-white">sao</span>
                         </Link>
                     </div>
 

@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
     if (!creator) {
         return {
-            title: 'Creator Not Found | LaoAngel',
+            title: 'Creator Not Found | Phusao',
             description: 'The requested creator profile could not be found.',
         };
     }
@@ -46,15 +46,15 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
     // SEO Optimized Title & Description
     // Include keywords: ไซด์ไลน์ (Sideline), รับงาน (Available), สัดส่วน (Stats)
-    const title = `${displayName} ${gender || ''} ${location || ''} | LaoAngel`.replace(/\s+/g, ' ').trim();
+    const title = `${displayName} ${gender || ''} ${location || ''} | Phusao`.replace(/\s+/g, ' ').trim();
 
     const stats = `${chest || '?'}-${waist || '?'}-${hips || '?'} สูง ${height || '?'} หนัก ${weight || '?'}`;
-    const description = `น้อง${displayName} ${gender || ''} รับงานไซด์ไลน์ ${location || ''} สัดส่วน ${stats} การันตีความน่ารัก เป็นกันเอง | LaoAngel`.replace(/\s+/g, ' ').trim();
+    const description = `น้อง${displayName} ${gender || ''} รับงานไซด์ไลน์ ${location || ''} สัดส่วน ${stats} การันตีความน่ารัก เป็นกันเอง | Phusao`.replace(/\s+/g, ' ').trim();
 
     return {
         title: title,
         description: description,
-        keywords: [`ไซด์ไลน์`, `รับงาน`, `หาเพื่อนเที่ยว`, `LaoAngel`, location || '', displayName, gender || ''].filter(Boolean),
+        keywords: [`ไซด์ไลน์`, `รับงาน`, `หาเพื่อนเที่ยว`, `Phusao`, location || '', displayName, gender || ''].filter(Boolean),
         openGraph: {
             title: title,
             description: description,
@@ -76,7 +76,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         image: creator.images?.[0],
         description: `Sideline profile of ${creator.displayName}`,
         jobTitle: 'Content Creator',
-        url: `https://laoangel.app/sideline/${id}`, // Assuming domain
+        url: `https://phusao.com/sideline/${id}`, // Assuming domain
     } : null;
 
     return (

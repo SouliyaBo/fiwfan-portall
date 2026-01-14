@@ -69,7 +69,7 @@ export default function AgencyPage() {
                 <div className="container mx-auto">
                     <div className="flex flex-col md:flex-row items-center justify-between mb-8 md:mb-4 gap-4">
                         <Link href="/" className="flex items-center gap-2 text-2xl font-bold">
-                            <span className="text-white">Lao Angel</span>
+                            <span className="text-white">Phusao</span>
                         </Link>
                         <div className="flex gap-3 md:gap-4 w-full md:w-auto justify-center">
                             <a
@@ -87,7 +87,7 @@ export default function AgencyPage() {
                     </div>
 
                     <h1 className="text-3xl md:text-5xl font-bold mb-4 drop-shadow-md">
-                        พบกับเอเจนซี่ชั้นนำของ Lao Angel ที่มีสาวแฟนตาซีตัวจริง!
+                        พบกับเอเจนซี่ชั้นนำของ Phusao ที่มีสาวแฟนตาซีตัวจริง!
                     </h1>
                     <p className="text-xl opacity-90 mb-4">ผู้หญิงจริง. พูดจริง. ล่อ</p>
                     <p className="text-sm opacity-80 max-w-4xl">

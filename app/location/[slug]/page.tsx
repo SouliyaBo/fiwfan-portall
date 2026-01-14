@@ -22,13 +22,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     console.log("slug: ", slug)
     const locationName = decodeURIComponent(slug);
 
-    const title = `น้องๆ ไซด์ไลน์ ${locationName} | LaoAngel`;
-    const description = `รวมน้องๆ ไซด์ไลน์ พริตตี้ โซน${locationName} รับงาน${locationName} การันตีตรงปก คัดเน้นๆ`;
+    const title = `PR สาวลาว PR เด็กเอ็น สาวพีอาร์ ไซด์ไลน์ ${locationName} | Phusao`;
+    const description = `รวมน้องๆ เด็กเอ็น ไซด์ไลน์ พริตตี้ โซน${locationName} รับงาน${locationName} การันตีตรงปก คัดเน้นๆ`;
 
     return {
         title: title,
         description: description,
-        keywords: [`ไซด์ไลน์ ${locationName}`, `รับงาน ${locationName}`, `หาเพื่อนเที่ยว ${locationName}`, `LaoAngel`],
+        keywords: [`ไซด์ไลน์ ${locationName}`, `รับงาน ${locationName}`, `หาเพื่อนเที่ยว ${locationName}`, `Phusao`],
         openGraph: {
             title: title,
             description: description,

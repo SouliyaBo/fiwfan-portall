@@ -2,8 +2,8 @@ import { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
     return {
-        name: 'Lao Angel - Creator Portal',
-        short_name: 'Lao Angel',
+        name: 'Phusao - Creator Portal',
+        short_name: 'Phusao',
         description: 'Discover the best creators and agencies in Laos',
         start_url: '/',
         display: 'standalone',

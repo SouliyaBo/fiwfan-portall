@@ -1,3 +1,5 @@
+"use client";
+
 import { X, Search, MapPin, Hash } from "lucide-react";
 import { useState, useEffect } from "react";
 import { API_BASE_URL } from "../../lib/constants";

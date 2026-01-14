@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Lao Angel",
+  title: "Phusao",
   description: "Creator & Agency Portal",
 };
 

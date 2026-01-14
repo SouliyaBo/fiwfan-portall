@@ -44,13 +44,13 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
     if (!agency) {
         return {
-            title: 'Agency Not Found | LaoAngel',
+            title: 'Agency Not Found | Phusao',
             description: 'The requested agency could not be found.',
         };
     }
 
-    const title = `${agency.name} | LaoAngel Agency`;
-    const description = agency.description || `Explore models from ${agency.name} at LaoAngel.`;
+    const title = `${agency.name} | Phusao Agency`;
+    const description = agency.description || `Explore models from ${agency.name} at Phusao.`;
 
     return {
         title: title,
@@ -82,7 +82,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                         '@context': 'https://schema.org',
                         '@type': 'Organization',
                         name: agency?.name,
-                        url: `https://laoangel.app/agency/${id}`,
+                        url: `https://phusao.com/agency/${id}`,
                         logo: agency?.logoUrl,
                         description: agency?.description
                     })

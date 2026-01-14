@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
             allow: '/',
             disallow: ['/dashboard/', '/admin/', '/check-homework/'],
         },
-        sitemap: 'https://laoangel.app/sitemap.xml', // Domain alias
+        sitemap: 'https://phusao.com/sitemap.xml', // Domain alias
     };
 }
