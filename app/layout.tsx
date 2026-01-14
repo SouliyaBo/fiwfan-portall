@@ -19,6 +19,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Phusao",
   description: "Creator & Agency Portal",
+  verification: {
+    google: "wpSSc1eQpNvWIejUDf9kJ6QV4O-DYkb6PKN1pFga-Jw",
+  },
 };
 
 export const viewport: Viewport = {

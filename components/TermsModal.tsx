@@ -42,9 +42,9 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
 
                 {/* Scrollable Content */}
                 <div className="p-6 overflow-y-auto custom-scrollbar text-sm text-gray-600 space-y-4 leading-relaxed">
-                    <p className="font-bold text-gray-900 text-base">ยินดีต้อนรับสู่ FiwFan!</p>
+                    <p className="font-bold text-gray-900 text-base">ยินดีต้อนรับสู่ Phusao!</p>
                     <p>
-                        ข้อกำหนดและเงื่อนไขการใช้งานเหล่านี้ ("ข้อตกลง") เป็นสัญญาทางกฎหมายระหว่างคุณ ("ผู้ใช้") และ FiwFan ("เรา" หรือ "บริษัท")
+                        ข้อกำหนดและเงื่อนไขการใช้งานเหล่านี้ ("ข้อตกลง") เป็นสัญญาทางกฎหมายระหว่างคุณ ("ผู้ใช้") และ Phusao ("เรา" หรือ "บริษัท")
                         เกี่ยวกับการเข้าถึงและการใช้งานเว็บไซต์และบริการของเรา
                     </p>
 
