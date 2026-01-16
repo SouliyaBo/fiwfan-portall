@@ -558,6 +558,16 @@ const SERVICE_TAGS = [
     "Foot Fetish", "Striptease", "Overnight", "Loli", "Outcall", "Roleplay Cosplay"
 ];
 
+const OPTION_KEYS: Record<string, string> = {
+    "ผู้หญิง": "gender_female", "ผู้ชาย": "gender_male", "LGBTQ+": "gender_lgbtq", "Other": "gender_other",
+    "Sideline": "service_sideline", "N-Kid": "service_nkid", "Tour Guide": "service_tourguide", "Travel": "service_travel",
+    "Rental Girlfriend": "service_girlfriend", "Virtual Exciting Call": "service_vcall", "Massage": "service_massage",
+    "Naked Maid": "service_maid", "Dinner Date": "service_dinner", "Long Term": "service_longterm",
+    "Smooching": "tag_smooching", "BDSM": "tag_bdsm", "Blowjob": "tag_blowjob", "Cum in mouth": "tag_cim",
+    "Swallow": "tag_swallow", "Rimming": "tag_rimming", "Foot Fetish": "tag_foot", "Striptease": "tag_strip",
+    "Overnight": "tag_overnight", "Loli": "tag_loli", "Outcall": "tag_outcall", "Roleplay Cosplay": "tag_cosplay"
+};
+
 const UserDashboard = ({ user, onLogout }: any) => {
     const { t } = useLanguage();
     const router = useRouter();
@@ -819,7 +829,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                 <SidebarItem id="info" label={t('dashboard.tab_info')} icon={UserIcon} />
                                 <SidebarItem id="reviews" label={t('dashboard.tab_reviews')} icon={Star} />
                                 <SidebarItem id="favorites" label={t('dashboard.tab_favorites')} icon={Heart} />
-                                <SidebarItem id="preferences" label="ตั้งค่าฟิลเตอร์" icon={Settings} />
+                                <SidebarItem id="preferences" label={t('dashboard.filter_settings')} icon={Settings} />
                                 {/* <button onClick={() => window.open(telegramUrl, '_blank')} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/5 transition">
                                     <Send size={18} /> เข้าร่วมบน Telegram
                                 </button> */}
@@ -996,7 +1006,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                             <div key={review._id} className="bg-[#1e1b4b]/50 p-6 rounded-2xl shadow-sm border border-white/5">
                                                 <div className="flex justify-between mb-4">
                                                     <div>
-                                                        <h4 className="font-bold text-white">To: {review.creator?.displayName}</h4>
+                                                        <h4 className="font-bold text-white">{t('dashboard.review_to')} {review.creator?.displayName}</h4>
                                                         <div className="flex items-center gap-1 text-yellow-500 text-sm mt-1">
                                                             <Star size={14} fill="currentColor" /> {review.rating?.toFixed(1)}
                                                         </div>
@@ -1018,7 +1028,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                     </div>
                                 ) : (
                                     <div className="text-center py-12 text-gray-400 bg-white/5 rounded-2xl border border-dashed border-white/10">
-                                        ยังไม่มีรีวิว
+                                        {t('dashboard.no_reviews')}
                                     </div>
                                 )}
                             </div>
@@ -1038,14 +1048,14 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                                 </div>
                                                 <div>
                                                     <h4 className="font-bold text-white">{creator.displayName}</h4>
-                                                    <p className="text-xs text-[#F84E6E]">Favorite</p>
+                                                    <p className="text-xs text-[#F84E6E]">{t('dashboard.favorite_label')}</p>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
                                 ) : (
                                     <div className="text-center py-12 text-gray-400 bg-white/5 rounded-2xl border border-dashed border-white/10">
-                                        ไม่มีรายการโปรด
+                                        {t('dashboard.no_favorites')}
                                     </div>
                                 )}
                             </div>
@@ -1111,7 +1121,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                                 {GENDER_OPTIONS.map(g => (
                                                     <CheckboxField
                                                         key={g}
-                                                        label={g}
+                                                        label={t(`dashboard.${OPTION_KEYS[g]}`) || g}
                                                         checked={preferences.genders.includes(g)}
                                                         onChange={(checked: boolean) => {
                                                             const newGenders = checked
@@ -1139,7 +1149,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                                 ].map((item: any) => (
                                                     <div key={item.key} className="grid grid-cols-2 gap-4">
                                                         <InputField
-                                                            label={`${item.label} (Min)`}
+                                                            label={`${item.label} (${t('dashboard.min')})`}
                                                             type="number"
                                                             value={preferences[item.key].min}
                                                             onChange={(e: any) => setPreferences({
@@ -1148,7 +1158,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                                             })}
                                                         />
                                                         <InputField
-                                                            label={`${item.label} (Max)`}
+                                                            label={`${item.label} (${t('dashboard.max')})`}
                                                             type="number"
                                                             value={preferences[item.key].max}
                                                             onChange={(e: any) => setPreferences({
@@ -1172,7 +1182,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                                 {SERVICE_TYPES.map(s => (
                                                     <CheckboxField
                                                         key={s}
-                                                        label={s}
+                                                        label={t(`dashboard.${OPTION_KEYS[s]}`) || s}
                                                         checked={preferences.serviceTypes.includes(s)}
                                                         onChange={(checked: boolean) => {
                                                             const newTypes = checked
@@ -1190,15 +1200,15 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                                 <Hash size={16} /> {t('dashboard.pref_service_tags')}
                                             </h3>
                                             <div className="grid grid-cols-2 gap-3">
-                                                {SERVICE_TAGS.map(t => (
+                                                {SERVICE_TAGS.map(tOption => (
                                                     <CheckboxField
-                                                        key={t}
-                                                        label={t}
-                                                        checked={preferences.serviceTags.includes(t)}
+                                                        key={tOption}
+                                                        label={t(`dashboard.${OPTION_KEYS[tOption]}`) || tOption}
+                                                        checked={preferences.serviceTags.includes(tOption)}
                                                         onChange={(checked: boolean) => {
                                                             const newTags = checked
-                                                                ? [...preferences.serviceTags, t]
-                                                                : preferences.serviceTags.filter((x: string) => x !== t);
+                                                                ? [...preferences.serviceTags, tOption]
+                                                                : preferences.serviceTags.filter((x: string) => x !== tOption);
                                                             setPreferences({ ...preferences, serviceTags: newTags });
                                                         }}
                                                     />
