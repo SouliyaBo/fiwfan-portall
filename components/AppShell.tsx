@@ -7,6 +7,7 @@ import { API_BASE_URL } from "../lib/constants";
 import { usePathname, useRouter } from 'next/navigation';
 import { getAuthToken } from "../lib/auth";
 import { useLanguage } from "../contexts/LanguageContext";
+import { Footer } from "./Footer";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
     const router = useRouter();
@@ -230,6 +231,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             {/* Main Content Payload */}
             <div className={!isAuthPage ? "pt-16" : ""}>
                 {children}
+                {!isAuthPage && <Footer />}
             </div>
 
         </div>
