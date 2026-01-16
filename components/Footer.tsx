@@ -14,16 +14,9 @@ export function Footer() {
                     <span className="text-white/20">|</span>
                     <Link href="/privacy" className="hover:text-white transition">Privacy Policy</Link>
                     <span className="text-white/20">|</span>
-                    <Link href="/terms" className="hover:text-white transition">terms of use</Link>
+                    <Link href="/terms" className="hover:text-white transition">Terms of use</Link>
                     <span className="text-white/20">|</span>
-                    <Link href="/assets" className="hover:text-white transition">Download Logo</Link>
-                    <span className="text-white/20">|</span>
-                    <Link href="/download" className="hover:text-white transition flex items-center gap-1">
-                        <Smartphone size={14} />
-                        Download App
-                    </Link>
-                    <span className="text-white/20">|</span>
-                    <Link href="/human-trafficking" className="hover:text-white transition flex items-center gap-1 text-red-400 hover:text-red-300">
+                    <Link href="https://trafficking.help/ro/" className="hover:text-white transition flex items-center gap-1 text-red-400 hover:text-red-300">
                         <Hand size={14} />
                         Stop Human Trafficking
                     </Link>

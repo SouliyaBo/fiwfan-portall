@@ -383,6 +383,15 @@
         "service_provider_title": "Service provider",
         "service_provider_content": "You can contact us using the",
         "service_provider_link": "contact form",
-        "last_updated": "Last updated 1st Dec 2025"
+        "last_updated": "Last updated 15 jan 2026"
+    },
+    "location": {
+        "title_zone": "ສາວໆໃນໂຊນ {locationName} ({count})",
+        "empty_state_title": "ບໍ່ພົບສາວໆໃນໂຊນນີ້",
+        "empty_state_desc": "ລອງເບິ່ງໂຊນອື່ນໆດ້ານລຸ່ມ",
+        "zone_stats_title": "ຄືນນີ້ພົບກັບຕົວທັອບ!",
+        "zone_stats_subtitle": "ເບິ່ງຄວາມງາມໄດ້ທີ່ phusao.com",
+        "age": "ອາຍຸ",
+        "bangkok": "ບາງກອກ"
     }
 }

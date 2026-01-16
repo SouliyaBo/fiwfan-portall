@@ -383,6 +383,15 @@
         "service_provider_title": "ผู้ให้บริการ",
         "service_provider_content": "คุณสามารถติดต่อเราโดยใช้",
         "service_provider_link": "แบบฟอร์มติดต่อ",
-        "last_updated": "ปรับปรุงล่าสุด 1 ธันวาคม 2025"
+        "last_updated": "ปรับปรุงล่าสุด 15 มกราคม 2026"
+    },
+    "location": {
+        "title_zone": "น้องๆ ในโซน {locationName} ({count})",
+        "empty_state_title": "ไม่พบน้องๆ ในโซนนี้",
+        "empty_state_desc": "ลองดูโซนอื่นๆ ด้านล่าง",
+        "zone_stats_title": "คืนนี้เปิดวาร์ปตัวท็อป!",
+        "zone_stats_subtitle": "ตามไปดูความสวยกันได้ที่ phusao.com",
+        "age": "อายุ",
+        "bangkok": "กรุงเทพมหานคร"
     }
 }

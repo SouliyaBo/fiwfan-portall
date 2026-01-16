@@ -383,6 +383,15 @@
         "service_provider_title": "Service provider",
         "service_provider_content": "You can contact us using the",
         "service_provider_link": "contact form",
-        "last_updated": "Last updated 1st Dec 2025"
+        "last_updated": "Last updated 15 jan 2026"
+    },
+    "location": {
+        "title_zone": "{locationName} 区域的女孩 ({count})",
+        "empty_state_title": "该区域暂无资料",
+        "empty_state_desc": "查看下方其他区域",
+        "zone_stats_title": "今晚气氛火热！",
+        "zone_stats_subtitle": "今晚在 phusao.com 发现美",
+        "age": "年龄",
+        "bangkok": "曼谷"
     }
 }

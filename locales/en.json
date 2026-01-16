@@ -383,6 +383,15 @@
         "service_provider_title": "Service provider",
         "service_provider_content": "You can contact us using the",
         "service_provider_link": "contact form",
-        "last_updated": "Last updated 1st Dec 2025"
+        "last_updated": "Last updated 15 jan 2026"
+    },
+    "location": {
+        "title_zone": "Girls in zone {locationName} ({count})",
+        "empty_state_title": "No profiles found in this zone",
+        "empty_state_desc": "Check out other zones below",
+        "zone_stats_title": "Tonight is on fire!",
+        "zone_stats_subtitle": "Find beauty tonight at phusao.com",
+        "age": "Age",
+        "bangkok": "Bangkok"
     }
 }

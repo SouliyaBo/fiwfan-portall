@@ -219,7 +219,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                                     className="flex items-center gap-2 text-white/40 text-sm hover:text-white/60 cursor-pointer"
                                 >
                                     <LogOut size={16} />
-                                    <LogOut size={16} />
                                     {t('nav.logout')}
                                 </button>
                             )}

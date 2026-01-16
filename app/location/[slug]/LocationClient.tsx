@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getImageUrl } from "../../../lib/images";
 import { useEffect, useState } from "react";
+import { useLanguage } from "../../../contexts/LanguageContext";
 import { API_BASE_URL } from "../../../lib/constants";
 
 interface LocationClientProps {
@@ -12,6 +13,7 @@ interface LocationClientProps {
 }
 
 export default function LocationClient({ creators = [], locationName }: LocationClientProps) {
+    const { t } = useLanguage();
     const [zones, setZones] = useState<any[]>([]);
 
     useEffect(() => {
@@ -40,17 +42,17 @@ export default function LocationClient({ creators = [], locationName }: Location
         return (
             <div className="container mx-auto px-4 py-8">
                 <h1 className="text-2xl font-bold text-white mb-6 border-l-4 border-[#F84E6E] pl-3">
-                    น้องๆ ในโซน {locationName} (0)
+                    {t('location.title_zone').replace('{locationName}', locationName).replace('{count}', '0')}
                 </h1>
                 <div className="text-center py-20 text-white/50 bg-white/5 rounded-2xl border border-dashed border-white/10">
-                    ไม่พบน้องๆ ในโซนนี้
+                    {t('location.empty_state_title')}
                 </div>
 
                 {/* Zone Stats */}
                 <div className="mt-8 border-t border-white/10 pt-8">
                     <h2 className="text-xl md:text-2xl font-bold mb-6 text-white flex items-center gap-3">
                         <span className="w-1 h-8 bg-[#F84E6E] rounded-full"></span>
-                        คืนนี้เปิดวาร์ปตัวท็อป! ตามไปดูความสวยกันได้ที่ phusao.com
+                        {t('location.zone_stats_title')} {t('location.zone_stats_subtitle')}
                     </h2>
 
                     {zones.length > 0 && (
@@ -84,7 +86,7 @@ export default function LocationClient({ creators = [], locationName }: Location
     return (
         <div className="container mx-auto px-4 py-8">
             <h1 className="text-2xl font-bold text-white mb-6 border-l-4 border-[#F84E6E] pl-3">
-                น้องๆ ในโซน {locationName} ({creators.length})
+                {t('location.title_zone').replace('{locationName}', locationName).replace('{count}', creators.length.toString())}
             </h1>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -97,7 +99,7 @@ export default function LocationClient({ creators = [], locationName }: Location
             <div className="mt-8 border-t border-white/10 pt-8">
                 <h2 className="text-xl md:text-2xl font-bold mb-6 text-white flex items-center gap-3">
                     <span className="w-1 h-8 bg-[#F84E6E] rounded-full"></span>
-                    คืนนี้เปิดวาร์ปตัวท็อป! ตามไปดูความสวยกันได้ที่ phusao.com
+                    {t('location.zone_stats_title')} {t('location.zone_stats_subtitle')}
                 </h2>
 
                 {zones.length > 0 && (
@@ -129,6 +131,7 @@ export default function LocationClient({ creators = [], locationName }: Location
 }
 
 function CreatorCard({ creator }: { creator: any }) {
+    const { t } = useLanguage();
     const imageSrc = creator.user?.avatarUrl
         ? getImageUrl(creator.user.avatarUrl)
         : `/mock/creators/${(parseInt((creator._id || "0").slice(-1), 16) % 8) + 1}.png`;
@@ -152,8 +155,8 @@ function CreatorCard({ creator }: { creator: any }) {
                     </div>
                 </div>
                 <div className="flex items-center gap-2 text-[10px] text-white/80">
-                    <span className="px-1.5 py-0.5 bg-white/10 backdrop-blur-md rounded border border-white/10">{creator.province || creator.location || "Bangkok"}</span>
-                    <span>Age {creator.age || "??"}</span>
+                    <span className="px-1.5 py-0.5 bg-white/10 backdrop-blur-md rounded border border-white/10">{creator.province || creator.location || t('location.bangkok')}</span>
+                    <span>{t('location.age')} {creator.age || "??"}</span>
                 </div>
                 <div className="mt-2 flex gap-1">
                     <span className="text-[10px] bg-[#F84E6E] px-1.5 py-0.5 rounded text-white font-bold">{creator.price || "N/A"}.00.-</span>

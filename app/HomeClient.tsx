@@ -220,7 +220,7 @@ function HomeContent() {
                     >
                         <Search className="text-[#F84E6E] mr-3" />
                         <span className="text-zinc-400 font-medium">{t('home.search_placeholder')}</span>
-                        <button className="ml-auto bg-[#1e1b4b] text-white px-6 py-2 rounded-full font-bold text-sm">
+                        <button className="ml-auto bg-[#F84E6E] text-white px-6 py-2 rounded-full font-bold text-sm cursor-pointer">
                             {t('home.search_btn')}
                         </button>
                     </div>
