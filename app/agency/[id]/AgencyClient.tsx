@@ -6,6 +6,7 @@ import Link from "next/link";
 import { API_BASE_URL } from "../../../lib/constants";
 import { getImageUrl } from "../../../lib/images";
 import { MapPin, Phone, MessageCircle, Globe, ShieldCheck, ChevronLeft, Building2 } from "lucide-react";
+import { useLanguage } from "../../../contexts/LanguageContext";
 
 interface AgencyClientProps {
     initialAgency: any;
@@ -13,13 +14,14 @@ interface AgencyClientProps {
 }
 
 export default function AgencyClient({ initialAgency, initialZones }: AgencyClientProps) {
+    const { t } = useLanguage();
     const [agency, setAgency] = useState<any>(initialAgency);
     const [zones, setZones] = useState<any[]>(initialZones || []);
 
     // If for some reason initial data is missing, we could fetch it here, 
     // but for SEO pages we expect server to provide it.
 
-    if (!agency) return <div className="min-h-screen flex items-center justify-center text-white bg-[#020617]">Agency not found</div>;
+    if (!agency) return <div className="min-h-screen flex items-center justify-center text-white bg-[#020617]">{t('agency.not_found')}</div>;
 
     return (
         <div className="min-h-screen bg-[#020617] pb-24">
@@ -55,7 +57,7 @@ export default function AgencyClient({ initialAgency, initialZones }: AgencyClie
                             {agency.name}
                             {agency.isVerified && <ShieldCheck className="text-blue-400" size={28} />}
                         </h1>
-                        <p className="text-white/70 max-w-2xl mt-2">{agency.description || "No description provided."}</p>
+                        <p className="text-white/70 max-w-2xl mt-2">{agency.description || t('agency.no_description')}</p>
 
                         <div className="flex flex-wrap gap-4 mt-4">
                             {agency.location && (
@@ -79,7 +81,7 @@ export default function AgencyClient({ initialAgency, initialZones }: AgencyClie
                             {agency.website && (
                                 <a href={agency.website} target="_blank" className="flex items-center gap-2 text-sm bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-md hover:bg-white/20 transition">
                                     <Globe size={14} className="text-blue-400" />
-                                    Website
+                                    {t('agency.website')}
                                 </a>
                             )}
                         </div>
@@ -89,7 +91,7 @@ export default function AgencyClient({ initialAgency, initialZones }: AgencyClie
                 {/* Creators Section */}
                 <div className="mb-12">
                     <h2 className="text-xl font-bold border-l-4 border-[#F84E6E] pl-3 mb-6 flex items-center gap-2 text-white">
-                        โมเดลในสังกัด <span className="text-[#F84E6E]">({agency.creators?.length || 0})</span>
+                        {t('agency.models_title')} <span className="text-[#F84E6E]">({agency.creators?.length || 0})</span>
                     </h2>
 
                     {agency.creators && agency.creators.length > 0 ? (
@@ -100,7 +102,7 @@ export default function AgencyClient({ initialAgency, initialZones }: AgencyClie
                         </div>
                     ) : (
                         <div className="py-20 text-center border-2 border-dashed border-white/10 rounded-2xl">
-                            <p className="text-white/40">ยังไม่มีน้องๆ ในสังกัดนี้</p>
+                            <p className="text-white/40">{t('agency.no_models')}</p>
                         </div>
                     )}
                 </div>
@@ -109,7 +111,7 @@ export default function AgencyClient({ initialAgency, initialZones }: AgencyClie
                 <div className="mt-8 border-t border-white/10 pt-8">
                     <h2 className="text-2xl font-bold mb-6 text-white flex">
                         <span className="w-1 h-8 bg-[#F84E6E] rounded-full"></span>
-                        คืนนี้เปิดวาร์ปตัวท็อป! ตามไปดูความสวยกันได้ที่ phusao.com
+                        {t('agency.zone_title')}
                     </h2>
 
                     {zones.length > 0 && (
@@ -142,6 +144,7 @@ export default function AgencyClient({ initialAgency, initialZones }: AgencyClie
 }
 
 function CreatorCard({ creator }: { creator: any }) {
+    const { t } = useLanguage();
     // Logic handles populated creator object which might have nested user or direct fields depending on aggregation
     const avatar = creator.user?.avatarUrl || creator.images?.[0]; // Fallback to first gallery image if avatar missing
     const imageSrc = avatar
@@ -169,8 +172,8 @@ function CreatorCard({ creator }: { creator: any }) {
                     </div>
                 </div>
                 <div className="flex items-center gap-2 text-[10px] text-white/80">
-                    <span className="px-1.5 py-0.5 bg-white/10 backdrop-blur-md rounded border border-white/10">{creator.location || "Bangkok"}</span>
-                    <span>Age {creator.age || "??"}</span>
+                    <span className="px-1.5 py-0.5 bg-white/10 backdrop-blur-md rounded border border-white/10">{creator.location || t('agency.bangkok')}</span>
+                    <span>{t('agency.age')} {creator.age || "??"}</span>
                 </div>
                 <div className="mt-2 flex gap-1">
                     <span className="text-[10px] bg-[#F84E6E] px-1.5 py-0.5 rounded text-white font-bold">{creator.price || "N/A"}.00.-</span>

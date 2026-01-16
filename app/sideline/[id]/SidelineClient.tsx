@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { MessageCircle, Star, MapPin, Share2, ArrowLeft, ChevronLeft, ChevronRight, Check, Flag, Heart, Instagram, Phone, Car, Train, Zap } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
+import { useLanguage } from "../../../contexts/LanguageContext";
 import { API_BASE_URL } from "../../../lib/constants";
 import { getImageUrl } from "../../../lib/images";
 import { uploadS3File } from "../../../lib/upload";
@@ -66,6 +67,7 @@ interface SidelineClientProps {
 export default function SidelineClient({ initialCreatorData }: SidelineClientProps) {
     const params = useParams();
     const router = useRouter();
+    const { t, language } = useLanguage();
     const [creator, setCreator] = useState<CreatorDetail | null>(initialCreatorData);
     const [loading, setLoading] = useState(!initialCreatorData);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -90,7 +92,7 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
             setSubmittingReview(true);
             const token = getAuthToken();
             if (!token) {
-                toast.error("กรุณาเข้าสู่ระบบก่อนรีวิว");
+                toast.error(t('sideline.toast_login_review'));
                 router.push("/auth");
                 return;
             }
@@ -113,13 +115,13 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
             });
 
             if (res.ok) {
-                toast.success("ส่งรีวิวเรียบร้อยแล้ว");
+                toast.success(t('sideline.toast_review_success'));
                 setIsReviewOpen(false);
                 setReviewForm({ title: "", rating: 5, accuracyRating: 5, serviceRating: 5, valueRating: 5, comment: "", images: [] });
                 setReviewImages([]);
                 fetchCreator(params.id as string); // Refresh to see new review
             } else {
-                toast.error("ส่งรีวิวไม่สำเร็จ");
+                toast.error(t('sideline.toast_review_failed'));
             }
         } catch (error) {
             console.error(error);
@@ -140,7 +142,7 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
             setIsReporting(true);
             const token = getAuthToken();
             if (!token) {
-                toast.error("กรุณาเข้าสู่ระบบก่อนแจ้งรายงาน");
+                toast.error(t('sideline.toast_login_report'));
                 router.push("/auth");
                 return;
             }
@@ -157,12 +159,12 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
             });
 
             if (res.ok) {
-                toast.success("ส่งรายงานเรียบร้อยแล้ว แอดมินจะดำเนินการตรวจสอบ");
+                toast.success(t('sideline.toast_report_success'));
                 setIsReportOpen(false);
                 setReportReason("");
                 setReportDescription("");
             } else {
-                toast.error("ส่งรายงานไม่สำเร็จ");
+                toast.error(t('sideline.toast_report_failed'));
             }
         } catch (error) {
             toast.error("Error submitting report");
@@ -186,9 +188,9 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
 
     const getBadgeLabel = (planType?: string) => {
         switch (planType) {
-            case 'SUPER_STAR': return 'SUPER STAR';
-            case 'STAR': return 'STAR';
-            case 'POPULAR': return 'POPULAR';
+            case 'SUPER_STAR': return t('sideline.super_star');
+            case 'STAR': return t('sideline.star');
+            case 'POPULAR': return t('sideline.popular');
             default: return null;
         }
     };
@@ -284,7 +286,7 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
     const toggleFavorite = async () => {
         const token = getAuthToken();
         if (!token) {
-            toast.error("กรุณาเข้าสู่ระบบ");
+            toast.error(t('sideline.toast_login_favorite'));
             router.push("/auth");
             return;
         }
@@ -299,7 +301,7 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
             if (res.ok) {
                 const data = await res.json();
                 setIsFavorited(data.isFavorited);
-                toast.success(data.isFavorited ? "เพิ่มในรายการโปรดแล้ว" : "นำออกจากรายการโปรดแล้ว");
+                toast.success(data.isFavorited ? t('sideline.toast_favorite_added') : t('sideline.toast_favorite_removed'));
             }
         } catch (error) {
             toast.error("Error toggling favorite");
@@ -349,7 +351,7 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
         if (!creator) return;
         const shareData = {
             title: `Phusao - ${creator.displayName}`,
-            text: `ดูโปรไฟล์ของ ${creator.displayName} บน Phusao`,
+            text: t('sideline.share_title').replace('{name}', creator.displayName),
             url: window.location.href,
         };
 
@@ -358,15 +360,15 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                 await navigator.share(shareData);
             } else {
                 await navigator.clipboard.writeText(window.location.href);
-                toast.success('คัดลอกลิงก์เรียบร้อยแล้ว');
+                toast.success(t('sideline.toast_link_copied'));
             }
         } catch (err) {
             console.error('Error sharing:', err);
         }
     };
 
-    if (loading) return <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-[#020617] text-zinc-500">Loading...</div>;
-    if (!creator) return <div className="min-h-screen flex items-center justify-center text-red-500">Creator not found</div>;
+    if (loading) return <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-[#020617] text-zinc-500">{t('sideline.loading')}</div>;
+    if (!creator) return <div className="min-h-screen flex items-center justify-center text-red-500">{t('sideline.creator_not_found')}</div>;
 
     return (
         <div className="min-h-screen bg-[#020617] text-white pb-20">
@@ -436,9 +438,9 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                                         )}
                                     </div>
                                     <div className="flex flex-col gap-1 text-sm text-zinc-500 dark:text-zinc-400">
-                                        {creator.whatsapp && <div className="flex items-center gap-2">WhatsApp: <span className="text-zinc-900 dark:text-white font-medium">{creator.whatsapp}</span></div>}
-                                        {creator.instagram && <div className="flex items-center gap-2"><Instagram size={14} /> Instagram: <a href={`https://instagram.com/${creator.instagram.replace('@', '')}`} target="_blank" className="text-blue-500 hover:underline">{creator.instagram}</a></div>}
-                                        {creator.phone && <div className="flex items-center gap-2"><Phone size={14} /> Phone: <span className="text-zinc-900 dark:text-white font-medium">{creator.phone}</span></div>}
+                                        {creator.whatsapp && <div className="flex items-center gap-2">{t('sideline.whatsapp_label')} <span className="text-zinc-900 dark:text-white font-medium">{creator.whatsapp}</span></div>}
+                                        {creator.instagram && <div className="flex items-center gap-2"><Instagram size={14} /> {t('sideline.instagram_label')} <a href={`https://instagram.com/${creator.instagram.replace('@', '')}`} target="_blank" className="text-blue-500 hover:underline">{creator.instagram}</a></div>}
+                                        {creator.phone && <div className="flex items-center gap-2"><Phone size={14} /> {t('sideline.phone_label')} <span className="text-zinc-900 dark:text-white font-medium">{creator.phone}</span></div>}
                                     </div>
                                 </div>
 
@@ -446,7 +448,7 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                                 <div className="bg-white/5 rounded-xl p-4 space-y-2 text-sm">
                                     <div className="flex items-center gap-2 font-medium">
                                         <MapPin size={16} className="text-red-500" />
-                                        {creator.location || "โซนกรุงเทพ"}
+                                        {creator.location || t('sideline.bangkok')}
                                     </div>
                                     {creator.transport && (
                                         <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-300 ml-6">
@@ -455,7 +457,7 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                                     )}
                                     {creator.parking && (
                                         <div className="flex items-center gap-2 text-green-600 dark:text-green-400 ml-6">
-                                            <Car size={14} /> มีที่จอดรถพร้อมบริการ
+                                            <Car size={14} /> {t('sideline.parking_available')}
                                         </div>
                                     )}
                                 </div>
@@ -464,7 +466,7 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                             {/* Bio & Details */}
                             <div className="space-y-4">
                                 <div className="text-sm leading-relaxed whitespace-pre-line text-white">
-                                    {creator.bio ? creator.bio : "สวัสดีค่ะ ยินดีต้อนรับสู่โปรไฟล์ของฉัน 💖"}
+                                    {creator.bio ? creator.bio : t('sideline.default_bio')}
                                 </div>
 
                                 <div className="flex flex-wrap gap-2 text-sm text-[#F84E6E]">
@@ -474,13 +476,13 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                                 </div>
 
                                 <div className="text-xl font-bold text-white">
-                                    {creator.price}.- <span className="text-sm font-normal text-zinc-400">/ {creator.priceTime || '1 ชม.'} (ราคาเริ่มต้น)</span>
+                                    {creator.price}.- <span className="text-sm font-normal text-zinc-400">/ {creator.priceTime || '1 ชม.'} ({t('sideline.start_price')})</span>
                                 </div>
 
                                 {/* Service Packages */}
                                 {creator.packages && creator.packages.length > 0 && (
                                     <div className="space-y-2 pt-2 border-t border-zinc-200 dark:border-white/10 mt-2">
-                                        <h4 className="text-xs font-bold text-zinc-400 uppercase">แพ็กเกจแนะนำ</h4>
+                                        <h4 className="text-xs font-bold text-zinc-400 uppercase">{t('sideline.recommended_package')}</h4>
                                         <div className="space-y-3">
                                             {creator.packages.map((pkg, idx) => (
                                                 <div key={idx} className="flex items-center p-4 rounded-2xl bg-white/5 border border-white/5 gap-4">
@@ -525,7 +527,7 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                                     <svg viewBox="0 0 24 24" className="w-6 h-6 fill-white" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
                                     </svg>
-                                    {creator.whatsapp ? `WhatsApp: ${creator.whatsapp}` : "WhatsApp"}
+                                    {creator.whatsapp ? `${t('sideline.whatsapp_label')} ${creator.whatsapp}` : "WhatsApp"}
                                 </a>
                                 <div className="flex gap-3">
                                     {currentUser?.role !== 'CREATOR' && (
@@ -533,7 +535,7 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                                             onClick={toggleFavorite}
                                             className={`flex-1 border border-white/10 hover:bg-white/5 py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition cursor-pointer ${isFavorited ? 'text-[#F84E6E] border-[#F84E6E]/30 bg-[#F84E6E]/5' : ''}`}
                                         >
-                                            <Heart size={18} fill={isFavorited ? "currentColor" : "none"} /> {isFavorited ? "Favourite" : "Add to favourite"}
+                                            <Heart size={18} fill={isFavorited ? "currentColor" : "none"} /> {isFavorited ? t('sideline.favourite') : t('sideline.add_favorite')}
                                         </button>
                                     )}
                                     {/* <button className="px-4 border border-zinc-200 dark:border-white/10 hover:bg-zinc-50 dark:hover:bg-white/5 rounded-xl flex items-center justify-center transition cursor-pointer">
@@ -545,11 +547,11 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                             {/* Meta & Report */}
                             <div className="flex justify-between items-center pt-4 border-t border-zinc-200 dark:border-white/10 text-xs text-zinc-400">
                                 <div className="flex items-center gap-4">
-                                    <span>Views: {creator.views || 0}</span>
-                                    <span>Joined: {creator.createdAt ? new Date(creator.createdAt).toLocaleDateString('th-TH') : '-'}</span>
+                                    <span>{t('sideline.views')}: {creator.views || 0}</span>
+                                    <span>{t('sideline.joined')}: {creator.createdAt ? new Date(creator.createdAt).toLocaleDateString(language === 'th' ? 'th-TH' : 'en-US') : '-'}</span>
                                 </div>
                                 <button onClick={() => setIsReportOpen(true)} className="flex items-center gap-1 hover:text-red-500 transition cursor-pointer">
-                                    <Flag size={12} /> Report Profile
+                                    <Flag size={12} /> {t('sideline.report_profile')}
                                 </button>
                             </div>
 
@@ -563,20 +565,20 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-lg md:text-2xl font-bold flex items-center gap-2 md:gap-3">
                         <Star className="text-yellow-400 fill-yellow-400 w-5 h-5 md:w-6 md:h-6" />
-                        รีวิวจากเพื่อนๆ ({creator?.reviews?.length || 0})
+                        {t('sideline.reviews_title')} ({creator?.reviews?.length || 0})
                     </h2>
                     <button
                         onClick={() => setIsReviewOpen(true)}
                         className="bg-[#F84E6E] hover:bg-[#d43f5b] text-white px-4 py-1.5 md:px-6 md:py-2 text-sm md:text-base rounded-full font-bold shadow-lg shadow-pink-500/20 transition hover:scale-105 active:scale-95 cursor-pointer whitespace-nowrap"
                     >
-                        + เพิ่มความคิดเห็น
+                        {t('sideline.add_review')}
                     </button>
                 </div>
 
                 <div className="space-y-6">
                     {creator?.reviews?.length === 0 ? (
                         <div className="text-center py-10 bg-white/5 rounded-2xl text-zinc-400 border border-white/5">
-                            ยังไม่มีรีวิว เป็นคนแรกที่รีวิวน้องเลย!
+                            {t('sideline.no_reviews')}
                         </div>
                     ) : (
                         creator?.reviews?.map((review: any, i: number) => (
@@ -591,7 +593,7 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                                             )}
                                         </div>
                                         <div>
-                                            <div className="font-bold text-sm text-white">{review.user?.displayName || "Anonymous"}</div>
+                                            <div className="font-bold text-sm text-white">{review.user?.displayName || t('sideline.review_anonymous')}</div>
                                             <div className="text-xs text-zinc-500">{new Date(review.createdAt).toLocaleDateString()}</div>
                                         </div>
                                     </div>
@@ -616,9 +618,9 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
 
                                 {/* Detailed Ratings (Optional display) */}
                                 <div className="flex gap-4 mt-4 pt-4 border-t border-zinc-100 dark:border-white/5 text-xs text-zinc-500">
-                                    <span className="flex items-center gap-1">ตรงปก: <b className="text-zinc-700 dark:text-zinc-300">{review.accuracyRating}</b></span>
-                                    <span className="flex items-center gap-1">บริการ: <b className="text-zinc-700 dark:text-zinc-300">{review.serviceRating}</b></span>
-                                    <span className="flex items-center gap-1">คุ้มค่า: <b className="text-zinc-700 dark:text-zinc-300">{review.valueRating}</b></span>
+                                    <span className="flex items-center gap-1">{t('sideline.review_rating_accuracy')}: <b className="text-zinc-700 dark:text-zinc-300">{review.accuracyRating}</b></span>
+                                    <span className="flex items-center gap-1">{t('sideline.review_rating_service')}: <b className="text-zinc-700 dark:text-zinc-300">{review.serviceRating}</b></span>
+                                    <span className="flex items-center gap-1">{t('sideline.review_rating_value')}: <b className="text-zinc-700 dark:text-zinc-300">{review.valueRating}</b></span>
                                 </div>
                             </div>
                         ))
@@ -629,7 +631,7 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                 {recommendedCreators.length > 0 && (
                     <div className="mt-20 mb-10">
                         <div className="flex items-center gap-2 mb-8 border-l-4 border-[#F84E6E] pl-4">
-                            <h2 className="text-2xl font-bold dark:text-white">ค้นพบคู่ที่ยอดเยี่ยมครั้งต่อไปของคุณได้ที่ Phusao 🔥</h2>
+                            <h2 className="text-2xl font-bold dark:text-white">{t('sideline.discover_more')}</h2>
                         </div>
 
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
@@ -673,7 +675,7 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                                         <h3 className="font-bold text-white truncate group-hover:text-[#F84E6E] transition">{item.displayName}</h3>
                                         <div className="flex items-center gap-1 text-[10px] text-gray-400 mt-1">
                                             <MapPin size={10} />
-                                            {item.province || "กรุงเทพมหานคร"}
+                                            {item.province || t('sideline.bangkok')}
                                         </div>
                                     </div>
                                 </div>
@@ -695,24 +697,24 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                                 <X size={20} />
                             </button>
 
-                            <h3 className="text-xl font-bold mb-6 text-center">เขียนรีวิวให้น้อง</h3>
+                            <h3 className="text-xl font-bold mb-6 text-center">{t('sideline.modal_review_title')}</h3>
 
                             <div className="space-y-4">
                                 <div>
-                                    <label className="block text-sm font-medium mb-1 text-zinc-300">หัวข้อรีวิว</label>
+                                    <label className="block text-sm font-medium mb-1 text-zinc-300">{t('sideline.review_topic')}</label>
                                     <input
                                         value={reviewForm.title}
                                         onChange={e => setReviewForm({ ...reviewForm, title: e.target.value })}
                                         className="w-full bg-black/30 border border-white/10 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-white"
-                                        placeholder="เช่น น้องน่ารักมากครับ..."
+                                        placeholder={t('sideline.review_topic_placeholder')}
                                     />
                                 </div>
 
                                 <div className="grid grid-cols-3 gap-2">
                                     {[
-                                        { label: "ตรงปก", key: "accuracyRating" },
-                                        { label: "บริการ", key: "serviceRating" },
-                                        { label: "คุ้มค่า", key: "valueRating" },
+                                        { label: t('sideline.review_rating_accuracy'), key: "accuracyRating" },
+                                        { label: t('sideline.review_rating_service'), key: "serviceRating" },
+                                        { label: t('sideline.review_rating_value'), key: "valueRating" },
                                     ].map((field) => (
                                         <div key={field.key} className="bg-zinc-50 dark:bg-white/5 p-3 rounded-xl text-center">
                                             <div className="text-xs text-zinc-500 mb-1">{field.label}</div>
@@ -732,21 +734,21 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium mb-1 text-zinc-300">ความประทับใจ</label>
+                                    <label className="block text-sm font-medium mb-1 text-zinc-300">{t('sideline.review_impression')}</label>
                                     <textarea
                                         value={reviewForm.comment}
                                         onChange={e => setReviewForm({ ...reviewForm, comment: e.target.value })}
                                         className="w-full bg-black/30 border border-white/10 rounded-xl p-3 h-32 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-white"
-                                        placeholder="เล่าประสบการณ์..."
+                                        placeholder={t('sideline.review_impression_placeholder')}
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium mb-2 dark:text-zinc-300">รูปประกอบ (ถ้ามี)</label>
+                                    <label className="block text-sm font-medium mb-2 dark:text-zinc-300">{t('sideline.review_images')}</label>
                                     <div className="flex gap-2">
                                         <label className="w-20 h-20 flex flex-col items-center justify-center bg-zinc-50 dark:bg-white/5 border border-dashed border-zinc-300 dark:border-white/20 rounded-xl cursor-pointer hover:bg-zinc-100 transition">
                                             <ImageIcon size={20} className="text-zinc-400" />
-                                            <span className="text-[10px] text-zinc-400 mt-1">Add</span>
+                                            <span className="text-[10px] text-zinc-400 mt-1">{t('sideline.review_add_image')}</span>
                                             <input type="file" multiple hidden onChange={(e) => {
                                                 if (e.target.files) setReviewImages(Array.from(e.target.files));
                                             }} />
@@ -764,7 +766,7 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                                     disabled={submittingReview}
                                     className="w-full bg-[#F84E6E] hover:bg-[#d43f5b] text-white py-4 rounded-xl font-bold shadow-lg shadow-pink-500/20 mt-4 disabled:opacity-50 cursor-pointer"
                                 >
-                                    {submittingReview ? "กำลังส่งรีวิว..." : "โพสต์รีวิว"}
+                                    {submittingReview ? t('sideline.review_submitting') : t('sideline.review_submit')}
                                 </button>
                             </div>
                         </div>
@@ -778,7 +780,7 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                         <div className="bg-white dark:bg-[#1e1b4b] border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl animate-in fade-in zoom-in-95 duration-200">
                             <div className="flex justify-between items-center mb-6">
                                 <h3 className="text-xl font-bold flex items-center gap-2">
-                                    <Flag className="text-[#F84E6E]" /> รายงานปัญหา
+                                    <Flag className="text-[#F84E6E]" /> {t('sideline.modal_report_title')}
                                 </h3>
                                 <button onClick={() => setIsReportOpen(false)} className="text-zinc-400 hover:text-white transition">
                                     <X size={24} />
@@ -787,38 +789,38 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
 
                             <div className="space-y-4">
                                 <div>
-                                    <label className="block text-sm font-bold mb-2 text-zinc-700 dark:text-zinc-300">หัวข้อการรายงาน</label>
+                                    <label className="block text-sm font-bold mb-2 text-zinc-700 dark:text-zinc-300">{t('sideline.report_topic')}</label>
                                     <select
                                         value={reportReason}
                                         onChange={(e) => setReportReason(e.target.value)}
                                         className="w-full bg-zinc-100 dark:bg-black/20 border border-zinc-200 dark:border-white/10 rounded-xl px-4 py-3 text-zinc-900 dark:text-white focus:outline-none focus:border-[#F84E6E]"
                                     >
-                                        <option value="">เลือกหัวข้อ...</option>
-                                        <option value="Inappropriate Content">รูปภาพ/เนื้อหาไม่เหมาะสม</option>
-                                        <option value="Fake Profile">โปรไฟล์ปลอม/หลอกลวง</option>
-                                        <option value="Harassment">การคุกคาม/รบกวน</option>
-                                        <option value="Spam">สแปม/โฆษณา</option>
-                                        <option value="Other">อื่นๆ</option>
+                                        <option value="">{t('sideline.report_select_topic')}</option>
+                                        <option value="Inappropriate Content">{t('sideline.report_reason_inappropriate')}</option>
+                                        <option value="Fake Profile">{t('sideline.report_reason_fake')}</option>
+                                        <option value="Harassment">{t('sideline.report_reason_harassment')}</option>
+                                        <option value="Spam">{t('sideline.report_reason_spam')}</option>
+                                        <option value="Other">{t('sideline.report_reason_other')}</option>
                                     </select>
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-bold mb-2 text-zinc-700 dark:text-zinc-300">รายละเอียดเพิ่มเติม</label>
+                                    <label className="block text-sm font-bold mb-2 text-zinc-700 dark:text-zinc-300">{t('sideline.report_details')}</label>
                                     <textarea
                                         value={reportDescription}
                                         onChange={(e) => setReportDescription(e.target.value)}
                                         rows={4}
-                                        placeholder="อธิบายรายละเอียด..."
-                                        className="w-full bg-zinc-100 dark:bg-black/20 border border-zinc-200 dark:border-white/10 rounded-xl px-4 py-3 text-zinc-900 dark:text-white focus:outline-none focus:border-[#F84E6E]"
+                                        placeholder={t('sideline.report_details_placeholder')}
+                                        className="w-full bg-zinc-100 dark:bg-black/20 border border-zinc-200 dark:border-white/10 rounded-xl px-4 py-3 text-zinc-900 dark:text-white focus:outline-none focus:border-[#F84E6E] min-h-[100px]"
                                     />
                                 </div>
 
                                 <button
                                     onClick={handleReport}
-                                    disabled={isReporting}
-                                    className="w-full bg-[#F84E6E] hover:bg-[#d43f5b] text-white py-3 rounded-xl font-bold shadow-lg shadow-pink-500/20 disabled:opacity-50 cursor-pointer"
+                                    disabled={!reportReason || isReporting}
+                                    className="w-full bg-[#F84E6E] hover:bg-[#d43f5b] text-white py-4 rounded-xl font-bold shadow-lg shadow-pink-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition"
                                 >
-                                    {isReporting ? "กำลังส่งข้อมูล..." : "ส่งรายงาน"}
+                                    {isReporting ? t('sideline.report_submitting') : t('sideline.report_submit')}
                                 </button>
                             </div>
                         </div>
@@ -828,3 +830,4 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
         </div>
     );
 }
+
