@@ -226,7 +226,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                                     <div className="flex items-center justify-center h-full text-gray-400"><ImageIcon /></div>
                                 )}
                                 <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition text-white text-xs cursor-pointer">
-                                    เปลี่ยนโลโก้
+                                    {t('dashboard.agency_change_logo')}
                                     <input type="file" hidden onChange={handleLogoUpload} />
                                 </label>
                             </div>
@@ -240,7 +240,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                         </div>
                         {/* Edit Cover Trigger */}
                         <label className="absolute top-6 right-16 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full text-xs cursor-pointer backdrop-blur transition">
-                            เปลี่ยนปก
+                            {t('dashboard.agency_change_cover')}
                             <input type="file" hidden onChange={handleBannerUpload} />
                         </label>
                     </div>
@@ -298,7 +298,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                                             }}
                                             className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none"
                                         >
-                                            <option value="">เลือกประเทศ</option>
+                                            <option value="">{t('dashboard.select_country')}</option>
                                             {availableCountries.map((c: any) => (
                                                 <option key={c.code} value={c.name} className="bg-slate-900">{c.name}</option>
                                             ))}
@@ -316,7 +316,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                                             }}
                                             className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none"
                                         >
-                                            <option value="">เลือกจังหวัด</option>
+                                            <option value="">{t('dashboard.select_province')}</option>
                                             {availableLocations.map((loc: any) => (
                                                 <option key={loc.id} value={loc.name}>{loc.name}</option>
                                             ))}
@@ -346,7 +346,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                                                     {zone}
                                                 </div>
                                             )) : (
-                                                <div className="col-span-3 text-center text-white/40 py-2">ไม่มีข้อมูลโซนสำหรับจังหวัดนี้</div>
+                                                <div className="col-span-3 text-center text-white/40 py-2">{t('dashboard.no_zone_data')}</div>
                                             )}
                                         </div>
                                     </div>
@@ -369,26 +369,26 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                                     {/* KYC ALERT */}
                                     {!agency?.isVerified && (
                                         <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-4">
-                                            <h4 className="text-red-500 font-bold mb-2 flex items-center gap-2"><ShieldCheck size={18} /> สังกัดยังไม่ได้รับการยืนยัน (Unverified)</h4>
-                                            <p className="text-white/70 text-sm mb-4">คุณยังไม่สามารถรับสมาชิกเข้าสังกัดได้ จนกว่าจะผ่านการตรวจสอบตัวตน</p>
+                                            <h4 className="text-red-500 font-bold mb-2 flex items-center gap-2"><ShieldCheck size={18} /> {t('dashboard.agency_unverified_title')}</h4>
+                                            <p className="text-white/70 text-sm mb-4">{t('dashboard.agency_unverified_desc')}</p>
 
                                             {agency?.kycStatus === 'PENDING' ? (
                                                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-500/20 text-yellow-500 rounded-lg text-sm font-bold animate-pulse">
-                                                    ⏳ กำลังรอการตรวจสอบจากแอดมิน...
+                                                    {t('dashboard.agency_verification_pending')}
                                                 </div>
                                             ) : agency?.kycStatus === 'REJECTED' ? (
                                                 <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-4 mb-3">
                                                     <h5 className="text-red-400 font-bold text-sm mb-1 flex items-center gap-2">
-                                                        <ShieldCheck size={16} className="rotate-180" /> คำขอถูกปฏิเสธ (Rejected)
+                                                        <ShieldCheck size={16} className="rotate-180" /> {t('dashboard.agency_verification_rejected')}
                                                     </h5>
                                                     <p className="text-white/80 text-sm mb-3">
-                                                        เหตุผล: <span className="text-white font-medium">{agency.rejectionReason || "ไม่ระบุเหตุผล"}</span>
+                                                        {t('dashboard.agency_rejection_reason')} <span className="text-white font-medium">{agency.rejectionReason || t('dashboard.agency_no_reason')}</span>
                                                     </p>
                                                     <button
                                                         onClick={handleRequestVerification}
                                                         className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-sm font-bold shadow-lg transition"
                                                     >
-                                                        ส่งเอกสารยืนยันตัวตนใหม่ (Resubmit KYC)
+                                                        {t('dashboard.agency_resubmit_kyc')}
                                                     </button>
                                                 </div>
                                             ) : (
@@ -396,7 +396,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                                                     onClick={handleRequestVerification}
                                                     className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-bold shadow-lg"
                                                 >
-                                                    ส่งเอกสารยืนยันตัวตน (KYC)
+                                                    {t('dashboard.agency_submit_kyc')}
                                                 </button>
                                             )}
                                         </div>
@@ -405,7 +405,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                                     {/* PENDING REQUESTS */}
                                     {agency?.creators?.filter((c: any) => c.agencyJoinStatus === 'PENDING').length > 0 && (
                                         <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4">
-                                            <h4 className="text-yellow-500 font-bold mb-3 flex items-center gap-2">⚠️ รอการอนุมัติเข้าร่วม ({agency.creators.filter((c: any) => c.agencyJoinStatus === 'PENDING').length})</h4>
+                                            <h4 className="text-yellow-500 font-bold mb-3 flex items-center gap-2">{t('dashboard.agency_pending_requests')} ({agency.creators.filter((c: any) => c.agencyJoinStatus === 'PENDING').length})</h4>
                                             <div className="grid grid-cols-1 gap-3">
                                                 {agency.creators.filter((c: any) => c.agencyJoinStatus === 'PENDING').map((model: any) => (
                                                     <div key={model._id} className="flex items-center justify-between p-3 rounded-lg bg-black/20">
@@ -417,14 +417,14 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                                                             </div>
                                                             <div>
                                                                 <h4 className="font-bold text-white text-sm">{model.displayName}</h4>
-                                                                <p className="text-xs text-white/50">ขอเข้าร่วมเมื่อ: {new Date(model.updatedAt || Date.now()).toLocaleDateString()}</p>
+                                                                <p className="text-xs text-white/50">{t('dashboard.agency_request_date')} {new Date(model.updatedAt || Date.now()).toLocaleDateString()}</p>
                                                             </div>
                                                         </div>
                                                         <div className="flex gap-2">
                                                             <button
                                                                 disabled={!agency.isVerified}
                                                                 onClick={async () => {
-                                                                    if (!confirm("ยืนยันรับน้องเข้าสังกัด?")) return;
+                                                                    if (!confirm(t('dashboard.agency_confirm_approve'))) return;
                                                                     try {
                                                                         const token = getAuthToken();
                                                                         await fetch(`${API_BASE_URL}/agencies/requests/${model._id}/approve`, {
@@ -439,7 +439,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                                                             </button>
                                                             <button
                                                                 onClick={async () => {
-                                                                    if (!confirm("ปฏิเสธคำขอ?")) return;
+                                                                    if (!confirm(t('dashboard.agency_confirm_reject'))) return;
                                                                     try {
                                                                         const token = getAuthToken();
                                                                         await fetch(`${API_BASE_URL}/agencies/requests/${model._id}/reject`, {
@@ -461,7 +461,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
 
                                     {/* APPROVED LIST */}
                                     <div>
-                                        <h4 className="text-white/70 font-bold mb-3 text-sm uppercase">สมาชิกในสังกัด ({agency?.creators?.filter((c: any) => c.agencyJoinStatus === 'APPROVED').length || 0})</h4>
+                                        <h4 className="text-white/70 font-bold mb-3 text-sm uppercase">{t('dashboard.agency_approved_members')} ({agency?.creators?.filter((c: any) => c.agencyJoinStatus === 'APPROVED').length || 0})</h4>
                                         {agency?.creators?.filter((c: any) => c.agencyJoinStatus === 'APPROVED').length > 0 ? (
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                 {agency.creators.filter((c: any) => c.agencyJoinStatus === 'APPROVED').map((model: any) => (
@@ -473,13 +473,13 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                                                         </div>
                                                         <div>
                                                             <h4 className="font-bold text-white text-sm">{model.displayName}</h4>
-                                                            <p className="text-xs text-white/50">สมาชิก</p>
+                                                            <p className="text-xs text-white/50">{t('dashboard.agency_member_status')}</p>
                                                         </div>
                                                     </div>
                                                 ))}
                                             </div>
                                         ) : (
-                                            <div className="text-center py-6 text-white/30 border border-dashed border-white/10 rounded-xl">ไม่มีสมาชิกที่อนุมัติแล้ว</div>
+                                            <div className="text-center py-6 text-white/30 border border-dashed border-white/10 rounded-xl">{t('dashboard.agency_no_members')}</div>
                                         )}
                                     </div>
                                 </div>
@@ -495,7 +495,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                     <div className="bg-[#1e1b4b] w-full max-w-md p-6 rounded-2xl border border-white/10 shadow-2xl relative">
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="text-xl font-bold flex items-center gap-2 text-white">
-                                <ShieldCheck className="text-[#F84E6E]" /> ยืนยันตัวตน (KYC)
+                                <ShieldCheck className="text-[#F84E6E]" /> {t('dashboard.kyc_title')}
                             </h3>
                             <button
                                 onClick={() => setIsVerificationModalOpen(false)}
@@ -520,9 +520,9 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
 
                             <div className="text-center py-4">
                                 <p className="text-white/80 text-sm">
-                                    คุณต้องการส่งคำขอตรวจสอบตัวตน
+                                    {t('dashboard.kyc_confirm_question')}
                                     <br />
-                                    <span className="font-bold text-white">(จำลองการส่งเอกสาร)</span> ใช่หรือไม่?
+                                    <span className="font-bold text-white">{t('dashboard.kyc_simulate_text')}</span> {t('dashboard.kyc_yes_no')}
                                 </p>
                             </div>
                         </div>
@@ -532,7 +532,7 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
                                 onClick={() => setIsVerificationModalOpen(false)}
                                 className="py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold transition"
                             >
-                                ยกเลิก
+                                {t('common.cancel')}
                             </button>
                             <button
                                 onClick={confirmVerification}
@@ -816,12 +816,12 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                         <div className="w-full h-full flex items-center justify-center text-gray-400"><UserIcon size={40} /></div>
                                     )}
                                     <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition text-white text-xs font-medium cursor-pointer">
-                                        Change
+                                        {t('dashboard.change_avatar')}
                                         <input type="file" hidden onChange={handleAvatarUpload} />
                                     </label>
                                 </div>
                                 <h2 className="font-bold text-lg dark:text-white">{user.displayName}</h2>
-                                <p className="text-sm text-gray-500">{user.role || "User"}</p>
+                                <p className="text-sm text-gray-500">{user.role || t('common.user')}</p>
                             </div>
 
                             <nav className="space-y-1">
@@ -834,7 +834,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                     <Send size={18} /> เข้าร่วมบน Telegram
                                 </button> */}
                                 <button onClick={onLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 transition mt-4">
-                                    <LogOut size={18} /> ออกจากระบบ
+                                    <LogOut size={18} /> {t('dashboard.logout')}
                                 </button>
                             </nav>
                         </div>
@@ -846,7 +846,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                                 <div className="bg-[#1e1b4b]/50 rounded-2xl p-6 shadow-sm border border-white/5">
                                     <h2 className="font-bold text-xl mb-2 dark:text-white">{t('dashboard.title')}</h2>
-                                    <p className="text-gray-500 text-sm">Welcome back! Here&apos;s your Phusao activity overview</p>
+                                    <p className="text-gray-500 text-sm">{t('dashboard.welcome_back')}</p>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -883,11 +883,11 @@ const UserDashboard = ({ user, onLogout }: any) => {
 
                                 <div onClick={() => setActiveTab('preferences')} className="flex flex-col md:flex-row items-center justify-between bg-[#1e1b4b] rounded-3xl p-8 text-white relative overflow-hidden cursor-pointer">
                                     <div className="relative z-10 max-w-lg">
-                                        <h2 className="text-3xl font-bold mb-4">Get quick search as per preference</h2>
-                                        <h3 className="text-xl font-bold mb-4 opacity-90">Get notified for recent added profiles.</h3>
-                                        <p className="text-yellow-400 text-sm mb-6">Set your preferences to get the notification and customized updates.</p>
+                                        <h2 className="text-3xl font-bold mb-4">{t('dashboard.pref_banner_title')}</h2>
+                                        <h3 className="text-xl font-bold mb-4 opacity-90">{t('dashboard.pref_banner_subtitle')}</h3>
+                                        <p className="text-yellow-400 text-sm mb-6">{t('dashboard.pref_banner_desc')}</p>
                                         <button className="bg-white text-[#1e1b4b] px-8 py-3 rounded-xl font-bold hover:bg-gray-100 transition">
-                                            Activate Now
+                                            {t('dashboard.pref_banner_btn')}
                                         </button>
                                     </div>
                                     <div className="hidden md:block relative z-10">
@@ -914,9 +914,9 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                                 onChange={(e) => setForm({ ...form, gender: e.target.value })}
                                                 className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none"
                                             >
-                                                <option value="Male">ชาย (Male)</option>
-                                                <option value="Female">หญิง (Female)</option>
-                                                <option value="LGBTQ">LGBTQ+</option>
+                                                <option value="Male">{t('dashboard.gender_male_label')}</option>
+                                                <option value="Female">{t('dashboard.gender_female_label')}</option>
+                                                <option value="LGBTQ">{t('dashboard.gender_lgbtq_label')}</option>
                                             </select>
                                         </div>
                                     </div>
@@ -934,7 +934,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                                 }}
                                                 className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none"
                                             >
-                                                <option value="">เลือกประเทศ</option>
+                                                <option value="">{t('dashboard.select_country')}</option>
                                                 {availableCountries.map((c: any) => (
                                                     <option key={c.code} value={c.name} className="bg-slate-900">{c.name}</option>
                                                 ))}
@@ -952,7 +952,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                                 }}
                                                 className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none"
                                             >
-                                                <option value="">เลือกจังหวัด</option>
+                                                <option value="">{t('dashboard.select_province')}</option>
                                                 {availableLocations.map((loc: any) => (
                                                     <option key={loc.id} value={loc.name}>{loc.name}</option>
                                                 ))}
@@ -984,7 +984,7 @@ const UserDashboard = ({ user, onLogout }: any) => {
                                                         {zone}
                                                     </div>
                                                 )) : (
-                                                    <div className="col-span-3 text-center text-gray-400 py-2">ไม่มีข้อมูลโซนสำหรับจังหวัดนี้</div>
+                                                    <div className="col-span-3 text-center text-gray-400 py-2">{t('dashboard.no_zone_data')}</div>
                                                 )}
                                             </div>
                                         </div>
@@ -1690,12 +1690,12 @@ export default function Dashboard() {
             }
         } catch (error) {
             console.error(error);
-            toast.error("อัปโหลดบางรูปไม่สำเร็จ");
+            toast.error(t('common.upload_some_failed'));
         }
     };
 
     const handleGalleryDelete = async (indexToDelete: number) => {
-        if (!confirm("ต้องการลบรูปภาพนี้ใช่ไหม?")) return;
+        if (!confirm(t('common.confirm_delete_image'))) return;
 
         try {
             const currentImages = creator?.images || [];
@@ -1710,11 +1710,11 @@ export default function Dashboard() {
 
             if (res.ok) {
                 setCreator({ ...creator, images: newImages });
-                toast.success("ลบรูปภาพสำเร็จ");
+                toast.success(t('common.delete_image_success'));
             }
         } catch (error) {
             console.error(error);
-            toast.error("เกิดข้อผิดพลาดในการลบรูปภาพ");
+            toast.error(t('common.delete_image_failed'));
         }
     };
 
@@ -1742,13 +1742,13 @@ export default function Dashboard() {
                 const updated = await res.json();
                 setCreator(updated);
                 setIsEditing(false);
-                toast.success("บันทึกข้อมูลแล้ว");
+                toast.success(t('common.save_success'));
             } else {
-                toast.error("บันทึกไม่สำเร็จ");
+                toast.error(t('common.save_failed'));
             }
         } catch (error) {
             console.error(error);
-            toast.error("เกิดข้อผิดพลาด");
+            toast.error(t('common.error'));
         }
     };
 
@@ -1770,9 +1770,9 @@ export default function Dashboard() {
         } else {
             try {
                 await navigator.clipboard.writeText(shareUrl);
-                toast.success("คัดลอกลิงก์โปรไฟล์แล้ว!");
+                toast.success(t('dashboard.copy_link_success'));
             } catch (err) {
-                toast.error("ไม่สามารถคัดลอกลิงก์ได้");
+                toast.error(t('dashboard.copy_link_failed'));
             }
         }
     };
@@ -1995,7 +1995,7 @@ export default function Dashboard() {
                                                         {zone}
                                                     </div>
                                                 )) : (
-                                                    <div className="col-span-3 text-center text-white/40 py-2">ไม่มีข้อมูลโซนสำหรับจังหวัดนี้</div>
+                                                    <div className="col-span-3 text-center text-white/40 py-2">{t('dashboard.no_zone_data')}</div>
                                                 )}
                                             </div>
                                         )}
@@ -2032,22 +2032,22 @@ export default function Dashboard() {
                                 <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.creator_contact_info')}</label>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <InputField
-                                        label="Line ID"
+                                        label={t('dashboard.contact_line_id')}
                                         value={editForm.lineId}
                                         onChange={(e: any) => setEditForm({ ...editForm, lineId: e.target.value })}
-                                        placeholder="ไอดีไลน์..."
+                                        placeholder={t('dashboard.contact_line_id_placeholder')}
                                     />
                                     <InputField
-                                        label="WhatsApp"
+                                        label={t('dashboard.contact_whatsapp')}
                                         value={editForm.whatsapp || ''}
                                         onChange={(e: any) => setEditForm({ ...editForm, whatsapp: e.target.value })}
-                                        placeholder="เบอร์โทร WhatsApp..."
+                                        placeholder={t('dashboard.contact_whatsapp_placeholder')}
                                     />
                                     <InputField
-                                        label="Instagram"
+                                        label={t('dashboard.contact_instagram')}
                                         value={editForm.instagram}
                                         onChange={(e: any) => setEditForm({ ...editForm, instagram: e.target.value })}
-                                        placeholder="ชื่อบัญชี (ไม่ต้องมี @)..."
+                                        placeholder={t('dashboard.contact_instagram_placeholder')}
                                     />
                                     <InputField
                                         label={t('dashboard.creator_phone')}
@@ -2397,7 +2397,7 @@ export default function Dashboard() {
                                 ))
                             ) : (
                                 <div className="text-center py-12 bg-white/5 rounded-2xl border border-white/5 border-dashed">
-                                    <p className="text-white/30">ยังไม่มีโพสต์ เริ่มต้นโพสต์แรกของคุณเลย!</p>
+                                    <p className="text-white/30">{t('dashboard.no_posts_yet')}</p>
                                 </div>
                             )}
                         </div>
@@ -2410,8 +2410,8 @@ export default function Dashboard() {
                 <StoryViewer
                     creators={[{
                         _id: creator?._id || "me",
-                        displayName: creator?.displayName || user?.username || "Me",
-                        user: { avatarUrl: user?.avatarUrl, username: user?.username || "Me" },
+                        displayName: creator?.displayName || user?.username || t('dashboard.me'),
+                        user: { avatarUrl: user?.avatarUrl, username: user?.username || t('dashboard.me') },
                         stories: stories
                     }]}
                     initialCreatorIndex={0}
