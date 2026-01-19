@@ -47,9 +47,9 @@ export const uploadS3File = async (input: File | React.ChangeEvent<HTMLInputElem
         }
 
         // 4. Generate Random Filename
-        // Prefix: FIWFAN
+        // Prefix: PHUSAO
         let generateName = "";
-        let result = "FIWFAN";
+        let result = "PHUSAO";
         const characters = "0123456789";
         const charactersLength = characters.length;
         for (let i = 0; i < 9; i++) {

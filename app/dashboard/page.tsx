@@ -1254,6 +1254,15 @@ export default function Dashboard() {
     const [availableZones, setAvailableZones] = useState<string[]>([]);
     const [availableCountries, setAvailableCountries] = useState<any[]>([]);
 
+    // KYC State
+    const [creatorTab, setCreatorTab] = useState<'home' | 'verification'>('home');
+    const [kycStatus, setKycStatus] = useState<string>('NONE'); // NONE, PENDING, APPROVED, REJECTED
+    const [kycData, setKycData] = useState<any>(null);
+    const [verificationCode, setVerificationCode] = useState<string>('');
+    const [kycFiles, setKycFiles] = useState<{ code: File | null; body: File | null }>({ code: null, body: null });
+    const [kycPreviews, setKycPreviews] = useState<{ code: string; body: string }>({ code: "", body: "" });
+    const [isSubmittingKyc, setIsSubmittingKyc] = useState(false);
+
     // Main editForm state
     const [isEditing, setIsEditing] = useState(false);
     const [editForm, setEditForm] = useState<{
@@ -1367,6 +1376,7 @@ export default function Dashboard() {
                 fetchCreatorProfile(token);
                 checkSubscription(token);
                 fetchMyStories();
+                fetchKycStatus(token);
             } else {
                 setLoading(false); // For agency, we are ready
             }
@@ -1536,6 +1546,60 @@ export default function Dashboard() {
             console.error("Failed to fetch profile", error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchKycStatus = async (token: string) => {
+        try {
+            const res = await fetch(`${API_BASE_URL}/creators/me/kyc`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setKycStatus(data.verificationStatus);
+                setKycData(data.verificationData);
+                setVerificationCode(data.verificationCode);
+            }
+        } catch (error) {
+            console.error("Failed to fetch KYC status", error);
+        }
+    };
+
+    const handleKycFileChange = (type: 'code' | 'body', e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            setKycFiles(prev => ({ ...prev, [type]: file }));
+            setKycPreviews(prev => ({ ...prev, [type]: URL.createObjectURL(file) }));
+        }
+    };
+
+    const handleKycSubmit = async () => {
+        if (!kycFiles.code || !kycFiles.body) return toast.warn(t('common.select_image'));
+        setIsSubmittingKyc(true);
+        try {
+            const token = getAuthToken();
+            const photoWithCodeUrl = await uploadS3File(kycFiles.code, "kyc");
+            const fullBodyPhotoUrl = await uploadS3File(kycFiles.body, "kyc");
+
+            const res = await fetch(`${API_BASE_URL}/creators/me/kyc`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                body: JSON.stringify({ photoWithCodeUrl, fullBodyPhotoUrl })
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                setKycStatus(data.verificationStatus);
+                toast.success(t('common.save_success'));
+                fetchKycStatus(token || "");
+            } else {
+                toast.error("Submission failed");
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error(t('common.error'));
+        } finally {
+            setIsSubmittingKyc(false);
         }
     };
 
@@ -1867,541 +1931,701 @@ export default function Dashboard() {
             </div>
 
             <div className="container mx-auto max-w-2xl px-4 -mt-10 relative z-20">
-                {/* Stats Cards */}
-                <div className="grid grid-cols-3 gap-4 mb-8">
-                    <div className="bg-[#1e1b4b]/80 backdrop-blur p-4 rounded-2xl shadow-lg border border-white/5 text-center">
-                        <h3 className="text-gray-400 text-xs font-bold uppercase mb-1">{t('dashboard.creator_stats_posts')}</h3>
-                        <p className="text-2xl font-bold text-white">{stats.posts}</p>
-                    </div>
-                    <div className="bg-[#1e1b4b]/80 backdrop-blur p-4 rounded-2xl shadow-lg border border-white/5 text-center">
-                        <h3 className="text-gray-400 text-xs font-bold uppercase mb-1">{t('dashboard.creator_stats_likes')}</h3>
-                        <p className="text-2xl font-bold text-white">{stats.likes}</p>
-                    </div>
-                    <div className="bg-[#1e1b4b]/80 backdrop-blur p-4 rounded-2xl shadow-lg border border-white/5 text-center">
-                        <h3 className="text-gray-400 text-xs font-bold uppercase mb-1">{t('dashboard.creator_stats_views')}</h3>
-                        <p className="text-2xl font-bold text-white">{stats.views}</p>
-                    </div>
+                {/* Tab Navigation */}
+                <div className="flex p-1 bg-[#1e1b4b]/80 backdrop-blur rounded-xl border border-white/10 mb-6 shadow-lg">
+                    <button
+                        onClick={() => setCreatorTab('home')}
+                        className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition ${creatorTab === 'home' ? 'bg-[#F84E6E] text-white shadow-lg' : 'text-white/50 hover:text-white'}`}
+                    >
+                        {t('nav.profile')}
+                    </button>
+                    <button
+                        onClick={() => setCreatorTab('verification')}
+                        className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2 ${creatorTab === 'verification' ? 'bg-[#F84E6E] text-white shadow-lg' : 'text-white/50 hover:text-white'}`}
+                    >
+                        <ShieldCheck size={16} />
+                        {t('dashboard.kyc_title')}
+                        {kycStatus === 'PENDING' && <span className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" />}
+                    </button>
                 </div>
 
-                {isEditing ? (
-                    <div className="bg-[#1e1b4b]/80 backdrop-blur rounded-3xl p-6 shadow-xl border border-white/5 animate-in fade-in slide-in-from-bottom-8">
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-xl font-bold text-white flex items-center gap-2"><Edit className="text-[#F84E6E]" /> {t('dashboard.creator_edit_profile')}</h3>
-                            <button onClick={() => setIsEditing(false)} className="text-sm text-gray-400 hover:text-white cursor-pointer">{t('dashboard.creator_cancel')}</button>
+                {creatorTab === 'verification' && (
+                    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+                        <div className="bg-[#1e1b4b]/80 backdrop-blur p-6 rounded-2xl border border-white/5 shadow-xl">
+                            <h2 className="text-xl font-bold text-white mb-2">{t('dashboard.kyc_title')}</h2>
+                            <p className="text-sm text-white/60 mb-6">{t('dashboard.kyc_intro')}</p>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                <div className="bg-white/5 p-4 rounded-xl border border-white/5">
+                                    <h4 className="font-bold text-[#F84E6E] text-sm mb-1">01</h4>
+                                    <p className="text-xs text-white/70">{t('dashboard.kyc_benefit_1')}</p>
+                                </div>
+                                <div className="bg-white/5 p-4 rounded-xl border border-white/5">
+                                    <h4 className="font-bold text-[#F84E6E] text-sm mb-1">02</h4>
+                                    <p className="text-xs text-white/70">{t('dashboard.kyc_benefit_2')}</p>
+                                </div>
+                                <div className="bg-white/5 p-4 rounded-xl border border-white/5">
+                                    <h4 className="font-bold text-[#F84E6E] text-sm mb-1">03</h4>
+                                    <p className="text-xs text-white/70">{t('dashboard.kyc_benefit_3')}</p>
+                                </div>
+                            </div>
+
+                            {kycStatus === 'APPROVED' ? (
+                                <div className="bg-green-500/20 border border-green-500/30 p-8 rounded-2xl text-center">
+                                    <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-green-500/20">
+                                        <Check size={40} className="text-white" />
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-white mb-2">{t('dashboard.agency_verification_approved')}</h3>
+                                    <p className="text-green-200">{t('dashboard.kyc_approved_desc')}</p>
+                                </div>
+                            ) : kycStatus === 'PENDING' ? (
+                                <div className="bg-yellow-500/10 border border-yellow-500/20 p-8 rounded-2xl text-center">
+                                    <div className="w-20 h-20 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+                                        <ShieldCheck size={40} className="text-yellow-500" />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-white mb-2">{t('dashboard.agency_verification_pending')}</h3>
+                                    <p className="text-white/60">{t('dashboard.kyc_pending_desc')}</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-6">
+                                    {kycStatus === 'REJECTED' && (
+                                        <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl flex items-center gap-3">
+                                            <LogOut size={24} className="text-red-500" />
+                                            <div>
+                                                <h4 className="font-bold text-red-500">{t('dashboard.agency_verification_rejected')}</h4>
+                                                <p className="text-xs text-white/70">{t('dashboard.kyc_rejected_desc')}</p>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        {/* Card 1: Code */}
+                                        <div className="bg-black/20 p-6 rounded-2xl border border-white/5">
+                                            <div className="flex justify-between items-start mb-4">
+                                                <h3 className="font-bold text-white">{t('dashboard.kyc_step_1_title')}</h3>
+                                                <span className="bg-[#F84E6E] text-white text-xs px-2 py-1 rounded font-bold whitespace-nowrap">{t('dashboard.kyc_step_1_label')}</span>
+                                            </div>
+
+                                            <div className="bg-white/5 p-4 rounded-xl text-center mb-4">
+                                                <p className="text-xs text-white/50 mb-2">{t('dashboard.kyc_code_instruct')}</p>
+                                                {verificationCode ? (
+                                                    <div className="text-2xl font-mono font-bold text-[#F84E6E] tracking-widest">{verificationCode}</div>
+                                                ) : (
+                                                    <div className="h-8 bg-white/10 rounded animate-pulse w-32 mx-auto"></div>
+                                                )}
+                                            </div>
+
+                                            <p className="text-xs text-white/50 mb-4">{t('dashboard.kyc_guideline_1')}</p>
+
+                                            <div className="aspect-[3/4] bg-black/40 rounded-xl border border-dashed border-white/20 flex flex-col items-center justify-center relative overflow-hidden group">
+                                                {kycPreviews.code ? (
+                                                    <Image src={kycPreviews.code} fill className="object-cover" alt="Preview" />
+                                                ) : (
+                                                    <div className="text-center p-4">
+                                                        <Camera size={32} className="text-white/20 mx-auto mb-2" />
+                                                        <span className="text-xs text-white/30">{t('dashboard.kyc_upload_btn')}</span>
+                                                    </div>
+                                                )}
+                                                <input type="file" className="absolute inset-0 cursor-pointer opacity-0" onChange={(e) => handleKycFileChange('code', e)} accept="image/*" />
+                                            </div>
+                                        </div>
+
+                                        {/* Card 2: Body */}
+                                        <div className="bg-black/20 p-6 rounded-2xl border border-white/5">
+                                            <div className="flex justify-between items-start mb-4">
+                                                <h3 className="font-bold text-white">{t('dashboard.kyc_step_2_title')}</h3>
+                                                <span className="bg-[#F84E6E] text-white text-xs px-2 py-1 rounded font-bold whitespace-nowrap">{t('dashboard.kyc_step_2_label')}</span>
+                                            </div>
+
+                                            <p className="text-xs text-white/50 mb-7">{t('dashboard.kyc_guideline_3')}</p>
+
+                                            <div className="aspect-[3/4] bg-black/40 rounded-xl border border-dashed border-white/20 flex flex-col items-center justify-center relative overflow-hidden group">
+                                                {kycPreviews.body ? (
+                                                    <Image src={kycPreviews.body} fill className="object-cover" alt="Preview" />
+                                                ) : (
+                                                    <div className="text-center p-4">
+                                                        <UserIcon size={32} className="text-white/20 mx-auto mb-2" />
+                                                        <span className="text-xs text-white/30">{t('dashboard.kyc_upload_btn')}</span>
+                                                    </div>
+                                                )}
+                                                <input type="file" className="absolute inset-0 cursor-pointer opacity-0" onChange={(e) => handleKycFileChange('body', e)} accept="image/*" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="pt-4 border-t border-white/10">
+                                        <div className="flex items-center justify-between">
+                                            <p className="text-xs text-white/40 max-w-xs">{t('dashboard.kyc_confirm_question')}</p>
+                                            <button
+                                                onClick={handleKycSubmit}
+                                                disabled={isSubmittingKyc || !kycFiles.code || !kycFiles.body}
+                                                className="bg-[#F84E6E] hover:bg-pink-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-pink-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center gap-2"
+                                            >
+                                                {isSubmittingKyc ? t('common.loading') : t('dashboard.kyc_submit')}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {creatorTab === 'home' && (
+                    <>
+                        {/* Stats Cards */}
+                        <div className="grid grid-cols-3 gap-4 mb-8">
+                            <div className="bg-[#1e1b4b]/80 backdrop-blur p-4 rounded-2xl shadow-lg border border-white/5 text-center">
+                                <h3 className="text-gray-400 text-xs font-bold uppercase mb-1">{t('dashboard.creator_stats_posts')}</h3>
+                                <p className="text-2xl font-bold text-white">{stats.posts}</p>
+                            </div>
+                            <div className="bg-[#1e1b4b]/80 backdrop-blur p-4 rounded-2xl shadow-lg border border-white/5 text-center">
+                                <h3 className="text-gray-400 text-xs font-bold uppercase mb-1">{t('dashboard.creator_stats_likes')}</h3>
+                                <p className="text-2xl font-bold text-white">{stats.likes}</p>
+                            </div>
+                            <div className="bg-[#1e1b4b]/80 backdrop-blur p-4 rounded-2xl shadow-lg border border-white/5 text-center">
+                                <h3 className="text-gray-400 text-xs font-bold uppercase mb-1">{t('dashboard.creator_stats_views')}</h3>
+                                <p className="text-2xl font-bold text-white">{stats.views}</p>
+                            </div>
                         </div>
 
-                        <div className="space-y-5">
-                            <InputField label={t('dashboard.creator_display_name')} value={editForm.displayName} onChange={(e: any) => setEditForm({ ...editForm, displayName: e.target.value })} />
-
-                            <div className="space-y-1.5">
-                                <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.creator_bio')}</label>
-                                <textarea
-                                    value={editForm.bio}
-                                    onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
-                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] min-h-[100px] text-sm"
-                                    placeholder={t('dashboard.creator_bio_placeholder')}
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                <InputField label={t('dashboard.creator_age')} type="number" value={editForm.age} onChange={(e: any) => setEditForm({ ...editForm, age: parseInt(e.target.value) })} />
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.creator_gender')}</label>
-                                    <select
-                                        value={editForm.gender}
-                                        onChange={(e) => setEditForm({ ...editForm, gender: e.target.value })}
-                                        className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none"
-                                    >
-                                        {GENDER_OPTIONS.map(g => (
-                                            <option key={g} value={g} className="bg-slate-900">{g}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <InputField label={t('dashboard.creator_price_start')} type="number" value={editForm.price} onChange={(e: any) => setEditForm({ ...editForm, price: parseInt(e.target.value) })} icon={DollarSign} />
-                                <InputField label={t('dashboard.creator_duration')} value={editForm.priceTime || ''} onChange={(e: any) => setEditForm({ ...editForm, priceTime: e.target.value })} placeholder={t('dashboard.creator_duration_placeholder')} />
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div className="space-y-1.5">
-                                        <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.profile_country')}</label>
-                                        <select
-                                            value={editForm.country}
-                                            onChange={(e) => {
-                                                const country = e.target.value;
-                                                setEditForm({ ...editForm, country, province: "", zones: [] });
-                                                const selectedCountry = availableCountries.find((c: any) => c.name === country);
-                                                setAvailableLocations(selectedCountry ? selectedCountry.provinces : []);
-                                                setAvailableZones([]);
-                                            }}
-                                            disabled={!hasSubscription}
-                                            className={`w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none ${!hasSubscription ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                        >
-                                            <option value="" className="bg-slate-900">{t('dashboard.profile_country')}</option>
-                                            {availableCountries.map((c: any) => (
-                                                <option key={c.code} value={c.name} className="bg-slate-900">{c.name}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.profile_province')}</label>
-                                        <select
-                                            value={editForm.province}
-                                            onChange={(e) => {
-                                                const prov = e.target.value;
-                                                setEditForm({ ...editForm, province: prov, zones: [] });
-                                                const selectedLoc = availableLocations.find((l: any) => l.name === prov);
-                                                setAvailableZones(selectedLoc ? selectedLoc.zones : []);
-                                            }}
-                                            disabled={!hasSubscription}
-                                            className={`w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none ${!hasSubscription ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                        >
-                                            <option value="" className="bg-slate-900">{t('dashboard.profile_province')}</option>
-                                            {availableLocations.map((loc: any) => (
-                                                <option key={loc.id} value={loc.name} className="bg-slate-900">{loc.name}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                    <InputField label={t('dashboard.creator_location')} value={editForm.location} onChange={(e: any) => setEditForm({ ...editForm, location: e.target.value })} icon={MapPin} />
+                        {isEditing ? (
+                            <div className="bg-[#1e1b4b]/80 backdrop-blur rounded-3xl p-6 shadow-xl border border-white/5 animate-in fade-in slide-in-from-bottom-8">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h3 className="text-xl font-bold text-white flex items-center gap-2"><Edit className="text-[#F84E6E]" /> {t('dashboard.creator_edit_profile')}</h3>
+                                    <button onClick={() => setIsEditing(false)} className="text-sm text-gray-400 hover:text-white cursor-pointer">{t('dashboard.creator_cancel')}</button>
                                 </div>
 
-                                {/* Zones Selection */}
-                                {editForm.province && (
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.agency_zone')}</label>
+                                <div className="space-y-5">
+                                    <InputField label={t('dashboard.creator_display_name')} value={editForm.displayName} onChange={(e: any) => setEditForm({ ...editForm, displayName: e.target.value })} />
 
-                                        {!hasSubscription ? (
-                                            <div className="p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-center">
-                                                <p className="text-yellow-500 text-xs flex items-center justify-center gap-2">
-                                                    <Zap size={14} />
-                                                    {t('dashboard.creator_zone_required')}
-                                                </p>
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.creator_bio')}</label>
+                                        <textarea
+                                            value={editForm.bio}
+                                            onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
+                                            className="w-full bg-black/20 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] min-h-[100px] text-sm"
+                                            placeholder={t('dashboard.creator_bio_placeholder')}
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        <InputField label={t('dashboard.creator_age')} type="number" value={editForm.age} onChange={(e: any) => setEditForm({ ...editForm, age: parseInt(e.target.value) })} />
+                                        <div className="space-y-1.5">
+                                            <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.creator_gender')}</label>
+                                            <select
+                                                value={editForm.gender}
+                                                onChange={(e) => setEditForm({ ...editForm, gender: e.target.value })}
+                                                className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none"
+                                            >
+                                                {GENDER_OPTIONS.map(g => (
+                                                    <option key={g} value={g} className="bg-slate-900">{g}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <InputField label={t('dashboard.creator_price_start')} type="number" value={editForm.price} onChange={(e: any) => setEditForm({ ...editForm, price: parseInt(e.target.value) })} icon={DollarSign} />
+                                        <InputField label={t('dashboard.creator_duration')} value={editForm.priceTime || ''} onChange={(e: any) => setEditForm({ ...editForm, priceTime: e.target.value })} placeholder={t('dashboard.creator_duration_placeholder')} />
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div className="space-y-1.5">
+                                                <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.profile_country')}</label>
+                                                <select
+                                                    value={editForm.country}
+                                                    onChange={(e) => {
+                                                        const country = e.target.value;
+                                                        setEditForm({ ...editForm, country, province: "", zones: [] });
+                                                        const selectedCountry = availableCountries.find((c: any) => c.name === country);
+                                                        setAvailableLocations(selectedCountry ? selectedCountry.provinces : []);
+                                                        setAvailableZones([]);
+                                                    }}
+                                                    disabled={!hasSubscription}
+                                                    className={`w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none ${!hasSubscription ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                >
+                                                    <option value="" className="bg-slate-900">{t('dashboard.profile_country')}</option>
+                                                    {availableCountries.map((c: any) => (
+                                                        <option key={c.code} value={c.name} className="bg-slate-900">{c.name}</option>
+                                                    ))}
+                                                </select>
                                             </div>
-                                        ) : (
-                                            <div className="p-4 bg-black/20 rounded-xl border border-white/10 max-h-40 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-2">
-                                                {availableZones.length > 0 ? availableZones.map((zone) => (
-                                                    <div
-                                                        key={zone}
-                                                        onClick={() => {
-                                                            const currentZones = editForm.zones || [];
-                                                            if (currentZones.includes(zone)) {
-                                                                setEditForm({ ...editForm, zones: currentZones.filter(z => z !== zone) });
-                                                            } else {
-                                                                setEditForm({ ...editForm, zones: [...currentZones, zone] });
-                                                            }
-                                                        }}
-                                                        className={`px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition text-center border ${editForm.zones?.includes(zone) ? 'bg-[#F84E6E] border-[#F84E6E] text-white' : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'}`}
-                                                    >
-                                                        {zone}
+                                            <div className="space-y-1.5">
+                                                <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.profile_province')}</label>
+                                                <select
+                                                    value={editForm.province}
+                                                    onChange={(e) => {
+                                                        const prov = e.target.value;
+                                                        setEditForm({ ...editForm, province: prov, zones: [] });
+                                                        const selectedLoc = availableLocations.find((l: any) => l.name === prov);
+                                                        setAvailableZones(selectedLoc ? selectedLoc.zones : []);
+                                                    }}
+                                                    disabled={!hasSubscription}
+                                                    className={`w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none ${!hasSubscription ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                >
+                                                    <option value="" className="bg-slate-900">{t('dashboard.profile_province')}</option>
+                                                    {availableLocations.map((loc: any) => (
+                                                        <option key={loc.id} value={loc.name} className="bg-slate-900">{loc.name}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <InputField label={t('dashboard.creator_location')} value={editForm.location} onChange={(e: any) => setEditForm({ ...editForm, location: e.target.value })} icon={MapPin} />
+                                        </div>
+
+                                        {/* Zones Selection */}
+                                        {editForm.province && (
+                                            <div className="space-y-2">
+                                                <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.agency_zone')}</label>
+
+                                                {!hasSubscription ? (
+                                                    <div className="p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-center">
+                                                        <p className="text-yellow-500 text-xs flex items-center justify-center gap-2">
+                                                            <Zap size={14} />
+                                                            {t('dashboard.creator_zone_required')}
+                                                        </p>
                                                     </div>
-                                                )) : (
-                                                    <div className="col-span-3 text-center text-white/40 py-2">{t('dashboard.no_zone_data')}</div>
+                                                ) : (
+                                                    <div className="p-4 bg-black/20 rounded-xl border border-white/10 max-h-40 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                                        {availableZones.length > 0 ? availableZones.map((zone) => (
+                                                            <div
+                                                                key={zone}
+                                                                onClick={() => {
+                                                                    const currentZones = editForm.zones || [];
+                                                                    if (currentZones.includes(zone)) {
+                                                                        setEditForm({ ...editForm, zones: currentZones.filter(z => z !== zone) });
+                                                                    } else {
+                                                                        setEditForm({ ...editForm, zones: [...currentZones, zone] });
+                                                                    }
+                                                                }}
+                                                                className={`px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition text-center border ${editForm.zones?.includes(zone) ? 'bg-[#F84E6E] border-[#F84E6E] text-white' : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'}`}
+                                                            >
+                                                                {zone}
+                                                            </div>
+                                                        )) : (
+                                                            <div className="col-span-3 text-center text-white/40 py-2">{t('dashboard.no_zone_data')}</div>
+                                                        )}
+                                                    </div>
                                                 )}
                                             </div>
                                         )}
-                                    </div>
-                                )}
 
-                                <div className="col-span-2">
-                                    <label className="text-xs font-medium text-white/70 ml-1 mb-1 block">{t('dashboard.creator_proportions')}</label>
-                                    <div className="grid grid-cols-3 gap-2">
-                                        <InputField label={t('dashboard.creator_chest')} type="number" value={editForm.chest} onChange={(e: any) => setEditForm({ ...editForm, chest: parseInt(e.target.value) })} />
-                                        <InputField label={t('dashboard.creator_waist')} type="number" value={editForm.waist} onChange={(e: any) => setEditForm({ ...editForm, waist: parseInt(e.target.value) })} />
-                                        <InputField label={t('dashboard.creator_hips')} type="number" value={editForm.hips} onChange={(e: any) => setEditForm({ ...editForm, hips: parseInt(e.target.value) })} />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <InputField label={t('dashboard.creator_height')} value={editForm.height} onChange={(e: any) => setEditForm({ ...editForm, height: e.target.value })} />
-                                <InputField label={t('dashboard.creator_weight')} value={editForm.weight} onChange={(e: any) => setEditForm({ ...editForm, weight: e.target.value })} />
-                            </div>
-
-                            <div className="space-y-1.5">
-                                <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.creator_services')}</label>
-                                <input
-                                    value={editForm.services}
-                                    onChange={(e) => setEditForm({ ...editForm, services: e.target.value })}
-                                    placeholder={t('dashboard.creator_services_placeholder')}
-                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm"
-                                />
-                                <p className="text-[10px] text-white/40 ml-1">{t('dashboard.creator_services_hint')}</p>
-                            </div>
-
-                            <div className="space-y-3 pt-4 border-t border-white/5">
-                                <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.creator_contact_info')}</label>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <InputField
-                                        label={t('dashboard.contact_line_id')}
-                                        value={editForm.lineId}
-                                        onChange={(e: any) => setEditForm({ ...editForm, lineId: e.target.value })}
-                                        placeholder={t('dashboard.contact_line_id_placeholder')}
-                                    />
-                                    <InputField
-                                        label={t('dashboard.contact_whatsapp')}
-                                        value={editForm.whatsapp || ''}
-                                        onChange={(e: any) => setEditForm({ ...editForm, whatsapp: e.target.value })}
-                                        placeholder={t('dashboard.contact_whatsapp_placeholder')}
-                                    />
-                                    <InputField
-                                        label={t('dashboard.contact_instagram')}
-                                        value={editForm.instagram}
-                                        onChange={(e: any) => setEditForm({ ...editForm, instagram: e.target.value })}
-                                        placeholder={t('dashboard.contact_instagram_placeholder')}
-                                    />
-                                    <InputField
-                                        label={t('dashboard.creator_phone')}
-                                        value={editForm.phone}
-                                        onChange={(e: any) => setEditForm({ ...editForm, phone: e.target.value })}
-                                        placeholder={t('dashboard.creator_phone_placeholder')}
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Package Management */}
-                            <div className="space-y-3 pt-4 border-t border-white/5">
-                                <label className="text-xs font-medium text-white/70 ml-1 flex items-center gap-1">
-                                    <Zap size={12} /> {t('dashboard.creator_packages')}
-                                </label>
-
-                                <div className="space-y-3">
-                                    {editForm.packages.map((pkg, idx) => (
-                                        <div key={idx} className="bg-black/20 border border-white/10 p-3 rounded-xl flex items-center gap-3">
-                                            <div className="flex-1 grid grid-cols-3 gap-2">
-                                                <div className="col-span-1">
-                                                    <span className="text-[10px] text-white/40 block">{t('dashboard.creator_package_price')}</span>
-                                                    <input
-                                                        type="number"
-                                                        value={pkg.price}
-                                                        onChange={(e) => {
-                                                            const newPackages = [...editForm.packages];
-                                                            newPackages[idx].price = Number(e.target.value);
-                                                            setEditForm({ ...editForm, packages: newPackages });
-                                                        }}
-                                                        className="w-full bg-transparent border-b border-white/10 text-white text-sm focus:outline-none focus:border-[#F84E6E]"
-                                                    />
-                                                </div>
-                                                <div className="col-span-1">
-                                                    <span className="text-[10px] text-white/40 block">{t('dashboard.creator_package_time')}</span>
-                                                    <input
-                                                        type="text"
-                                                        value={pkg.time}
-                                                        onChange={(e) => {
-                                                            const newPackages = [...editForm.packages];
-                                                            newPackages[idx].time = e.target.value;
-                                                            setEditForm({ ...editForm, packages: newPackages });
-                                                        }}
-                                                        placeholder={t('dashboard.creator_package_time_placeholder')}
-                                                        className="w-full bg-transparent border-b border-white/10 text-white text-sm focus:outline-none focus:border-[#F84E6E]"
-                                                    />
-                                                </div>
-                                                <div className="col-span-1">
-                                                    <span className="text-[10px] text-white/40 block">{t('dashboard.creator_package_details')}</span>
-                                                    <input
-                                                        type="text"
-                                                        value={pkg.details}
-                                                        onChange={(e) => {
-                                                            const newPackages = [...editForm.packages];
-                                                            newPackages[idx].details = e.target.value;
-                                                            setEditForm({ ...editForm, packages: newPackages });
-                                                        }}
-                                                        placeholder={t('dashboard.creator_package_details_placeholder')}
-                                                        className="w-full bg-transparent border-b border-white/10 text-white text-sm focus:outline-none focus:border-[#F84E6E]"
-                                                    />
-                                                </div>
+                                        <div className="col-span-2">
+                                            <label className="text-xs font-medium text-white/70 ml-1 mb-1 block">{t('dashboard.creator_proportions')}</label>
+                                            <div className="grid grid-cols-3 gap-2">
+                                                <InputField label={t('dashboard.creator_chest')} type="number" value={editForm.chest} onChange={(e: any) => setEditForm({ ...editForm, chest: parseInt(e.target.value) })} />
+                                                <InputField label={t('dashboard.creator_waist')} type="number" value={editForm.waist} onChange={(e: any) => setEditForm({ ...editForm, waist: parseInt(e.target.value) })} />
+                                                <InputField label={t('dashboard.creator_hips')} type="number" value={editForm.hips} onChange={(e: any) => setEditForm({ ...editForm, hips: parseInt(e.target.value) })} />
                                             </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <InputField label={t('dashboard.creator_height')} value={editForm.height} onChange={(e: any) => setEditForm({ ...editForm, height: e.target.value })} />
+                                        <InputField label={t('dashboard.creator_weight')} value={editForm.weight} onChange={(e: any) => setEditForm({ ...editForm, weight: e.target.value })} />
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.creator_services')}</label>
+                                        <input
+                                            value={editForm.services}
+                                            onChange={(e) => setEditForm({ ...editForm, services: e.target.value })}
+                                            placeholder={t('dashboard.creator_services_placeholder')}
+                                            className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm"
+                                        />
+                                        <p className="text-[10px] text-white/40 ml-1">{t('dashboard.creator_services_hint')}</p>
+                                    </div>
+
+                                    <div className="space-y-3 pt-4 border-t border-white/5">
+                                        <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.creator_contact_info')}</label>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <InputField
+                                                label={t('dashboard.contact_line_id')}
+                                                value={editForm.lineId}
+                                                onChange={(e: any) => setEditForm({ ...editForm, lineId: e.target.value })}
+                                                placeholder={t('dashboard.contact_line_id_placeholder')}
+                                            />
+                                            <InputField
+                                                label={t('dashboard.contact_whatsapp')}
+                                                value={editForm.whatsapp || ''}
+                                                onChange={(e: any) => setEditForm({ ...editForm, whatsapp: e.target.value })}
+                                                placeholder={t('dashboard.contact_whatsapp_placeholder')}
+                                            />
+                                            <InputField
+                                                label={t('dashboard.contact_instagram')}
+                                                value={editForm.instagram}
+                                                onChange={(e: any) => setEditForm({ ...editForm, instagram: e.target.value })}
+                                                placeholder={t('dashboard.contact_instagram_placeholder')}
+                                            />
+                                            <InputField
+                                                label={t('dashboard.creator_phone')}
+                                                value={editForm.phone}
+                                                onChange={(e: any) => setEditForm({ ...editForm, phone: e.target.value })}
+                                                placeholder={t('dashboard.creator_phone_placeholder')}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Package Management */}
+                                    <div className="space-y-3 pt-4 border-t border-white/5">
+                                        <label className="text-xs font-medium text-white/70 ml-1 flex items-center gap-1">
+                                            <Zap size={12} /> {t('dashboard.creator_packages')}
+                                        </label>
+
+                                        <div className="space-y-3">
+                                            {editForm.packages.map((pkg, idx) => (
+                                                <div key={idx} className="bg-black/20 border border-white/10 p-3 rounded-xl flex items-center gap-3">
+                                                    <div className="flex-1 grid grid-cols-3 gap-2">
+                                                        <div className="col-span-1">
+                                                            <span className="text-[10px] text-white/40 block">{t('dashboard.creator_package_price')}</span>
+                                                            <input
+                                                                type="number"
+                                                                value={pkg.price}
+                                                                onChange={(e) => {
+                                                                    const newPackages = [...editForm.packages];
+                                                                    newPackages[idx].price = Number(e.target.value);
+                                                                    setEditForm({ ...editForm, packages: newPackages });
+                                                                }}
+                                                                className="w-full bg-transparent border-b border-white/10 text-white text-sm focus:outline-none focus:border-[#F84E6E]"
+                                                            />
+                                                        </div>
+                                                        <div className="col-span-1">
+                                                            <span className="text-[10px] text-white/40 block">{t('dashboard.creator_package_time')}</span>
+                                                            <input
+                                                                type="text"
+                                                                value={pkg.time}
+                                                                onChange={(e) => {
+                                                                    const newPackages = [...editForm.packages];
+                                                                    newPackages[idx].time = e.target.value;
+                                                                    setEditForm({ ...editForm, packages: newPackages });
+                                                                }}
+                                                                placeholder={t('dashboard.creator_package_time_placeholder')}
+                                                                className="w-full bg-transparent border-b border-white/10 text-white text-sm focus:outline-none focus:border-[#F84E6E]"
+                                                            />
+                                                        </div>
+                                                        <div className="col-span-1">
+                                                            <span className="text-[10px] text-white/40 block">{t('dashboard.creator_package_details')}</span>
+                                                            <input
+                                                                type="text"
+                                                                value={pkg.details}
+                                                                onChange={(e) => {
+                                                                    const newPackages = [...editForm.packages];
+                                                                    newPackages[idx].details = e.target.value;
+                                                                    setEditForm({ ...editForm, packages: newPackages });
+                                                                }}
+                                                                placeholder={t('dashboard.creator_package_details_placeholder')}
+                                                                className="w-full bg-transparent border-b border-white/10 text-white text-sm focus:outline-none focus:border-[#F84E6E]"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => {
+                                                            const newPackages = editForm.packages.filter((_, i) => i !== idx);
+                                                            setEditForm({ ...editForm, packages: newPackages });
+                                                        }}
+                                                        className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </div>
+                                            ))}
+
                                             <button
-                                                onClick={() => {
-                                                    const newPackages = editForm.packages.filter((_, i) => i !== idx);
-                                                    setEditForm({ ...editForm, packages: newPackages });
-                                                }}
-                                                className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition"
+                                                onClick={() => setEditForm({
+                                                    ...editForm,
+                                                    packages: [...editForm.packages, { price: 0, time: "", details: "" }]
+                                                })}
+                                                className="w-full py-2 border border-dashed border-white/20 rounded-xl text-white/50 hover:text-white hover:border-white/40 transition text-xs font-bold flex items-center justify-center gap-2"
                                             >
-                                                <Trash2 size={16} />
+                                                <Plus size={14} /> {t('dashboard.creator_add_package')}
                                             </button>
                                         </div>
-                                    ))}
-
-                                    <button
-                                        onClick={() => setEditForm({
-                                            ...editForm,
-                                            packages: [...editForm.packages, { price: 0, time: "", details: "" }]
-                                        })}
-                                        className="w-full py-2 border border-dashed border-white/20 rounded-xl text-white/50 hover:text-white hover:border-white/40 transition text-xs font-bold flex items-center justify-center gap-2"
-                                    >
-                                        <Plus size={14} /> {t('dashboard.creator_add_package')}
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Agency Integration */}
-                            <div className="space-y-1.5 pt-2 border-t border-white/5 mt-4">
-                                <label className="text-xs font-medium text-white/70 ml-1 flex items-center gap-1"><Building size={12} /> {t('dashboard.creator_agency')}</label>
-                                <select
-                                    value={editForm.agency}
-                                    onChange={(e) => setEditForm({ ...editForm, agency: e.target.value })}
-                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none"
-                                >
-                                    <option value="" className="bg-slate-900 text-white">{t('dashboard.creator_no_agency')}</option>
-                                    {agencies.map((agency) => (
-                                        <option key={agency._id} value={agency._id} className="bg-slate-900 text-white">
-                                            {agency.name} {agency.isVerified ? '✅' : ''}
-                                        </option>
-                                    ))}
-                                </select>
-                                <p className="text-[10px] text-yellow-500/80 ml-1">{t('dashboard.creator_agency_hint')}</p>
-                            </div>
-                            {/* 2. Gallery */}
-                            <section className="space-y-4">
-                                <h3 className="text-[#F84E6E] font-bold text-sm uppercase tracking-wider flex items-center gap-2"><ImageIcon size={14} /> {t('dashboard.creator_gallery')}</h3>
-                                {/* Subscription Barrier for Gallery */}
-                                {!hasSubscription && (
-                                    <div className="text-center py-4 px-2 border border-yellow-500/30 bg-yellow-500/10 rounded-xl mb-2">
-                                        <p className="text-yellow-500 text-xs">{t('dashboard.creator_gallery_required')}</p>
                                     </div>
-                                )}
 
-                                <div className="grid grid-cols-3 gap-2">
-                                    {creator?.images?.map((img: string, idx: number) => (
-                                        <div key={idx} className="aspect-square rounded-lg overflow-hidden relative group">
-                                            <Image src={getImageUrl(img)} fill className="object-cover" alt={`Gallery ${idx}`} />
-                                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                                                <button
-                                                    onClick={() => handleGalleryDelete(idx)}
-                                                    className="bg-red-500 p-2 rounded-full text-white hover:bg-red-600"
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                    <label className={`aspect-square rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 border-dashed flex flex-col items-center justify-center gap-2 cursor-pointer transition ${!hasSubscription ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                        <Plus className="text-white/30" />
-                                        <span className="text-[10px] text-white/30 font-medium">{t('dashboard.creator_add_image')}</span>
-                                        <input type="file" multiple accept="image/*" hidden onChange={handleGalleryUpload} disabled={!hasSubscription} />
-                                    </label>
-                                </div>
-                            </section>
-
-                            <button onClick={handleProfileUpdate} className="w-full bg-[#F84E6E] text-white py-3 rounded-xl font-bold hover:brightness-110 shadow-lg shadow-pink-500/20 mt-4 text-sm">
-                                {t('dashboard.creator_save_changes')}
-                            </button>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="space-y-6">
-                        {/* Action Buttons */}
-                        <div className="grid grid-cols-1 gap-4">
-                            <button
-                                onClick={() => setIsEditing(true)}
-                                className="bg-[#1e1b4b]/50 backdrop-blur border border-white/10 hover:bg-white/5 text-white py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-lg cursor-pointer"
-                            >
-                                <Edit size={18} className="text-[#F84E6E] cursor-pointer" /> {t('dashboard.creator_edit_profile')}
-                            </button>
-
-                        </div>
-
-                        {/* Subscription Status - Only show if hasSubscription is true or false logic needed? */}
-                        {/* Actually we blocked posting, so maybe show a badge if active */}
-                        {hasSubscription && (
-                            <div className="bg-gradient-to-r from-yellow-600/20 to-yellow-400/20 border border-yellow-500/30 rounded-xl p-4 flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-yellow-500/20 rounded-full text-yellow-400">
-                                        <Zap size={20} fill="currentColor" />
+                                    {/* Agency Integration */}
+                                    <div className="space-y-1.5 pt-2 border-t border-white/5 mt-4">
+                                        <label className="text-xs font-medium text-white/70 ml-1 flex items-center gap-1"><Building size={12} /> {t('dashboard.creator_agency')}</label>
+                                        <select
+                                            value={editForm.agency}
+                                            onChange={(e) => setEditForm({ ...editForm, agency: e.target.value })}
+                                            className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none"
+                                        >
+                                            <option value="" className="bg-slate-900 text-white">{t('dashboard.creator_no_agency')}</option>
+                                            {agencies.map((agency) => (
+                                                <option key={agency._id} value={agency._id} className="bg-slate-900 text-white">
+                                                    {agency.name} {agency.isVerified ? '✅' : ''}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <p className="text-[10px] text-yellow-500/80 ml-1">{t('dashboard.creator_agency_hint')}</p>
                                     </div>
-                                    <div>
-                                        <h4 className="text-yellow-400 font-bold text-sm">{t('dashboard.creator_active_subscription')}</h4>
-                                        <p className="text-yellow-200/60 text-xs">{t('dashboard.creator_subscription_desc')}</p>
-                                    </div>
-                                </div>
-                                {/* <button className="text-xs bg-yellow-500 text-black font-bold px-3 py-1.5 rounded-lg">View Plan</button> */}
-                            </div>
-                        )}
-
-                        {/* New Post Input */}
-                        <div className="bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-4 shadow-xl border border-white/5">
-                            {/* Subscription Barrier */}
-                            {!hasSubscription && (
-                                <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-6 text-center animate-pulse mb-4">
-                                    <h3 className="text-yellow-500 font-bold text-lg mb-2 flex items-center justify-center gap-2">
-                                        <Zap /> {t('dashboard.creator_select_package_title')}
-                                    </h3>
-                                    <p className="text-white/70 mb-4">{t('dashboard.creator_select_package_desc')}</p>
-                                    <button
-                                        onClick={() => router.push('/plans')}
-                                        className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-6 py-2 rounded-full shadow-lg transition"
-                                    >
-                                        {t('dashboard.creator_select_package_btn')}
-                                    </button>
-                                </div>
-                            )}
-
-                            <div className="flex gap-4">
-                                <div className="w-10 h-10 rounded-full bg-gray-700 overflow-hidden flex-shrink-0 relative">
-                                    {(creator?.images?.[0] || user?.avatarUrl) ? (
-                                        <Image src={getImageUrl(creator?.images?.[0] || user?.avatarUrl)} fill className="object-cover" alt="" />
-                                    ) : (
-                                        <div className="w-full h-full bg-gray-600" />
-                                    )}
-                                </div>
-                                <div className="flex-1">
-                                    <form onSubmit={handlePostSubmit}>
-                                        <input
-                                            type="text"
-                                            value={caption}
-                                            onChange={(e) => setCaption(e.target.value)}
-                                            placeholder={t('dashboard.creator_post_placeholder')}
-                                            className="w-full bg-transparent text-white placeholder-white/40 focus:outline-none mb-3 py-2"
-                                            disabled={!hasSubscription}
-                                        />
-
-                                        {/* Image Preview */}
-                                        {previewUrl && (
-                                            <div className="relative w-full h-48 rounded-xl overflow-hidden mb-3">
-                                                <Image src={previewUrl} fill className="object-cover" alt="Preview" />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => { setSelectedFile(null); setPreviewUrl(""); }}
-                                                    className="absolute top-2 right-2 bg-black/50 p-1 rounded-full text-white hover:bg-black/70"
-                                                >
-                                                    <LogOut size={16} />
-                                                </button>
+                                    {/* 2. Gallery */}
+                                    <section className="space-y-4">
+                                        <h3 className="text-[#F84E6E] font-bold text-sm uppercase tracking-wider flex items-center gap-2"><ImageIcon size={14} /> {t('dashboard.creator_gallery')}</h3>
+                                        {/* Subscription Barrier for Gallery */}
+                                        {!hasSubscription && (
+                                            <div className="text-center py-4 px-2 border border-yellow-500/30 bg-yellow-500/10 rounded-xl mb-2">
+                                                <p className="text-yellow-500 text-xs">{t('dashboard.creator_gallery_required')}</p>
                                             </div>
                                         )}
 
-                                        <div className="flex justify-between items-center border-t border-white/10 pt-3">
-                                            <label className={`flex items-center gap-2 text-sm text-[#F84E6E] font-medium hover:text-pink-400 cursor-pointer ${!hasSubscription ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                                <ImageIcon size={18} />
-                                                {t('dashboard.creator_add_image_btn')}
-                                                <input type="file" accept="image/*" hidden onChange={handleFileSelect} disabled={!hasSubscription} />
+                                        <div className="grid grid-cols-3 gap-2">
+                                            {creator?.images?.map((img: string, idx: number) => (
+                                                <div key={idx} className="aspect-square rounded-lg overflow-hidden relative group">
+                                                    <Image src={getImageUrl(img)} fill className="object-cover" alt={`Gallery ${idx}`} />
+                                                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                                                        <button
+                                                            onClick={() => handleGalleryDelete(idx)}
+                                                            className="bg-red-500 p-2 rounded-full text-white hover:bg-red-600"
+                                                        >
+                                                            <Trash2 size={16} />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                            <label className={`aspect-square rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 border-dashed flex flex-col items-center justify-center gap-2 cursor-pointer transition ${!hasSubscription ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                                <Plus className="text-white/30" />
+                                                <span className="text-[10px] text-white/30 font-medium">{t('dashboard.creator_add_image')}</span>
+                                                <input type="file" multiple accept="image/*" hidden onChange={handleGalleryUpload} disabled={!hasSubscription} />
                                             </label>
-                                            <button
-                                                type="submit"
-                                                disabled={(!caption && !selectedFile) || isPosting || !hasSubscription}
-                                                className="bg-[#F84E6E] text-white px-6 py-2 rounded-full font-bold text-sm shadow-lg shadow-pink-500/20 disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-110 transition flex items-center gap-2"
-                                            >
-                                                {isPosting ? t('dashboard.creator_post_btn_loading') : <><Send size={16} /> {t('dashboard.creator_post_btn')}</>}
-                                            </button>
                                         </div>
-                                    </form>
+                                    </section>
+
+                                    <button onClick={handleProfileUpdate} className="w-full bg-[#F84E6E] text-white py-3 rounded-xl font-bold hover:brightness-110 shadow-lg shadow-pink-500/20 mt-4 text-sm">
+                                        {t('dashboard.creator_save_changes')}
+                                    </button>
                                 </div>
                             </div>
-                        </div>
+                        ) : (
+                            <div className="space-y-6">
+                                {/* Action Buttons */}
+                                <div className="grid grid-cols-1 gap-4">
+                                    <button
+                                        onClick={() => setIsEditing(true)}
+                                        className="bg-[#1e1b4b]/50 backdrop-blur border border-white/10 hover:bg-white/5 text-white py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-lg cursor-pointer"
+                                    >
+                                        <Edit size={18} className="text-[#F84E6E] cursor-pointer" /> {t('dashboard.creator_edit_profile')}
+                                    </button>
 
-                        {/* Stories Section */}
-                        <div className="space-y-4">
-                            <h3 className="text-white font-bold text-lg flex items-center gap-2">
-                                <span className="bg-gradient-to-r from-pink-500 to-orange-500 text-transparent bg-clip-text">{t('dashboard.creator_stories_title')}</span>
-                            </h3>
-
-                            {/* Subscription Barrier */}
-                            {!hasSubscription ? (
-                                <div className="p-4 rounded-xl border border-yellow-500/30 bg-yellow-500/5 text-center">
-                                    <p className="text-yellow-500 text-sm">{t('dashboard.creator_story_required')}</p>
                                 </div>
-                            ) : (
-                                <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-                                    {/* Add Story Button */}
-                                    <div className="flex-shrink-0 w-24 h-40 rounded-xl bg-white/5 border border-white/10 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-white/10 transition group relative overflow-hidden">
-                                        <div className="w-10 h-10 rounded-full bg-[#F84E6E] flex items-center justify-center text-white group-hover:scale-110 transition">
-                                            {isStoryUploading ? <div className="animate-spin text-xl">C</div> : <Plus size={24} />}
-                                        </div>
-                                        <span className="text-xs text-white/70 font-medium">{t('dashboard.creator_add_story')}</span>
-                                        <input
-                                            type="file"
-                                            accept="image/*,video/*"
-                                            className="absolute inset-0 cursor-pointer opacity-0"
-                                            onChange={handleStoryUpload}
-                                            disabled={isStoryUploading}
-                                        />
-                                    </div>
 
-                                    {/* Story List */}
-                                    {stories.map((story) => (
-                                        <div
-                                            key={story._id}
-                                            className="flex-shrink-0 w-24 h-40 rounded-xl bg-gray-900 border border-white/10 relative group overflow-hidden cursor-pointer"
-                                            onClick={() => {
-                                                const myStoryIndex = stories.findIndex(s => s._id === story._id);
-                                                setSelectedStoryIndex(myStoryIndex);
-                                            }}
-                                        >
-                                            {story.mediaType === 'video' ? (
-                                                <video src={getImageUrl(story.mediaUrl)} className="w-full h-full object-cover" />
-                                            ) : (
-                                                <Image src={getImageUrl(story.mediaUrl)} fill className="object-cover" alt="Story" />
-                                            )}
-
-                                            {/* Time Label */}
-                                            <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 to-transparent">
-                                                <span className="text-[10px] text-white/90 font-medium">
-                                                    {new Date(story.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                </span>
-                                            </div>
-
-                                            {/* Delete Button (Top Right) */}
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleStoryDelete(story._id);
-                                                }}
-                                                className="absolute top-1 right-1 p-1 bg-black/40 hover:bg-red-500 backdrop-blur-md rounded-full text-white/70 hover:text-white transition opacity-0 group-hover:opacity-100"
-                                            >
-                                                <Trash2 size={12} />
-                                            </button>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Recent Posts Feed */}
-                        <div className="space-y-4">
-                            <h3 className="text-white font-bold text-lg flex items-center gap-2"><ImageIcon size={20} className="text-[#F84E6E]" /> {t('dashboard.creator_stats_posts')}</h3>
-
-                            {myPosts.length > 0 ? (
-                                myPosts.map((post) => (
-                                    <div key={post._id} className="bg-[#1e1b4b]/80 backdrop-blur rounded-2xl overflow-hidden shadow-xl border border-white/5">
-                                        <div className="p-4 flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-gray-700 overflow-hidden relative">
-                                                <Image
-                                                    src={getImageUrl(creator?.images?.[0] || user?.avatarUrl)}
-                                                    fill className="object-cover" alt=""
-                                                />
+                                {/* Subscription Status - Only show if hasSubscription is true or false logic needed? */}
+                                {/* Actually we blocked posting, so maybe show a badge if active */}
+                                {hasSubscription && (
+                                    <div className="bg-gradient-to-r from-yellow-600/20 to-yellow-400/20 border border-yellow-500/30 rounded-xl p-4 flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 bg-yellow-500/20 rounded-full text-yellow-400">
+                                                <Zap size={20} fill="currentColor" />
                                             </div>
                                             <div>
-                                                <h4 className="font-bold text-white text-sm">{creator?.displayName}</h4>
-                                                <p className="text-xs text-white/40">{new Date(post.createdAt).toLocaleString()}</p>
+                                                <h4 className="text-yellow-400 font-bold text-sm">{t('dashboard.creator_active_subscription')}</h4>
+                                                <p className="text-yellow-200/60 text-xs">{t('dashboard.creator_subscription_desc')}</p>
                                             </div>
-                                            <button className="ml-auto text-white/30 hover:text-white"><MoreHorizontal size={20} /></button>
                                         </div>
+                                        {/* <button className="text-xs bg-yellow-500 text-black font-bold px-3 py-1.5 rounded-lg">View Plan</button> */}
+                                    </div>
+                                )}
 
-                                        {post.media && post.media.length > 0 && (
-                                            <div className="relative aspect-[4/5] w-full bg-black">
-                                                <Image src={getImageUrl(post.media[0].url)} fill className="object-contain" alt="Post content" />
-                                            </div>
-                                        )}
+                                {/* New Post Input */}
+                                <div className="bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-4 shadow-xl border border-white/5">
+                                    {/* Subscription Barrier */}
+                                    {!hasSubscription && (
+                                        <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-6 text-center animate-pulse mb-4">
+                                            {kycStatus === 'APPROVED' ? (
+                                                <>
+                                                    <h3 className="text-yellow-500 font-bold text-lg mb-2 flex items-center justify-center gap-2">
+                                                        <Zap /> {t('dashboard.creator_select_package_title')}
+                                                    </h3>
+                                                    <p className="text-white/70 mb-4">{t('dashboard.creator_select_package_desc')}</p>
+                                                    <button
+                                                        onClick={() => router.push('/plans')}
+                                                        className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-6 py-2 rounded-full shadow-lg transition"
+                                                    >
+                                                        {t('dashboard.creator_select_package_btn')}
+                                                    </button>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <h3 className="text-yellow-500 font-bold text-lg mb-2 flex items-center justify-center gap-2">
+                                                        <ShieldCheck /> {t('dashboard.kyc_required_title')}
+                                                    </h3>
+                                                    <p className="text-white/70 mb-4">{t('dashboard.kyc_required_desc')}</p>
+                                                    <button
+                                                        onClick={() => setCreatorTab('verification')}
+                                                        className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-6 py-2 rounded-full shadow-lg transition"
+                                                    >
+                                                        {t('dashboard.kyc_required_btn')}
+                                                    </button>
+                                                </>
+                                            )}
+                                        </div>
+                                    )}
 
-                                        <div className="p-4">
-                                            <div className="flex items-center gap-4 mb-3">
-                                                <button className="text-white hover:text-[#F84E6E] transition"><Heart size={24} /></button>
-                                                <button className="text-white hover:text-blue-400 transition"><MessageCircle size={24} /></button>
-                                                <button className="text-white hover:text-green-400 transition ml-auto"><Share2 size={24} /></button>
-                                            </div>
-                                            <p className="text-white text-sm">
-                                                <span className="font-bold mr-2">{creator?.displayName}</span>
-                                                {post.caption}
-                                            </p>
+                                    <div className="flex gap-4">
+                                        <div className="w-10 h-10 rounded-full bg-gray-700 overflow-hidden flex-shrink-0 relative">
+                                            {(creator?.images?.[0] || user?.avatarUrl) ? (
+                                                <Image src={getImageUrl(creator?.images?.[0] || user?.avatarUrl)} fill className="object-cover" alt="" />
+                                            ) : (
+                                                <div className="w-full h-full bg-gray-600" />
+                                            )}
+                                        </div>
+                                        <div className="flex-1">
+                                            <form onSubmit={handlePostSubmit}>
+                                                <input
+                                                    type="text"
+                                                    value={caption}
+                                                    onChange={(e) => setCaption(e.target.value)}
+                                                    placeholder={t('dashboard.creator_post_placeholder')}
+                                                    className="w-full bg-transparent text-white placeholder-white/40 focus:outline-none mb-3 py-2"
+                                                    disabled={!hasSubscription}
+                                                />
+
+                                                {/* Image Preview */}
+                                                {previewUrl && (
+                                                    <div className="relative w-full h-48 rounded-xl overflow-hidden mb-3">
+                                                        <Image src={previewUrl} fill className="object-cover" alt="Preview" />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => { setSelectedFile(null); setPreviewUrl(""); }}
+                                                            className="absolute top-2 right-2 bg-black/50 p-1 rounded-full text-white hover:bg-black/70"
+                                                        >
+                                                            <LogOut size={16} />
+                                                        </button>
+                                                    </div>
+                                                )}
+
+                                                <div className="flex justify-between items-center border-t border-white/10 pt-3">
+                                                    <label className={`flex items-center gap-2 text-sm text-[#F84E6E] font-medium hover:text-pink-400 cursor-pointer ${!hasSubscription ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                                        <ImageIcon size={18} />
+                                                        {t('dashboard.creator_add_image_btn')}
+                                                        <input type="file" accept="image/*" hidden onChange={handleFileSelect} disabled={!hasSubscription} />
+                                                    </label>
+                                                    <button
+                                                        type="submit"
+                                                        disabled={(!caption && !selectedFile) || isPosting || !hasSubscription}
+                                                        className="bg-[#F84E6E] text-white px-6 py-2 rounded-full font-bold text-sm shadow-lg shadow-pink-500/20 disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-110 transition flex items-center gap-2"
+                                                    >
+                                                        {isPosting ? t('dashboard.creator_post_btn_loading') : <><Send size={16} /> {t('dashboard.creator_post_btn')}</>}
+                                                    </button>
+                                                </div>
+                                            </form>
                                         </div>
                                     </div>
-                                ))
-                            ) : (
-                                <div className="text-center py-12 bg-white/5 rounded-2xl border border-white/5 border-dashed">
-                                    <p className="text-white/30">{t('dashboard.no_posts_yet')}</p>
                                 </div>
-                            )}
-                        </div>
-                    </div>
+
+                                {/* Stories Section */}
+                                <div className="space-y-4">
+                                    <h3 className="text-white font-bold text-lg flex items-center gap-2">
+                                        <span className="bg-gradient-to-r from-pink-500 to-orange-500 text-transparent bg-clip-text">{t('dashboard.creator_stories_title')}</span>
+                                    </h3>
+
+                                    {/* Subscription Barrier */}
+                                    {!hasSubscription ? (
+                                        <div className="p-4 rounded-xl border border-yellow-500/30 bg-yellow-500/5 text-center">
+                                            <p className="text-yellow-500 text-sm">{t('dashboard.creator_story_required')}</p>
+                                        </div>
+                                    ) : (
+                                        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+                                            {/* Add Story Button */}
+                                            <div className="flex-shrink-0 w-24 h-40 rounded-xl bg-white/5 border border-white/10 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-white/10 transition group relative overflow-hidden">
+                                                <div className="w-10 h-10 rounded-full bg-[#F84E6E] flex items-center justify-center text-white group-hover:scale-110 transition">
+                                                    {isStoryUploading ? <div className="animate-spin text-xl">C</div> : <Plus size={24} />}
+                                                </div>
+                                                <span className="text-xs text-white/70 font-medium">{t('dashboard.creator_add_story')}</span>
+                                                <input
+                                                    type="file"
+                                                    accept="image/*,video/*"
+                                                    className="absolute inset-0 cursor-pointer opacity-0"
+                                                    onChange={handleStoryUpload}
+                                                    disabled={isStoryUploading}
+                                                />
+                                            </div>
+
+                                            {/* Story List */}
+                                            {stories.map((story) => (
+                                                <div
+                                                    key={story._id}
+                                                    className="flex-shrink-0 w-24 h-40 rounded-xl bg-gray-900 border border-white/10 relative group overflow-hidden cursor-pointer"
+                                                    onClick={() => {
+                                                        const myStoryIndex = stories.findIndex(s => s._id === story._id);
+                                                        setSelectedStoryIndex(myStoryIndex);
+                                                    }}
+                                                >
+                                                    {story.mediaType === 'video' ? (
+                                                        <video src={getImageUrl(story.mediaUrl)} className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <Image src={getImageUrl(story.mediaUrl)} fill className="object-cover" alt="Story" />
+                                                    )}
+
+                                                    {/* Time Label */}
+                                                    <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 to-transparent">
+                                                        <span className="text-[10px] text-white/90 font-medium">
+                                                            {new Date(story.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                        </span>
+                                                    </div>
+
+                                                    {/* Delete Button (Top Right) */}
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleStoryDelete(story._id);
+                                                        }}
+                                                        className="absolute top-1 right-1 p-1 bg-black/40 hover:bg-red-500 backdrop-blur-md rounded-full text-white/70 hover:text-white transition opacity-0 group-hover:opacity-100"
+                                                    >
+                                                        <Trash2 size={12} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Recent Posts Feed */}
+                                <div className="space-y-4">
+                                    <h3 className="text-white font-bold text-lg flex items-center gap-2"><ImageIcon size={20} className="text-[#F84E6E]" /> {t('dashboard.creator_stats_posts')}</h3>
+
+                                    {myPosts.length > 0 ? (
+                                        myPosts.map((post) => (
+                                            <div key={post._id} className="bg-[#1e1b4b]/80 backdrop-blur rounded-2xl overflow-hidden shadow-xl border border-white/5">
+                                                <div className="p-4 flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-full bg-gray-700 overflow-hidden relative">
+                                                        <Image
+                                                            src={getImageUrl(creator?.images?.[0] || user?.avatarUrl)}
+                                                            fill className="object-cover" alt=""
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="font-bold text-white text-sm">{creator?.displayName}</h4>
+                                                        <p className="text-xs text-white/40">{new Date(post.createdAt).toLocaleString()}</p>
+                                                    </div>
+                                                    <button className="ml-auto text-white/30 hover:text-white"><MoreHorizontal size={20} /></button>
+                                                </div>
+
+                                                {post.media && post.media.length > 0 && (
+                                                    <div className="relative aspect-[4/5] w-full bg-black">
+                                                        <Image src={getImageUrl(post.media[0].url)} fill className="object-contain" alt="Post content" />
+                                                    </div>
+                                                )}
+
+                                                <div className="p-4">
+                                                    <div className="flex items-center gap-4 mb-3">
+                                                        <button className="text-white hover:text-[#F84E6E] transition"><Heart size={24} /></button>
+                                                        <button className="text-white hover:text-blue-400 transition"><MessageCircle size={24} /></button>
+                                                        <button className="text-white hover:text-green-400 transition ml-auto"><Share2 size={24} /></button>
+                                                    </div>
+                                                    <p className="text-white text-sm">
+                                                        <span className="font-bold mr-2">{creator?.displayName}</span>
+                                                        {post.caption}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="text-center py-12 bg-white/5 rounded-2xl border border-white/5 border-dashed">
+                                            <p className="text-white/30">{t('dashboard.no_posts_yet')}</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
 
