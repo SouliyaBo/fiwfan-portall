@@ -624,8 +624,8 @@
         "zone_all": "All Zones"
     },
     "plan_names": {
-        "SUPER_STAR": "Super Star 🔥",
-        "STAR": "Star ⭐",
-        "POPULAR": "Popular ✨"
+        "SUPER_STAR": "Super Star",
+        "STAR": "Star",
+        "POPULAR": "Popular"
     }
 }

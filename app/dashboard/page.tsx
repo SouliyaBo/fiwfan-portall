@@ -77,6 +77,24 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
         checkSubscription();
     }, []);
 
+    // Update available provinces when country changes or countries are loaded
+    useEffect(() => {
+        if (form.country && availableCountries.length > 0) {
+            const selectedCountry = availableCountries.find((c: any) => c.name === form.country);
+            if (selectedCountry) {
+                setAvailableLocations(selectedCountry.provinces);
+
+                // Also update zones if province is selected
+                if (form.province) {
+                    const selectedProvince = selectedCountry.provinces.find((p: any) => p.name === form.province);
+                    if (selectedProvince) {
+                        setAvailableZones(selectedProvince.zones);
+                    }
+                }
+            }
+        }
+    }, [form.country, form.province, availableCountries]);
+
     const checkSubscription = async () => {
         try {
             const token = getAuthToken();
@@ -1560,10 +1578,18 @@ export default function Dashboard() {
                         const locRes = await fetch(`${API_BASE_URL}/settings/locations`);
                         if (locRes.ok) {
                             const locData = await locRes.json();
-                            // Update available locations just in case
-                            setAvailableLocations(locData);
-                            const found = locData.find((l: any) => l.name === data.province);
-                            if (found) zonesForProvince = found.zones;
+                            // Update available countries
+                            setAvailableCountries(locData);
+
+                            // Set available locations based on user country
+                            const userCountry = data.country || "Thailand";
+                            const countryData = locData.find((c: any) => c.name === userCountry);
+
+                            if (countryData) {
+                                setAvailableLocations(countryData.provinces);
+                                const found = countryData.provinces.find((l: any) => l.name === data.province);
+                                if (found) zonesForProvince = found.zones;
+                            }
                         }
                     } catch (e) { }
                 }

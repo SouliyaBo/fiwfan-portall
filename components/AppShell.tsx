@@ -135,7 +135,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                             </a>
                         )}
                         {!isLoggedIn && (
-                            <Link href="/auth?mode=register" className="hidden md:block px-4 py-1.5 bg-[#F84E6E] hover:bg-[#d63d5b] text-white text-sm font-bold rounded-full transition shadow-[0_0_15px_rgba(248,78,110,0.3)]">
+                            <Link href="/auth?mode=register" className="px-4 py-1.5 bg-[#F84E6E] hover:bg-[#d63d5b] text-white text-sm font-bold rounded-full transition shadow-[0_0_15px_rgba(248,78,110,0.3)]">
                                 {t('nav.register')}
                             </Link>
                         )}
@@ -179,10 +179,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                                 <span className="font-medium">{t('nav.agencies')}</span>
                             </Link>
 
-                            <Link href="/leaderboard" onClick={() => setIsSidebarOpen(false)} className="flex items-center gap-3 p-3 text-white/80 hover:bg-white/5 rounded-lg transition">
+                            {/* <Link href="/leaderboard" onClick={() => setIsSidebarOpen(false)} className="flex items-center gap-3 p-3 text-white/80 hover:bg-white/5 rounded-lg transition">
                                 <Award size={20} className="text-yellow-500" />
                                 <span className="font-medium">{t('nav.leaderboard')}</span>
-                            </Link>
+                            </Link> */}
 
                             <Link href="/check-homework" onClick={() => setIsSidebarOpen(false)} className="flex items-center gap-3 p-3 text-white/80 hover:bg-white/5 rounded-lg transition">
                                 <MessageCircle size={20} className="text-pink-400" />
