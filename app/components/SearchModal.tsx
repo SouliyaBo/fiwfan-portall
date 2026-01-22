@@ -3,6 +3,7 @@
 import { X, Search, MapPin, Hash } from "lucide-react";
 import { useState, useEffect } from "react";
 import { API_BASE_URL } from "../../lib/constants";
+import { useLanguage } from "../../contexts/LanguageContext";
 
 interface SearchModalProps {
     isOpen: boolean;
@@ -11,6 +12,7 @@ interface SearchModalProps {
 }
 
 export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalProps) {
+    const { t } = useLanguage();
     const [filters, setFilters] = useState({
         name: "",
         lineId: "",
@@ -67,56 +69,42 @@ export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalPr
                     <X size={20} />
                 </button>
 
-                <h3 className="text-xl font-bold mb-6 text-center text-white">ค้นหา</h3>
+                <h3 className="text-xl font-bold mb-6 text-center text-white">{t('search_modal.title')}</h3>
 
                 <div className="space-y-4">
                     {/* Name */}
                     <div>
-                        <label className="block text-sm font-medium mb-1 text-zinc-300">ค้นหาชื่อ</label>
+                        <label className="block text-sm font-medium mb-1 text-zinc-300">{t('search_modal.name_label')}</label>
                         <div className="relative">
                             <input
                                 value={filters.name}
                                 onChange={(e) => setFilters({ ...filters, name: e.target.value })}
                                 className="w-full bg-black/30 border border-white/10 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-white placeholder-zinc-500"
-                                placeholder="พิมพ์ชื่อน้อง..."
+                                placeholder={t('search_modal.name_placeholder')}
                             />
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
                         </div>
                     </div>
 
-                    {/* Line ID */}
-                    {/* <div>
-                        <label className="block text-sm font-medium mb-1 text-zinc-700 dark:text-zinc-300">ไลน์ไอดี</label>
-                        <div className="relative">
-                            <input
-                                value={filters.lineId}
-                                onChange={(e) => setFilters({ ...filters, lineId: e.target.value })}
-                                className="w-full bg-zinc-50 dark:bg-black/30 border border-zinc-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] dark:text-white"
-                                placeholder="LINE ID..."
-                            />
-                            <Hash className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
-                        </div>
-                    </div> */}
-
                     {/* Gender */}
                     <div>
-                        <label className="block text-sm font-medium mb-1 text-zinc-300">เพศ</label>
+                        <label className="block text-sm font-medium mb-1 text-zinc-300">{t('search_modal.gender_label')}</label>
                         <select
                             value={filters.gender}
                             onChange={(e) => setFilters({ ...filters, gender: e.target.value })}
                             className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-white appearance-none cursor-pointer"
                         >
-                            <option value="">ทั้งหมด</option>
-                            <option value="ผู้หญิง">ผู้หญิง</option>
-                            <option value="ผู้ชาย">ผู้ชาย</option>
-                            <option value="LGBTQ+">LGBTQ+</option>
-                            <option value="Other">อื่นๆ (Other)</option>
+                            <option value="">{t('search_modal.gender_all')}</option>
+                            <option value="ผู้หญิง">{t('search_modal.gender_female')}</option>
+                            <option value="ผู้ชาย">{t('search_modal.gender_male')}</option>
+                            <option value="LGBTQ+">{t('search_modal.gender_lgbtq')}</option>
+                            <option value="Other">{t('search_modal.gender_other')}</option>
                         </select>
                     </div>
 
                     {/* Country */}
                     <div>
-                        <label className="block text-sm font-medium mb-1 text-zinc-300">ประเทศ</label>
+                        <label className="block text-sm font-medium mb-1 text-zinc-300">{t('search_modal.country_label')}</label>
                         <select
                             value={filters.country}
                             onChange={(e) => {
@@ -128,7 +116,7 @@ export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalPr
                             }}
                             className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-white appearance-none cursor-pointer"
                         >
-                            <option value="">ทุกประเทศ</option>
+                            <option value="">{t('search_modal.country_all')}</option>
                             {availableCountries.map((c: any) => (
                                 <option key={c.code} value={c.name} className="bg-slate-900">{c.name}</option>
                             ))}
@@ -137,7 +125,7 @@ export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalPr
 
                     {/* Province */}
                     <div>
-                        <label className="block text-sm font-medium mb-1 text-zinc-300">จังหวัด</label>
+                        <label className="block text-sm font-medium mb-1 text-zinc-300">{t('search_modal.province_label')}</label>
                         <select
                             value={filters.province}
                             onChange={(e) => {
@@ -148,7 +136,7 @@ export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalPr
                             }}
                             className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-white appearance-none cursor-pointer"
                         >
-                            <option value="" className="bg-slate-900">ทุกจังหวัด</option>
+                            <option value="" className="bg-slate-900">{t('search_modal.province_all')}</option>
                             {availableProvinces.map((p: any) => (
                                 <option key={p.id} value={p.name} className="bg-slate-900">{p.name}</option>
                             ))}
@@ -157,7 +145,7 @@ export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalPr
 
                     {/* Location/Zone */}
                     <div>
-                        <label className="block text-sm font-medium mb-1 text-zinc-300">โซน (Zone)</label>
+                        <label className="block text-sm font-medium mb-1 text-zinc-300">{t('search_modal.zone_label')}</label>
                         <div className="relative">
                             <select
                                 value={filters.location}
@@ -165,7 +153,7 @@ export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalPr
                                 disabled={!filters.province}
                                 className={`w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-white appearance-none cursor-pointer ${!filters.province ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
-                                <option value="" className="bg-slate-900">ทุกโซน</option>
+                                <option value="" className="bg-slate-900">{t('search_modal.zone_all')}</option>
                                 {availableZones.map((z: string) => (
                                     <option key={z} value={z} className="bg-slate-900">{z}</option>
                                 ))}
@@ -174,116 +162,12 @@ export default function SearchModal({ isOpen, onClose, onSearch }: SearchModalPr
                         </div>
                     </div>
 
-                    {/* Age Range */}
-                    {/* <div>
-                        <label className="block text-sm font-medium mb-1 text-zinc-700 dark:text-zinc-300">
-                            ช่วงอายุ: <span className="text-[#F84E6E]">{filters.ageMin} - {filters.ageMax} ปี</span>
-                        </label>
-                        <div className="flex gap-4 items-center">
-                            <input
-                                type="range"
-                                min="18"
-                                max="60"
-                                value={filters.ageMin}
-                                onChange={(e) => {
-                                    const val = parseInt(e.target.value);
-                                    if (val <= filters.ageMax) setFilters({ ...filters, ageMin: val });
-                                }}
-                                className="w-full accent-[#F84E6E] h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer"
-                            />
-                            <input
-                                type="range"
-                                min="18"
-                                max="60"
-                                value={filters.ageMax}
-                                onChange={(e) => {
-                                    const val = parseInt(e.target.value);
-                                    if (val >= filters.ageMin) setFilters({ ...filters, ageMax: val });
-                                }}
-                                className="w-full accent-[#F84E6E] h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer"
-                            />
-                        </div>
-                    </div> */}
-
-                    {/* Height & Weight */}
-                    {/* <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium mb-1 text-zinc-700 dark:text-zinc-300">
-                                ส่วนสูง: <span className="text-[#F84E6E]">{filters.heightMin || 100} - {filters.heightMax || 200} ซม.</span>
-                            </label>
-                            <input
-                                type="range"
-                                min="100"
-                                max="200"
-                                value={filters.heightMax || 200}
-                                onChange={(e) => setFilters({ ...filters, heightMax: parseInt(e.target.value) })}
-                                className="w-full accent-[#F84E6E] h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1 text-zinc-700 dark:text-zinc-300">
-                                น้ำหนัก: <span className="text-[#F84E6E]">{filters.weightMin || 40} - {filters.weightMax || 100} กก.</span>
-                            </label>
-                            <input
-                                type="range"
-                                min="40"
-                                max="100"
-                                value={filters.weightMax || 100}
-                                onChange={(e) => setFilters({ ...filters, weightMax: parseInt(e.target.value) })}
-                                className="w-full accent-[#F84E6E] h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer"
-                            />
-                        </div>
-                    </div> */}
-
-                    {/* Proportions */}
-                    {/* <div className="space-y-3">
-                        <div>
-                            <label className="block text-sm font-medium mb-1 text-zinc-700 dark:text-zinc-300">
-                                หน้าอก: <span className="text-[#F84E6E]">{filters.chestMin || 30} - {filters.chestMax || 60} นิ้ว</span>
-                            </label>
-                            <input
-                                type="range"
-                                min="30"
-                                max="60"
-                                value={filters.chestMax || 60}
-                                onChange={(e) => setFilters({ ...filters, chestMax: parseInt(e.target.value) })}
-                                className="w-full accent-[#F84E6E] h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1 text-zinc-700 dark:text-zinc-300">
-                                เอว: <span className="text-[#F84E6E]">{filters.waistMin || 20} - {filters.waistMax || 50} นิ้ว</span>
-                            </label>
-                            <input
-                                type="range"
-                                min="20"
-                                max="50"
-                                value={filters.waistMax || 50}
-                                onChange={(e) => setFilters({ ...filters, waistMax: parseInt(e.target.value) })}
-                                className="w-full accent-[#F84E6E] h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1 text-zinc-700 dark:text-zinc-300">
-                                สะโพก: <span className="text-[#F84E6E]">{filters.hipsMin || 30} - {filters.hipsMax || 60} นิ้ว</span>
-                            </label>
-                            <input
-                                type="range"
-                                min="30"
-                                max="60"
-                                value={filters.hipsMax || 60}
-                                onChange={(e) => setFilters({ ...filters, hipsMax: parseInt(e.target.value) })}
-                                className="w-full accent-[#F84E6E] h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer"
-                            />
-                        </div>
-                    </div> */}
-
                     {/* Submit Button */}
                     <button
                         onClick={handleSearch}
                         className="w-full bg-[#F84E6E] hover:bg-[#d43f5b] text-white py-4 rounded-xl font-bold shadow-lg shadow-pink-500/20 mt-6 active:scale-95 transition cursor-pointer"
                     >
-                        ค้นหา
+                        {t('search_modal.search_btn')}
                     </button>
                 </div>
             </div>

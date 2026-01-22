@@ -51,6 +51,7 @@ const InputField = ({ label, value, onChange, placeholder, type = "text", icon: 
 // --- AGENCY DASHBOARD COMPONENT ---
 const AgencyDashboard = ({ user, onLogout }: any) => {
     const { t } = useLanguage();
+    const router = useRouter();
     const [agency, setAgency] = useState<any>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -68,11 +69,35 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
     const [availableCountries, setAvailableCountries] = useState<any[]>([]);
     const [availableLocations, setAvailableLocations] = useState<any[]>([]);
     const [availableZones, setAvailableZones] = useState<string[]>([]);
+    const [hasSubscription, setHasSubscription] = useState<boolean | null>(null); // null = loading check, false = no sub, true = has sub
 
     useEffect(() => {
         fetchLocations();
         fetchMyAgency();
+        checkSubscription();
     }, []);
+
+    const checkSubscription = async () => {
+        try {
+            const token = getAuthToken();
+            const res = await fetch(`${API_BASE_URL}/payments/me`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data && data.active) {
+                    setHasSubscription(true);
+                } else {
+                    setHasSubscription(false);
+                }
+            } else {
+                setHasSubscription(false);
+            }
+        } catch (error) {
+            console.error("Failed to check subscription");
+            setHasSubscription(false);
+        }
+    };
 
     const fetchLocations = async () => {
         try {
@@ -198,351 +223,391 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
 
     return (
         <div className="min-h-screen bg-[#020617] pb-24">
-            {/* Header / Banner */}
-            <div className="bg-[#1e1b4b] text-white p-6 pb-8 rounded-b-[40px] shadow-2xl mb-8 relative overflow-hidden h-[300px]">
-                {agency?.bannerUrl ? (
-                    <div className="absolute inset-0 w-full h-full z-0">
-                        <Image src={getImageUrl(agency.bannerUrl)} alt="Banner" fill className="object-cover opacity-60" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#1e1b4b] to-transparent" />
-                    </div>
-                ) : (
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-900 to-purple-900 opacity-50" />
-                )}
+            {/* Subscription Check Blocking - Allow basic view but block editing? Or block entire dashboard? 
+               User requested: "Agency must buy plan before using". So we block the main edit interface. 
+               We should probably show a nice "Welcome Agency" header then the block. 
+            */}
 
-                <div className="relative z-10 h-full flex flex-col justify-between">
-                    <div className="flex justify-between items-center">
-                        <h1 className="text-xl font-bold flex items-center gap-2"><Building size={20} /> {t('dashboard.agency_manager')}</h1>
-                        <button onClick={onLogout} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition backdrop-blur-md">
-                            <LogOut size={20} />
+            {(hasSubscription === false) && (
+                <div className="container mx-auto px-4 py-8">
+                    <div className="bg-[#1e1b4b] text-white p-6 pb-8 rounded-3xl shadow-2xl mb-8 relative overflow-hidden">
+                        <div className="relative z-10">
+                            <h1 className="text-2xl font-bold mb-2">Agency Dashboard</h1>
+                            <p className="text-white/60 text-sm">จัดการข้อมูลเอเจนซี่และทีมงานของคุณ</p>
+                        </div>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-[#1e1b4b] to-[#2e1065] border border-white/10 rounded-2xl p-8 md:p-12 text-center max-w-2xl mx-auto shadow-2xl">
+                        <div className="w-24 h-24 bg-[#F84E6E]/20 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
+                            <Star size={40} className="text-[#F84E6E] fill-[#F84E6E]" />
+                        </div>
+                        <h2 className="text-3xl font-bold text-white mb-4">{t('dashboard.kyc_required_title')}</h2>
+                        <p className="text-white/70 mb-8 leading-relaxed max-w-md mx-auto">
+                            {t('dashboard.kyc_required_desc')}
+                            <br />
+                            <span className="text-sm opacity-60 mt-2 block">(Agency account requires subscription to manage profile)</span>
+                        </p>
+                        <button
+                            onClick={() => router.push('/plans')}
+                            className="bg-[#F84E6E] hover:bg-pink-600 text-white px-8 py-3 rounded-full font-bold shadow-lg shadow-pink-500/30 transition transform hover:scale-105 flex items-center gap-2 mx-auto"
+                        >
+                            <Zap size={20} className="fill-white" />
+                            {t('dashboard.kyc_required_btn')}
                         </button>
                     </div>
+                </div>
+            )}
 
-                    <div className="flex items-end gap-6 pb-4">
-                        <div className="w-24 h-24 rounded-2xl bg-white/10 backdrop-blur p-1 relative group cursor-pointer shadow-lg">
-                            <div className="w-full h-full rounded-xl bg-gray-100 overflow-hidden relative">
-                                {agency?.logoUrl ? (
-                                    <Image src={getImageUrl(agency.logoUrl)} fill className="object-cover" alt="Logo" />
-                                ) : (
-                                    <div className="flex items-center justify-center h-full text-gray-400"><ImageIcon /></div>
-                                )}
-                                <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition text-white text-xs cursor-pointer">
-                                    {t('dashboard.agency_change_logo')}
-                                    <input type="file" hidden onChange={handleLogoUpload} />
+            {(hasSubscription === true || hasSubscription === null) && (
+                <>
+                    {/* Original Dashboard Content */}
+                    {/* Header / Banner */}
+                    <div className="bg-[#1e1b4b] text-white p-6 pb-8 rounded-b-[40px] shadow-2xl mb-8 relative overflow-hidden h-[300px]">
+                        {agency?.bannerUrl ? (
+                            <div className="absolute inset-0 w-full h-full z-0">
+                                <Image src={getImageUrl(agency.bannerUrl)} alt="Banner" fill className="object-cover opacity-60" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-[#1e1b4b] to-transparent" />
+                            </div>
+                        ) : (
+                            <div className="absolute inset-0 bg-gradient-to-r from-blue-900 to-purple-900 opacity-50" />
+                        )}
+
+                        <div className="relative z-10 h-full flex flex-col justify-between">
+                            <div className="flex justify-between items-center">
+                                <h1 className="text-xl font-bold flex items-center gap-2"><Building size={20} /> {t('dashboard.agency_manager')}</h1>
+                                <button onClick={onLogout} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition backdrop-blur-md">
+                                    <LogOut size={20} />
+                                </button>
+                            </div>
+
+                            <div className="flex items-end gap-6 pb-4">
+                                <div className="w-24 h-24 rounded-2xl bg-white/10 backdrop-blur p-1 relative group cursor-pointer shadow-lg">
+                                    <div className="w-full h-full rounded-xl bg-gray-100 overflow-hidden relative">
+                                        {agency?.logoUrl ? (
+                                            <Image src={getImageUrl(agency.logoUrl)} fill className="object-cover" alt="Logo" />
+                                        ) : (
+                                            <div className="flex items-center justify-center h-full text-gray-400"><ImageIcon /></div>
+                                        )}
+                                        <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition text-white text-xs cursor-pointer">
+                                            {t('dashboard.agency_change_logo')}
+                                            <input type="file" hidden onChange={handleLogoUpload} />
+                                        </label>
+                                    </div>
+                                </div>
+                                <div className="flex-1">
+                                    <h2 className="text-3xl font-bold flex items-center gap-2">
+                                        {agency?.name || t('dashboard.agency_name')}
+                                        {agency?.isVerified && <ShieldCheck className="text-blue-400" size={24} />}
+                                    </h2>
+                                    <p className="text-white/80 max-w-lg truncate">{agency?.description || t('dashboard.agency_desc')}</p>
+                                </div>
+                                {/* Edit Cover Trigger */}
+                                <label className="absolute top-6 right-16 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full text-xs cursor-pointer backdrop-blur transition">
+                                    {t('dashboard.agency_change_cover')}
+                                    <input type="file" hidden onChange={handleBannerUpload} />
                                 </label>
                             </div>
                         </div>
-                        <div className="flex-1">
-                            <h2 className="text-3xl font-bold flex items-center gap-2">
-                                {agency?.name || t('dashboard.agency_name')}
-                                {agency?.isVerified && <ShieldCheck className="text-blue-400" size={24} />}
-                            </h2>
-                            <p className="text-white/80 max-w-lg truncate">{agency?.description || t('dashboard.agency_desc')}</p>
-                        </div>
-                        {/* Edit Cover Trigger */}
-                        <label className="absolute top-6 right-16 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full text-xs cursor-pointer backdrop-blur transition">
-                            {t('dashboard.agency_change_cover')}
-                            <input type="file" hidden onChange={handleBannerUpload} />
-                        </label>
                     </div>
-                </div>
-            </div>
 
-            <div className="container mx-auto max-w-4xl px-4 -mt-10 relative z-20">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* Sidebar / Stats */}
-                    <div className="space-y-6">
-                        <div className="bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/5">
-                            <h3 className="text-gray-500 dark:text-gray-400 text-sm font-bold uppercase mb-4">{t('dashboard.agency_stats')}</h3>
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <span className="flex items-center gap-2 text-white"><Users size={16} /> {t('dashboard.agency_members')}</span>
-                                    <span className="font-bold text-2xl text-[#F84E6E]">{agency?.creators?.length || 0}</span>
+                    <div className="container mx-auto max-w-4xl px-4 -mt-10 relative z-20">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {/* Sidebar / Stats */}
+                            <div className="space-y-6">
+                                <div className="bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/5">
+                                    <h3 className="text-gray-500 dark:text-gray-400 text-sm font-bold uppercase mb-4">{t('dashboard.agency_stats')}</h3>
+                                    <div className="space-y-4">
+                                        <div className="flex items-center justify-between">
+                                            <span className="flex items-center gap-2 text-white"><Users size={16} /> {t('dashboard.agency_members')}</span>
+                                            <span className="font-bold text-2xl text-[#F84E6E]">{agency?.creators?.length || 0}</span>
+                                        </div>
+                                        <div className="h-px bg-white/10" />
+                                        <button
+                                            onClick={() => setIsEditing(!isEditing)}
+                                            className="w-full py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white border border-white/10 transition flex items-center justify-center gap-2"
+                                        >
+                                            <Edit size={16} /> {t('dashboard.agency_edit')}
+                                        </button>
+                                    </div>
                                 </div>
-                                <div className="h-px bg-white/10" />
-                                <button
-                                    onClick={() => setIsEditing(!isEditing)}
-                                    className="w-full py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white border border-white/10 transition flex items-center justify-center gap-2"
-                                >
-                                    <Edit size={16} /> {t('dashboard.agency_edit')}
-                                </button>
                             </div>
-                        </div>
-                    </div>
 
-                    {/* Main Content */}
-                    <div className="md:col-span-2 space-y-6">
-                        {isEditing ? (
-                            <div className="bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/5 animate-in fade-in slide-in-from-bottom-4">
-                                <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2"><Edit className="text-[#F84E6E]" /> {t('dashboard.agency_edit')}</h3>
-                                <div className="space-y-4">
-                                    <InputField label={t('dashboard.agency_name')} value={form.name} onChange={(e: any) => setForm({ ...form, name: e.target.value })} />
-                                    <div className="space-y-1">
-                                        <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.agency_desc')}</label>
-                                        <textarea
-                                            value={form.description}
-                                            onChange={(e) => setForm({ ...form, description: e.target.value })}
-                                            className="w-full bg-black/20 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] min-h-[100px]"
-                                        />
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-1.5">
-                                        <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.agency_country')}</label>
-                                        <select
-                                            value={form.country}
-                                            onChange={(e) => {
-                                                const country = e.target.value;
-                                                setForm({ ...form, country, province: "", zones: [] });
-                                                const selectedCountry = availableCountries.find((c: any) => c.name === country);
-                                                setAvailableLocations(selectedCountry ? selectedCountry.provinces : []);
-                                            }}
-                                            className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none"
-                                        >
-                                            <option value="">{t('dashboard.select_country')}</option>
-                                            {availableCountries.map((c: any) => (
-                                                <option key={c.code} value={c.name} className="bg-slate-900">{c.name}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.agency_province')}</label>
-                                        <select
-                                            value={form.province}
-                                            onChange={(e) => {
-                                                const prov = e.target.value;
-                                                setForm({ ...form, province: prov, zones: [] });
-                                                const selectedLoc = availableLocations.find((l: any) => l.name === prov);
-                                                setAvailableZones(selectedLoc ? selectedLoc.zones : []);
-                                            }}
-                                            className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none"
-                                        >
-                                            <option value="">{t('dashboard.select_province')}</option>
-                                            {availableLocations.map((loc: any) => (
-                                                <option key={loc.id} value={loc.name}>{loc.name}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                    <InputField label="Line ID" value={form.lineId} onChange={(e: any) => setForm({ ...form, lineId: e.target.value })} icon={Hash} />
-                                </div>
-
-                                {/* Zone Selection (Multi-select) */}
-                                {form.province && (
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.agency_zone')}</label>
-                                        <div className="p-4 bg-black/20 rounded-xl border border-white/10 max-h-40 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-2">
-                                            {availableZones.length > 0 ? availableZones.map((zone) => (
-                                                <div
-                                                    key={zone}
-                                                    onClick={() => {
-                                                        const currentZones = form.zones || [];
-                                                        if (currentZones.includes(zone)) {
-                                                            setForm({ ...form, zones: currentZones.filter(z => z !== zone) });
-                                                        } else {
-                                                            setForm({ ...form, zones: [...currentZones, zone] });
-                                                        }
+                            {/* Main Content */}
+                            <div className="md:col-span-2 space-y-6">
+                                {isEditing ? (
+                                    <div className="bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/5 animate-in fade-in slide-in-from-bottom-4">
+                                        <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2"><Edit className="text-[#F84E6E]" /> {t('dashboard.agency_edit')}</h3>
+                                        <div className="space-y-4">
+                                            <InputField label={t('dashboard.agency_name')} value={form.name} onChange={(e: any) => setForm({ ...form, name: e.target.value })} />
+                                            <div className="space-y-1">
+                                                <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.agency_desc')}</label>
+                                                <textarea
+                                                    value={form.description}
+                                                    onChange={(e) => setForm({ ...form, description: e.target.value })}
+                                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] min-h-[100px]"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-1.5">
+                                                <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.agency_country')}</label>
+                                                <select
+                                                    value={form.country}
+                                                    onChange={(e) => {
+                                                        const country = e.target.value;
+                                                        setForm({ ...form, country, province: "", zones: [] });
+                                                        const selectedCountry = availableCountries.find((c: any) => c.name === country);
+                                                        setAvailableLocations(selectedCountry ? selectedCountry.provinces : []);
                                                     }}
-                                                    className={`px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition text-center border ${form.zones?.includes(zone) ? 'bg-[#F84E6E] border-[#F84E6E] text-white' : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'}`}
+                                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none"
                                                 >
-                                                    {zone}
+                                                    <option value="">{t('dashboard.select_country')}</option>
+                                                    {availableCountries.map((c: any) => (
+                                                        <option key={c.code} value={c.name} className="bg-slate-900">{c.name}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div className="space-y-1.5">
+                                                <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.agency_province')}</label>
+                                                <select
+                                                    value={form.province}
+                                                    onChange={(e) => {
+                                                        const prov = e.target.value;
+                                                        setForm({ ...form, province: prov, zones: [] });
+                                                        const selectedLoc = availableLocations.find((l: any) => l.name === prov);
+                                                        setAvailableZones(selectedLoc ? selectedLoc.zones : []);
+                                                    }}
+                                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none"
+                                                >
+                                                    <option value="">{t('dashboard.select_province')}</option>
+                                                    {availableLocations.map((loc: any) => (
+                                                        <option key={loc.id} value={loc.name}>{loc.name}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <InputField label="Line ID" value={form.lineId} onChange={(e: any) => setForm({ ...form, lineId: e.target.value })} icon={Hash} />
+                                        </div>
+
+                                        {/* Zone Selection (Multi-select) */}
+                                        {form.province && (
+                                            <div className="space-y-2">
+                                                <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.agency_zone')}</label>
+                                                <div className="p-4 bg-black/20 rounded-xl border border-white/10 max-h-40 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                                    {availableZones.length > 0 ? availableZones.map((zone) => (
+                                                        <div
+                                                            key={zone}
+                                                            onClick={() => {
+                                                                const currentZones = form.zones || [];
+                                                                if (currentZones.includes(zone)) {
+                                                                    setForm({ ...form, zones: currentZones.filter(z => z !== zone) });
+                                                                } else {
+                                                                    setForm({ ...form, zones: [...currentZones, zone] });
+                                                                }
+                                                            }}
+                                                            className={`px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition text-center border ${form.zones?.includes(zone) ? 'bg-[#F84E6E] border-[#F84E6E] text-white' : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'}`}
+                                                        >
+                                                            {zone}
+                                                        </div>
+                                                    )) : (
+                                                        <div className="col-span-3 text-center text-white/40 py-2">{t('dashboard.no_zone_data')}</div>
+                                                    )}
                                                 </div>
-                                            )) : (
-                                                <div className="col-span-3 text-center text-white/40 py-2">{t('dashboard.no_zone_data')}</div>
+                                            </div>
+                                        )}
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <InputField label={t('dashboard.agency_phone')} value={form.phone} onChange={(e: any) => setForm({ ...form, phone: e.target.value })} icon={Phone} />
+                                            <InputField label={t('dashboard.agency_website')} value={form.website} onChange={(e: any) => setForm({ ...form, website: e.target.value })} icon={Share2} />
+                                        </div>
+
+                                        <button onClick={handleUpdate} className="w-full bg-[#F84E6E] text-white py-3 rounded-xl font-bold hover:brightness-110 shadow-lg shadow-pink-500/20 mt-4">
+                                            {t('dashboard.agency_save')}
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/5">
+                                        <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><Users className="text-[#F84E6E]" /> {t('dashboard.agency_member_list')}</h3>
+
+                                        {/* Tabs or Sections */}
+                                        <div className="space-y-6">
+                                            {/* KYC ALERT */}
+                                            {!agency?.isVerified && (
+                                                <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-4">
+                                                    <h4 className="text-red-500 font-bold mb-2 flex items-center gap-2"><ShieldCheck size={18} /> {t('dashboard.agency_unverified_title')}</h4>
+                                                    <p className="text-white/70 text-sm mb-4">{t('dashboard.agency_unverified_desc')}</p>
+
+                                                    {agency?.kycStatus === 'PENDING' ? (
+                                                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-500/20 text-yellow-500 rounded-lg text-sm font-bold animate-pulse">
+                                                            {t('dashboard.agency_verification_pending')}
+                                                        </div>
+                                                    ) : agency?.kycStatus === 'REJECTED' ? (
+                                                        <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-4 mb-3">
+                                                            <h5 className="text-red-400 font-bold text-sm mb-1 flex items-center gap-2">
+                                                                <ShieldCheck size={16} className="rotate-180" /> {t('dashboard.agency_verification_rejected')}
+                                                            </h5>
+                                                            <p className="text-white/80 text-sm mb-3">
+                                                                {t('dashboard.agency_rejection_reason')} <span className="text-white font-medium">{agency.rejectionReason || t('dashboard.agency_no_reason')}</span>
+                                                            </p>
+                                                            <button
+                                                                onClick={handleRequestVerification}
+                                                                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-sm font-bold shadow-lg transition"
+                                                            >
+                                                                {t('dashboard.agency_resubmit_kyc')}
+                                                            </button>
+                                                        </div>
+                                                    ) : (
+                                                        <button
+                                                            onClick={handleRequestVerification}
+                                                            className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-bold shadow-lg"
+                                                        >
+                                                            {t('dashboard.agency_submit_kyc')}
+                                                        </button>
+                                                    )}
+                                                </div>
                                             )}
+
+                                            {/* PENDING REQUESTS */}
+                                            {agency?.creators?.filter((c: any) => c.agencyJoinStatus === 'PENDING').length > 0 && (
+                                                <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4">
+                                                    <h4 className="text-yellow-500 font-bold mb-3 flex items-center gap-2">{t('dashboard.agency_pending_requests')} ({agency.creators.filter((c: any) => c.agencyJoinStatus === 'PENDING').length})</h4>
+                                                    <div className="grid grid-cols-1 gap-3">
+                                                        {agency.creators.filter((c: any) => c.agencyJoinStatus === 'PENDING').map((model: any) => (
+                                                            <div key={model._id} className="flex items-center justify-between p-3 rounded-lg bg-black/20">
+                                                                <div className="flex items-center gap-3">
+                                                                    <div className="w-10 h-10 rounded-full bg-gray-800 overflow-hidden relative">
+                                                                        {(model.images?.[0] || model.user?.avatarUrl) && (
+                                                                            <Image src={getImageUrl(model.images?.[0] || model.user?.avatarUrl)} fill className="object-cover" alt="" />
+                                                                        )}
+                                                                    </div>
+                                                                    <div>
+                                                                        <h4 className="font-bold text-white text-sm">{model.displayName}</h4>
+                                                                        <p className="text-xs text-white/50">{t('dashboard.agency_request_date')} {new Date(model.updatedAt || Date.now()).toLocaleDateString()}</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="flex gap-2">
+                                                                    <button
+                                                                        disabled={!agency.isVerified}
+                                                                        onClick={async () => {
+                                                                            if (!confirm(t('dashboard.agency_confirm_approve'))) return;
+                                                                            try {
+                                                                                const token = getAuthToken();
+                                                                                await fetch(`${API_BASE_URL}/agencies/requests/${model._id}/approve`, {
+                                                                                    method: "POST", headers: { "Authorization": `Bearer ${token}` }
+                                                                                });
+                                                                                fetchMyAgency(); // Refresh
+                                                                            } catch (e) { toast.error("Error"); }
+                                                                        }}
+                                                                        className={`p-2 rounded-lg text-white ${!agency.isVerified ? 'bg-gray-600 cursor-not-allowed opacity-50' : 'bg-green-500 hover:bg-green-600'}`}
+                                                                    >
+                                                                        <Check size={16} />
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={async () => {
+                                                                            if (!confirm(t('dashboard.agency_confirm_reject'))) return;
+                                                                            try {
+                                                                                const token = getAuthToken();
+                                                                                await fetch(`${API_BASE_URL}/agencies/requests/${model._id}/reject`, {
+                                                                                    method: "POST", headers: { "Authorization": `Bearer ${token}` }
+                                                                                });
+                                                                                fetchMyAgency(); // Refresh
+                                                                            } catch (e) { toast.error("Error"); }
+                                                                        }}
+                                                                        className="p-2 bg-red-500 hover:bg-red-600 rounded-lg text-white"
+                                                                    >
+                                                                        <LogOut size={16} />
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* APPROVED LIST */}
+                                            <div>
+                                                <h4 className="text-white/70 font-bold mb-3 text-sm uppercase">{t('dashboard.agency_approved_members')} ({agency?.creators?.filter((c: any) => c.agencyJoinStatus === 'APPROVED').length || 0})</h4>
+                                                {agency?.creators?.filter((c: any) => c.agencyJoinStatus === 'APPROVED').length > 0 ? (
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                        {agency.creators.filter((c: any) => c.agencyJoinStatus === 'APPROVED').map((model: any) => (
+                                                            <div key={model._id} className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition">
+                                                                <div className="w-12 h-12 rounded-full bg-gray-800 overflow-hidden relative">
+                                                                    {(model.images?.[0] || model.user?.avatarUrl) && (
+                                                                        <Image src={getImageUrl(model.images?.[0] || model.user?.avatarUrl)} fill className="object-cover" alt="" />
+                                                                    )}
+                                                                </div>
+                                                                <div>
+                                                                    <h4 className="font-bold text-white text-sm">{model.displayName}</h4>
+                                                                    <p className="text-xs text-white/50">{t('dashboard.agency_member_status')}</p>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <div className="text-center py-6 text-white/30 border border-dashed border-white/10 rounded-xl">{t('dashboard.agency_no_members')}</div>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 )}
-                                <div className="grid grid-cols-2 gap-4">
-                                    <InputField label={t('dashboard.agency_phone')} value={form.phone} onChange={(e: any) => setForm({ ...form, phone: e.target.value })} icon={Phone} />
-                                    <InputField label={t('dashboard.agency_website')} value={form.website} onChange={(e: any) => setForm({ ...form, website: e.target.value })} icon={Share2} />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* KYC Modal */}
+                    {isVerificationModalOpen && (
+                        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in">
+                            <div className="bg-[#1e1b4b] w-full max-w-md p-6 rounded-2xl border border-white/10 shadow-2xl relative">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h3 className="text-xl font-bold flex items-center gap-2 text-white">
+                                        <ShieldCheck className="text-[#F84E6E]" /> {t('dashboard.kyc_title')}
+                                    </h3>
+                                    <button
+                                        onClick={() => setIsVerificationModalOpen(false)}
+                                        className="text-white/50 hover:text-white transition"
+                                    >
+                                        <X size={24} />
+                                    </button>
                                 </div>
 
-                                <button onClick={handleUpdate} className="w-full bg-[#F84E6E] text-white py-3 rounded-xl font-bold hover:brightness-110 shadow-lg shadow-pink-500/20 mt-4">
-                                    {t('dashboard.agency_save')}
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-6 shadow-xl border border-white/5">
-                                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><Users className="text-[#F84E6E]" /> {t('dashboard.agency_member_list')}</h3>
-
-                                {/* Tabs or Sections */}
-                                <div className="space-y-6">
-                                    {/* KYC ALERT */}
-                                    {!agency?.isVerified && (
-                                        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-4">
-                                            <h4 className="text-red-500 font-bold mb-2 flex items-center gap-2"><ShieldCheck size={18} /> {t('dashboard.agency_unverified_title')}</h4>
-                                            <p className="text-white/70 text-sm mb-4">{t('dashboard.agency_unverified_desc')}</p>
-
-                                            {agency?.kycStatus === 'PENDING' ? (
-                                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-500/20 text-yellow-500 rounded-lg text-sm font-bold animate-pulse">
-                                                    {t('dashboard.agency_verification_pending')}
-                                                </div>
-                                            ) : agency?.kycStatus === 'REJECTED' ? (
-                                                <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-4 mb-3">
-                                                    <h5 className="text-red-400 font-bold text-sm mb-1 flex items-center gap-2">
-                                                        <ShieldCheck size={16} className="rotate-180" /> {t('dashboard.agency_verification_rejected')}
-                                                    </h5>
-                                                    <p className="text-white/80 text-sm mb-3">
-                                                        {t('dashboard.agency_rejection_reason')} <span className="text-white font-medium">{agency.rejectionReason || t('dashboard.agency_no_reason')}</span>
-                                                    </p>
-                                                    <button
-                                                        onClick={handleRequestVerification}
-                                                        className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-sm font-bold shadow-lg transition"
-                                                    >
-                                                        {t('dashboard.agency_resubmit_kyc')}
-                                                    </button>
-                                                </div>
-                                            ) : (
-                                                <button
-                                                    onClick={handleRequestVerification}
-                                                    className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-bold shadow-lg"
-                                                >
-                                                    {t('dashboard.agency_submit_kyc')}
-                                                </button>
-                                            )}
+                                <div className="space-y-4 mb-6">
+                                    <div className="bg-[#F84E6E]/10 border border-[#F84E6E]/20 rounded-xl p-4 flex gap-3">
+                                        <div className="min-w-[40px] h-10 rounded-full bg-[#F84E6E]/20 flex items-center justify-center text-[#F84E6E]">
+                                            <Building size={20} />
                                         </div>
-                                    )}
-
-                                    {/* PENDING REQUESTS */}
-                                    {agency?.creators?.filter((c: any) => c.agencyJoinStatus === 'PENDING').length > 0 && (
-                                        <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4">
-                                            <h4 className="text-yellow-500 font-bold mb-3 flex items-center gap-2">{t('dashboard.agency_pending_requests')} ({agency.creators.filter((c: any) => c.agencyJoinStatus === 'PENDING').length})</h4>
-                                            <div className="grid grid-cols-1 gap-3">
-                                                {agency.creators.filter((c: any) => c.agencyJoinStatus === 'PENDING').map((model: any) => (
-                                                    <div key={model._id} className="flex items-center justify-between p-3 rounded-lg bg-black/20">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 rounded-full bg-gray-800 overflow-hidden relative">
-                                                                {(model.images?.[0] || model.user?.avatarUrl) && (
-                                                                    <Image src={getImageUrl(model.images?.[0] || model.user?.avatarUrl)} fill className="object-cover" alt="" />
-                                                                )}
-                                                            </div>
-                                                            <div>
-                                                                <h4 className="font-bold text-white text-sm">{model.displayName}</h4>
-                                                                <p className="text-xs text-white/50">{t('dashboard.agency_request_date')} {new Date(model.updatedAt || Date.now()).toLocaleDateString()}</p>
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex gap-2">
-                                                            <button
-                                                                disabled={!agency.isVerified}
-                                                                onClick={async () => {
-                                                                    if (!confirm(t('dashboard.agency_confirm_approve'))) return;
-                                                                    try {
-                                                                        const token = getAuthToken();
-                                                                        await fetch(`${API_BASE_URL}/agencies/requests/${model._id}/approve`, {
-                                                                            method: "POST", headers: { "Authorization": `Bearer ${token}` }
-                                                                        });
-                                                                        fetchMyAgency(); // Refresh
-                                                                    } catch (e) { toast.error("Error"); }
-                                                                }}
-                                                                className={`p-2 rounded-lg text-white ${!agency.isVerified ? 'bg-gray-600 cursor-not-allowed opacity-50' : 'bg-green-500 hover:bg-green-600'}`}
-                                                            >
-                                                                <Check size={16} />
-                                                            </button>
-                                                            <button
-                                                                onClick={async () => {
-                                                                    if (!confirm(t('dashboard.agency_confirm_reject'))) return;
-                                                                    try {
-                                                                        const token = getAuthToken();
-                                                                        await fetch(`${API_BASE_URL}/agencies/requests/${model._id}/reject`, {
-                                                                            method: "POST", headers: { "Authorization": `Bearer ${token}` }
-                                                                        });
-                                                                        fetchMyAgency(); // Refresh
-                                                                    } catch (e) { toast.error("Error"); }
-                                                                }}
-                                                                className="p-2 bg-red-500 hover:bg-red-600 rounded-lg text-white"
-                                                            >
-                                                                <LogOut size={16} />
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
+                                        <div>
+                                            <h4 className="font-bold text-[#F84E6E] text-sm">{t('dashboard.agency_verify_title')}</h4>
+                                            <p className="text-xs text-white/70 mt-1">
+                                                {t('dashboard.agency_verify_desc')}
+                                            </p>
                                         </div>
-                                    )}
+                                    </div>
 
-                                    {/* APPROVED LIST */}
-                                    <div>
-                                        <h4 className="text-white/70 font-bold mb-3 text-sm uppercase">{t('dashboard.agency_approved_members')} ({agency?.creators?.filter((c: any) => c.agencyJoinStatus === 'APPROVED').length || 0})</h4>
-                                        {agency?.creators?.filter((c: any) => c.agencyJoinStatus === 'APPROVED').length > 0 ? (
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                {agency.creators.filter((c: any) => c.agencyJoinStatus === 'APPROVED').map((model: any) => (
-                                                    <div key={model._id} className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition">
-                                                        <div className="w-12 h-12 rounded-full bg-gray-800 overflow-hidden relative">
-                                                            {(model.images?.[0] || model.user?.avatarUrl) && (
-                                                                <Image src={getImageUrl(model.images?.[0] || model.user?.avatarUrl)} fill className="object-cover" alt="" />
-                                                            )}
-                                                        </div>
-                                                        <div>
-                                                            <h4 className="font-bold text-white text-sm">{model.displayName}</h4>
-                                                            <p className="text-xs text-white/50">{t('dashboard.agency_member_status')}</p>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            <div className="text-center py-6 text-white/30 border border-dashed border-white/10 rounded-xl">{t('dashboard.agency_no_members')}</div>
-                                        )}
+                                    <div className="text-center py-4">
+                                        <p className="text-white/80 text-sm">
+                                            {t('dashboard.kyc_confirm_question')}
+                                            <br />
+                                            <span className="font-bold text-white">{t('dashboard.kyc_simulate_text')}</span> {t('dashboard.kyc_yes_no')}
+                                        </p>
                                     </div>
                                 </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
 
-            {/* KYC Modal */}
-            {isVerificationModalOpen && (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in">
-                    <div className="bg-[#1e1b4b] w-full max-w-md p-6 rounded-2xl border border-white/10 shadow-2xl relative">
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-xl font-bold flex items-center gap-2 text-white">
-                                <ShieldCheck className="text-[#F84E6E]" /> {t('dashboard.kyc_title')}
-                            </h3>
-                            <button
-                                onClick={() => setIsVerificationModalOpen(false)}
-                                className="text-white/50 hover:text-white transition"
-                            >
-                                <X size={24} />
-                            </button>
-                        </div>
-
-                        <div className="space-y-4 mb-6">
-                            <div className="bg-[#F84E6E]/10 border border-[#F84E6E]/20 rounded-xl p-4 flex gap-3">
-                                <div className="min-w-[40px] h-10 rounded-full bg-[#F84E6E]/20 flex items-center justify-center text-[#F84E6E]">
-                                    <Building size={20} />
-                                </div>
-                                <div>
-                                    <h4 className="font-bold text-[#F84E6E] text-sm">{t('dashboard.agency_verify_title')}</h4>
-                                    <p className="text-xs text-white/70 mt-1">
-                                        {t('dashboard.agency_verify_desc')}
-                                    </p>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <button
+                                        onClick={() => setIsVerificationModalOpen(false)}
+                                        className="py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold transition"
+                                    >
+                                        {t('common.cancel')}
+                                    </button>
+                                    <button
+                                        onClick={confirmVerification}
+                                        className="py-3 rounded-xl bg-gradient-to-r from-[#F84E6E] to-[#e11d48] text-white font-bold shadow-lg hover:shadow-xl hover:scale-[1.02] transition"
+                                    >
+                                        {t('confirm')}
+                                    </button>
                                 </div>
                             </div>
-
-                            <div className="text-center py-4">
-                                <p className="text-white/80 text-sm">
-                                    {t('dashboard.kyc_confirm_question')}
-                                    <br />
-                                    <span className="font-bold text-white">{t('dashboard.kyc_simulate_text')}</span> {t('dashboard.kyc_yes_no')}
-                                </p>
-                            </div>
                         </div>
-
-                        <div className="grid grid-cols-2 gap-3">
-                            <button
-                                onClick={() => setIsVerificationModalOpen(false)}
-                                className="py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold transition"
-                            >
-                                {t('common.cancel')}
-                            </button>
-                            <button
-                                onClick={confirmVerification}
-                                className="py-3 rounded-xl bg-gradient-to-r from-[#F84E6E] to-[#e11d48] text-white font-bold shadow-lg hover:shadow-xl hover:scale-[1.02] transition"
-                            >
-                                {t('confirm')}
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                    )}
+                </>
             )}
         </div>
     );
@@ -1394,7 +1459,7 @@ export default function Dashboard() {
             });
             if (res.ok) {
                 const data = await res.json();
-                // data is { active, pending }
+                // data is {active, pending}
                 if (data && data.active) {
                     setHasSubscription(true);
                 } else {

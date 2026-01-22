@@ -23,9 +23,12 @@ interface Creator {
     location?: string;
     age?: number;
     price?: number;
+    planName?: string;
     isVerified: boolean;
     isHot: boolean;
     isSuperStar: boolean;
+    planId?: string; // Added planId
+    reviewCount?: number;
 }
 
 interface Agency {
@@ -289,9 +292,10 @@ function HomeContent() {
             </section>
 
             {/* Creator Feed Grid */}
-            <section className="px-4">
+            <section className="px-4 space-y-8">
+                {/* Header with Filter */}
                 <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-bold border-l-4 border-[#F84E6E] pl-3">{t('home.creators_title')}</h2>
+                    <h2 className="text-lg font-bold border-l-4 border-[#F84E6E] pl-3"></h2>
 
                     {isLoggedIn && (
                         <button
@@ -307,16 +311,61 @@ function HomeContent() {
                         </button>
                     )}
                 </div>
+
                 {loading ? (
                     <div className="text-center py-20 text-white/50">{t('common.loading')}</div>
                 ) : creators.length === 0 ? (
                     <div className="text-center py-20 text-white/50">{t('home.creators_empty')}</div>
                 ) : (
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {creators.map((creator) => (
-                            <CreatorCard key={creator._id} creator={creator} />
-                        ))}
-                    </div>
+                    <>
+                        {/* Super Star Section */}
+                        {creators.some(c => (c.planId === 'SUPER_STAR' || c.planName === 'SUPER_STAR' || c.isHot)) && (
+                            <div className="mb-8">
+                                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                                    <span className="text-2xl">🔥</span> {t('home.super_star_title')}
+                                </h3>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    {creators
+                                        .filter(c => (c.planId === 'SUPER_STAR' || c.planName === 'SUPER_STAR' || c.isHot))
+                                        .map((creator) => (
+                                            <CreatorCard key={creator._id} creator={creator} />
+                                        ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Star Section */}
+                        {creators.some(c => (c.planId === 'STAR' || c.planName === 'STAR')) && (
+                            <div className="mb-8">
+                                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                                    <span className="text-2xl">⭐</span> {t('home.star_title')}
+                                </h3>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    {creators
+                                        .filter(c => (c.planId === 'STAR' || c.planName === 'STAR'))
+                                        .map((creator) => (
+                                            <CreatorCard key={creator._id} creator={creator} />
+                                        ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Popular Section (Rest) */}
+                        {creators.some(c => !(c.planId === 'SUPER_STAR' || c.planName === 'SUPER_STAR' || c.isHot) && !(c.planId === 'STAR' || c.planName === 'STAR')) && (
+                            <div>
+                                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                                    <span className="text-2xl">✨</span> {t('home.popular_title')}
+                                </h3>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    {creators
+                                        .filter(c => !(c.planId === 'SUPER_STAR' || c.planName === 'SUPER_STAR' || c.isHot) && !(c.planId === 'STAR' || c.planName === 'STAR'))
+                                        .map((creator) => (
+                                            <CreatorCard key={creator._id} creator={creator} />
+                                        ))}
+                                </div>
+                            </div>
+                        )}
+                    </>
                 )}
             </section>
 
@@ -384,9 +433,16 @@ function HomeContent() {
 }
 
 function CreatorCard({ creator }: { creator: Creator }) {
+    const { t } = useLanguage();
     const imageSrc = creator.user.avatarUrl
         ? getImageUrl(creator.user.avatarUrl)
         : `/mock/creators/${(parseInt(creator._id.slice(-1), 16) % 8) + 1}.png`;
+
+    const planKey = (creator.planId || creator.planName || "").toUpperCase();
+    // Default to displaying nothing for Popular if desired, or just show translated
+    const displayPlanName = planKey && ['SUPER_STAR', 'STAR', 'POPULAR'].includes(planKey)
+        ? t(`plan_names.${planKey}`)
+        : creator.planName || "";
 
     return (
         <Link href={`/sideline/${creator._id}`} className="block relative aspect-[3/4] rounded-xl overflow-hidden group bg-zinc-900 shadow-lg hover:shadow-xl transition dark:border border-white/5">
@@ -401,36 +457,54 @@ function CreatorCard({ creator }: { creator: Creator }) {
             <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
 
             {/* Content */}
-            <div className="absolute bottom-3 left-3 right-3 text-white">
-                <div className="flex items-center gap-1 mb-1">
-                    <h2 className="font-bold text-sm truncate">{creator.displayName}</h2>
-                    <div className="w-4 h-4 rounded-full bg-green-500/20 flex items-center justify-center">
-                        <div className="w-2 h-2 rounded-full bg-green-500" />
+            <div className="absolute bottom-3 left-3 right-3">
+                <div className="flex justify-between items-end">
+                    <div className="text-white overflow-hidden w-full">
+                        <div className="flex items-center gap-1 mb-1">
+                            <h2 className="font-bold text-sm truncate">{creator.displayName}</h2>
+                            <div className="w-4 h-4 rounded-full bg-green-500/20 flex items-center justify-center shrink-0">
+                                <div className="w-2 h-2 rounded-full bg-green-500" />
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2 text-[10px] text-white/80">
+                            <span className="px-1.5 py-0.5 bg-white/10 backdrop-blur-md rounded border border-white/10 truncate">{creator.location || "Bangkok"}</span>
+                            <span>Age {creator.age || "??"}</span>
+                        </div>
+                        <div className="mt-2 flex justify-between gap-1">
+                            <div className="text-[10px] bg-[#F84E6E] px-1.5 py-0.5 rounded text-white font-bold">{creator.reviewCount || 0} รีวิว</div>
+                            {displayPlanName && <div className="text-[10px] px-1.5 py-0.5 rounded text-white font-bold bg-white/10 backdrop-blur-md">{displayPlanName}</div>}
+                        </div>
                     </div>
-                </div>
-                <div className="flex items-center gap-2 text-[10px] text-white/80">
-                    <span className="px-1.5 py-0.5 bg-white/10 backdrop-blur-md rounded border border-white/10">{creator.location || "Bangkok"}</span>
-                    <span>Age {creator.age || "??"}</span>
-                </div>
-                <div className="mt-2 flex gap-1">
-                    <span className="text-[10px] bg-[#F84E6E] px-1.5 py-0.5 rounded text-white font-bold">{creator.price || "N/A"}.00.-</span>
                 </div>
             </div>
 
             {/* Status Icons */}
             <div className="absolute top-2 right-2 flex flex-col gap-1">
-                {creator.isHot && (
-                    <div className="w-7 h-7 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center border border-white/10 text-white">
-                        <span className="text-xs">🔥</span>
-                    </div>
-                )}
+                {/* Plan Status Icon */}
+                {(() => {
+                    const plan = creator.planId || creator.planName; // Fallback to planName if planId is missing temporarily
+                    if (plan === 'SUPER_STAR' || creator.isHot) {
+                        return (
+                            <div className="w-7 h-7 rounded-full bg-red-600 backdrop-blur-md flex items-center justify-center border border-white/10 text-white shadow-lg shadow-red-500/40">
+                                <span className="text-xs">🔥</span>
+                            </div>
+                        );
+                    } else if (plan === 'STAR') {
+                        return (
+                            <div className="w-7 h-7 rounded-full bg-blue-600 backdrop-blur-md flex items-center justify-center border border-white/10 text-white shadow-lg shadow-blue-500/40">
+                                <span className="text-xs">⭐</span>
+                            </div>
+                        );
+                    }
+                    return null;
+                })()}
                 {creator.isVerified && (
-                    <div className="w-7 h-7 rounded-full bg-blue-500/80 backdrop-blur-md flex items-center justify-center border border-white/10 text-white">
+                    <div className="w-7 h-7 rounded-full bg-green-600 backdrop-blur-md flex items-center justify-center border border-white/10 text-white">
                         <span className="text-[8px] font-bold">VER</span>
                     </div>
                 )}
             </div>
-        </Link>
+        </Link >
     )
 }
 

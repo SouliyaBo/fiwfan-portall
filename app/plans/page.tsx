@@ -6,6 +6,7 @@ import { Check, Star, ShieldCheck, Zap, X, Upload, Loader2, Copy } from 'lucide-
 import { toast } from 'react-toastify';
 import { API_BASE_URL } from '../../lib/constants';
 import { getAuthToken } from "../../lib/auth";
+import { useLanguage } from "../../contexts/LanguageContext";
 
 interface PlanPrice {
     duration: string;
@@ -23,6 +24,7 @@ interface Plan {
 }
 
 export default function PlansPage() {
+    const { t, language } = useLanguage();
     const router = useRouter();
     const [plans, setPlans] = useState<Plan[]>([]);
     const [loading, setLoading] = useState(true);
@@ -82,7 +84,7 @@ export default function PlansPage() {
 
     const handlePayment = async () => {
         if (subscriptionStatus?.pending) {
-            toast.info("คุณมีรายการที่รอการตรวจสอบอยู่แล้ว กรุณารอแอดมินดำเนินการ");
+            toast.info(t('plans.payment_pending_desc'));
             return;
         }
 
@@ -107,7 +109,7 @@ export default function PlansPage() {
         const priceOption = plan.prices[priceIndex];
 
         if (!slipFile) {
-            toast.error("กรุณาอัพโหลดสลิปการโอนเงิน");
+            toast.error(t('plans.upload_error'));
             return;
         }
 
@@ -158,16 +160,16 @@ export default function PlansPage() {
             });
 
             if (res.ok) {
-                toast.success("ส่งหลักฐานการชำระเงินเรียบร้อย! กรุณารอแอดมินตรวจสอบ");
+                toast.success(t('plans.payment_success_title'));
                 setShowPaymentModal(false);
                 router.push("/dashboard");
             } else {
                 const err = await res.json();
-                toast.error(`เกิดข้อผิดพลาด: ${err.message}`);
+                toast.error(`${t('common.error')}: ${err.message}`);
             }
         } catch (error) {
             console.error(error);
-            toast.error("เกิดข้อผิดพลาดในการทำรายการ");
+            toast.error(t('common.error'));
         } finally {
             setUploading(false);
         }
@@ -182,7 +184,7 @@ export default function PlansPage() {
         }
     };
 
-    if (loading) return <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-[#020617] text-white">กำลังโหลดข้อมูล...</div>;
+    if (loading) return <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-[#020617] text-white">{t('common.loading')}</div>;
 
     const selectedPlan = plans.find(p => p.id === selectedPlanId);
     const selectedPrice = selectedPlan ? selectedPlan.prices[selectedDurationIndex[selectedPlan.id] || 0] : null;
@@ -191,23 +193,23 @@ export default function PlansPage() {
         <div className="min-h-screen bg-zinc-50 dark:bg-[#020617] py-12 px-4">
             <div className="container mx-auto max-w-6xl">
                 <div className="mb-12">
-                    <h1 className="text-3xl font-bold text-zinc-900 dark:text-white mb-2">เลือกแพ็กเกจที่ใช่ เพื่อดันยอดแฟนคลับของคุณ!</h1>
-                    <p className="text-red-500 font-medium">คุณเข้าใกล้การมีรายได้ไปอีกขั้น โปรไฟล์ของคุณจะยังไม่แสดงผลจนกว่าจะเปิดใช้งาน เลือกแพ็กเกจและเปิดโปรไฟล์ของคุณให้เป็นสาธารณะได้เลย!</p>
+                    <h1 className="text-3xl font-bold text-zinc-900 dark:text-white mb-2">{t('plans.title')}</h1>
+                    <p className="text-red-500 font-medium">{t('plans.subtitle')}</p>
                 </div>
 
                 {subscriptionStatus?.pending && (
                     <div className="mb-8 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-4 flex items-center gap-3">
                         <Loader2 className="text-yellow-600 dark:text-yellow-400 animate-spin" />
                         <div>
-                            <h3 className="font-bold text-yellow-800 dark:text-yellow-400">อยู่ระหว่างการตรวจสอบ</h3>
+                            <h3 className="font-bold text-yellow-800 dark:text-yellow-400">{t('plans.payment_pending_title')}</h3>
                             <p className="text-sm text-yellow-700 dark:text-yellow-500">
-                                คุณได้ส่งสลิปการโอนเงินไปแล้ว กรุณารอแอดมินตรวจสอบความถูกต้อง (รายการ: {subscriptionStatus.pending.planType})
+                                {t('plans.payment_pending_desc')} (ID: {subscriptionStatus.pending.planType})
                             </p>
                         </div>
                     </div>
                 )}
 
-                <h2 className="text-xl font-bold text-zinc-700 dark:text-zinc-300 mb-6 uppercase tracking-wider">แพ็กเกจแนะนำ</h2>
+                <h2 className="text-xl font-bold text-zinc-700 dark:text-zinc-300 mb-6 uppercase tracking-wider">{t('plans.recommended')}</h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
                     {plans.map((plan) => {
@@ -256,6 +258,12 @@ export default function PlansPage() {
                                     <div className={`space-y-3 p-4 rounded-xl ${colors.bg}`}>
                                         {plan.prices.map((price, idx) => {
                                             const isPriceSelected = isSelected && (selectedDurationIndex[plan.id] || 0) === idx;
+                                            // Calculate generic percentage savings if possible, or just skip it for now.
+                                            // The JSON uses {percent}%.
+                                            const baseWeeklyPrice = plan.prices[0].price;
+                                            const currentWeeklyPriceEquivalent = price.price / (price.days / 7);
+                                            const savingsPercent = Math.round(((baseWeeklyPrice - currentWeeklyPriceEquivalent) / baseWeeklyPrice) * 100);
+
                                             return (
                                                 <div
                                                     key={idx}
@@ -269,11 +277,11 @@ export default function PlansPage() {
                                                         {isPriceSelected && <div className="w-2 h-2 bg-blue-500 rounded-full" />}
                                                     </div>
                                                     <span className="text-sm font-medium text-zinc-700">
-                                                        {price.duration} <span className="text-zinc-900 font-bold ml-1">{price.price} บาท</span>
+                                                        {price.duration} <span className="text-zinc-900 font-bold ml-1">{price.price} ฿</span>
                                                     </span>
                                                     {isPriceSelected && idx > 0 && (
                                                         <span className="text-[10px] text-green-600 bg-green-100 px-1.5 py-0.5 rounded ml-auto">
-                                                            ประหยัด {Math.round((plan.prices[0].price * (price.days / 7)) - price.price)} บาท
+                                                            {t('plans.save_percent').replace('{percent}', savingsPercent.toString())}
                                                         </span>
                                                     )}
                                                 </div>
@@ -290,19 +298,19 @@ export default function PlansPage() {
                 {selectedPrice && (
                     <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between sticky bottom-6 shadow-2xl animate-in slide-in-from-bottom-6">
                         <div className="mb-4 md:mb-0">
-                            <h4 className="text-sm text-zinc-500 font-bold uppercase mb-1">รายละเอียดแพ็กเกจ</h4>
+                            <h4 className="text-sm text-zinc-500 font-bold uppercase mb-1">{t('plans.payment_summary_title')}</h4>
                             <div className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
                                 {selectedPlan?.name} <span className="text-zinc-400 font-normal text-sm">{selectedPrice.duration}</span>
                             </div>
                             <div className="text-xs text-zinc-500 mt-1">
-                                ใช้งานได้จนถึง {new Date(Date.now() + selectedPrice.days * 24 * 60 * 60 * 1000).toLocaleDateString()}
+                                {t('plans.whats_included')} {new Date(Date.now() + selectedPrice.days * 24 * 60 * 60 * 1000).toLocaleDateString()}
                             </div>
                         </div>
 
                         <div className="flex items-center gap-6">
                             <div className="text-right hidden md:block">
-                                <span className="text-zinc-500 text-sm font-bold mr-2">รวมทั้งหมด</span>
-                                <span className="text-2xl font-bold text-blue-600">{selectedPrice.price.toFixed(2)} บาท</span>
+                                <span className="text-zinc-500 text-sm font-bold mr-2">{t('plans.total_label')}</span>
+                                <span className="text-2xl font-bold text-blue-600">{selectedPrice.price.toFixed(2)} ฿</span>
                             </div>
 
                             <button
@@ -310,14 +318,14 @@ export default function PlansPage() {
                                 disabled={processing}
                                 className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-blue-500/30 transition transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
-                                {processing ? 'กำลังดำเนินการ...' : (
+                                {processing ? t('plans.confirming_btn') : (
                                     <>
-                                        <ShieldCheck size={20} /> ชำระเงินผ่าน Qr Code
+                                        <ShieldCheck size={20} /> {t('plans.payment_modal_title')}
                                     </>
                                 )}
                             </button>
                             <button className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-green-500/30 transition transform hover:-translate-y-0.5 hidden sm:flex cursor-pointer">
-                                <Zap size={20} /> ชำระเงินด้วยคริปโต
+                                <Zap size={20} /> Crypto
                             </button>
                         </div>
                     </div>
@@ -328,7 +336,7 @@ export default function PlansPage() {
                     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
                         <div className="bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl scale-100 animate-in zoom-in-95 duration-200">
                             <div className="p-6 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center">
-                                <h3 className="text-xl font-bold text-zinc-900 dark:text-white">ชำระเงินผ่าน QR Code</h3>
+                                <h3 className="text-xl font-bold text-zinc-900 dark:text-white">{t('plans.payment_modal_title')}</h3>
                                 <button
                                     onClick={() => setShowPaymentModal(false)}
                                     className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition cursor-pointer"
@@ -339,8 +347,8 @@ export default function PlansPage() {
 
                             <div className="p-6 space-y-6">
                                 <div className="text-center">
-                                    <p className="text-zinc-500 mb-2">ยอดชำระทั้งหมด</p>
-                                    <div className="text-4xl font-bold text-blue-600 mb-4">{selectedPrice.price.toFixed(2)} บาท</div>
+                                    <p className="text-zinc-500 mb-2">{t('plans.total_label')}</p>
+                                    <div className="text-4xl font-bold text-blue-600 mb-4">{selectedPrice.price.toFixed(2)} ฿</div>
                                     <div className="bg-zinc-50 dark:bg-zinc-800 p-4 rounded-xl inline-block border-2 border-dashed border-zinc-200 dark:border-zinc-700 relative group">
                                         {/* Placeholder for QR Code */}
                                         <div className="w-64 h-64 bg-white flex items-center justify-center">
@@ -356,12 +364,12 @@ export default function PlansPage() {
                                             />
                                         </div>
                                     </div>
-                                    <p className="text-xs text-zinc-400 mt-2">สแกนเพื่อชำระเงิน</p>
+                                    <p className="text-xs text-zinc-400 mt-2">{t('plans.payment_modal_title')}</p>
                                 </div>
 
                                 <div className="space-y-2">
                                     <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                                        อัพโหลดหลักฐานการโอนเงิน (สลิป)
+                                        {t('plans.upload_slip_label')}
                                     </label>
                                     <div className="border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-xl p-4 text-center hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition cursor-pointer relative">
                                         <input
@@ -378,7 +386,7 @@ export default function PlansPage() {
                                         ) : (
                                             <div className="flex flex-col items-center gap-2 text-zinc-500">
                                                 <Upload size={24} />
-                                                <span className="text-sm">คลิกเพื่ออัพโหลดสลิป</span>
+                                                <span className="text-sm">{t('plans.upload_slip_placeholder')}</span>
                                             </div>
                                         )}
                                     </div>
@@ -391,11 +399,11 @@ export default function PlansPage() {
                                 >
                                     {uploading ? (
                                         <>
-                                            <Loader2 size={20} className="animate-spin" /> กำลังตรวจสอบ...
+                                            <Loader2 size={20} className="animate-spin" /> {t('plans.confirming_btn')}
                                         </>
                                     ) : (
                                         <>
-                                            <ShieldCheck size={20} /> แจ้งชำระเงิน
+                                            <ShieldCheck size={20} /> {t('plans.confirm_payment_btn')}
                                         </>
                                     )}
                                 </button>
