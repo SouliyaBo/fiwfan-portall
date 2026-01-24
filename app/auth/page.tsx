@@ -80,6 +80,10 @@ function AuthForm() {
     const [error, setError] = useState("");
     const [rememberMe, setRememberMe] = useState(true);
 
+    // Development Simulation State
+    const [resetLink, setResetLink] = useState<string | null>(null);
+    const [showResetModal, setShowResetModal] = useState(false);
+
     // Calculate max date for 20 years age restriction
     const today = new Date();
     const maxDate = new Date(today.getFullYear() - 20, today.getMonth(), today.getDate()).toISOString().split('T')[0];
@@ -166,6 +170,10 @@ function AuthForm() {
         }
     };
 
+    // Verification Modal
+    const [showVerifyModal, setShowVerifyModal] = useState(false);
+    const [userEmail, setUserEmail] = useState("");
+
     const onRegisterSubmit = async (data: z.infer<typeof registerSchema>) => {
         setIsLoading(true);
         setError("");
@@ -185,9 +193,15 @@ function AuthForm() {
             });
 
             const result = await res.json();
-            if (!res.ok) throw new Error(result.error || "ไม่สามารถสมัครสมาชิกได้ โปรดลองใหม่อีกครั้ง");
+            if (!res.ok) throw new Error(result.message || "ไม่สามารถสมัครสมาชิกได้ โปรดลองใหม่อีกครั้ง");
 
-            // Auto login logic
+            if (result.verifyRequired) {
+                setUserEmail(result.email || data.email);
+                setShowVerifyModal(true);
+                return;
+            }
+
+            // Auto login logic (Legacy support if verifyRequired is false)
             if (result.token && result.user) {
                 setAuthSession(result.token, result.user, true);
                 router.push("/dashboard");
@@ -215,9 +229,32 @@ function AuthForm() {
             const result = await res.json();
             if (!res.ok) throw new Error(result.message || "ไม่สามารถดำเนินการได้");
 
-            if (result.browsingUrl) {
-                // For demo purposes, we redirect directly since we can't send email
-                window.location.href = result.browsingUrl;
+            // Check if we got a resetLink (Dev/Simulation Mode)
+            if (result.resetLink) {
+                setSuccessMessage("ระบบจำลองการส่งอีเมล (Development Mode)");
+                // Hacky way to show the link for now since we want it "usable"
+                // Ideally, we'd add a proper UI state for this, but using successMessage or a new state is fine.
+                // Let's create a temporary persistent message or just alert
+                setError(`[DEV ONLY] Click to Reset: ${result.resetLink}`);
+                // Actually, let's make it better. I'll stick to a success message but weirdly.
+                // Better plan: keep success message as "Email sent", and if result.resetLink exists,
+                // rendering a special clickable alert below.
+
+                // Reuse error state for visibility or add a new one?
+                // Let's reuse error for "Action Required" style if possible, or just append to success?
+                // I'll make a custom state for `devResetLink` but I didn't add it yet.
+                // For now, I'll alert() it or redirect if user wants "usage". 
+                // The prompt said "usable" -> redirect is arguably "usable".
+
+                // Wait, the plan said "Display the reset link".
+                // I need to add state for it. Since I cannot update state definitions easily in this replace block effectively
+                // without replacing the whole component top, I will use `setSuccessMessage` 
+                // and maybe render HTML? No, React safely escapes.
+
+                // I'll use window.prompt to let them copy it, or confirm to redirect.
+                // Replaced window.confirm with Custom Modal as requested
+                setResetLink(result.resetLink);
+                setShowResetModal(true);
             } else {
                 setSuccessMessage("ส่งลิงก์รีเซ็ตรหัสผ่านไปยังอีเมลแล้ว");
             }
@@ -755,6 +792,75 @@ function AuthForm() {
 
             </div>
             <TermsModal isOpen={showTerms} onClose={() => setShowTerms(false)} />
+
+            {/* Simulation/Dev Mode Modal */}
+            {showResetModal && resetLink && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4 animate-in fade-in duration-200">
+                    <div className="bg-[#1e1b4b] border border-white/20 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+                        <div className="p-6 text-center space-y-4">
+                            <div className="mx-auto w-16 h-16 bg-pink-500/20 rounded-full flex items-center justify-center mb-4">
+                                <MessageCircle size={32} className="text-pink-500" />
+                            </div>
+                            <h3 className="text-xl font-bold text-white">ระบบจำลองการส่งอีเมล</h3>
+                            <p className="text-gray-300 text-sm">
+                                ในระบบทดสอบ (Development Mode) เราจะไม่ส่งอีเมลจริง<br />
+                                กรุณาคลิกปุ่มด้านล่างเพื่อดำเนินการรีเซ็ตรหัสผ่าน
+                            </p>
+
+                            <div className="p-3 bg-black/40 rounded-lg border border-white/10 break-all text-xs font-mono text-gray-400 mt-2 select-all">
+                                {resetLink}
+                            </div>
+                        </div>
+                        <div className="p-4 bg-black/20 border-t border-white/10 flex gap-3">
+                            <button
+                                onClick={() => setShowResetModal(false)}
+                                className="flex-1 py-2.5 text-gray-400 hover:text-white transition font-medium"
+                            >
+                                ปิด
+                            </button>
+                            <button
+                                onClick={() => {
+                                    window.location.href = resetLink;
+                                    setShowResetModal(false);
+                                }}
+                                className="flex-1 py-2.5 bg-gradient-to-r from-pink-600 to-rose-600 hovered:from-pink-500 hover:to-rose-500 text-white rounded-xl font-bold transition shadow-lg shadow-pink-500/20"
+                            >
+                                ไปยังหน้าตั้งรหัสใหม่
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Verification Modal */}
+            {showVerifyModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4 animate-in fade-in duration-200">
+                    <div className="bg-[#1e1b4b] border border-white/20 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+                        <div className="p-6 text-center space-y-4">
+                            <div className="mx-auto w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mb-4">
+                                <MessageCircle size={32} className="text-green-500" />
+                            </div>
+                            <h3 className="text-xl font-bold text-white">สมัครสมาชิกสำเร็จ!</h3>
+                            <p className="text-gray-300 text-sm">
+                                เราได้ส่งอีเมลยืนยันตัวตนไปที่<br />
+                                <span className="font-bold text-white">{userEmail}</span><br />
+                                กรุณาตรวจสอบกล่องจดหมาย (หรือ Junk mail) เพื่อยืนยันตัวตน
+                            </p>
+                        </div>
+                        <div className="p-4 bg-black/20 border-t border-white/10 flex gap-3">
+                            <button
+                                onClick={() => {
+                                    setShowVerifyModal(false);
+                                    setMode("login");
+                                }}
+                                className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-xl font-bold transition shadow-lg shadow-green-500/20"
+                            >
+                                เข้าใจแล้ว
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }
