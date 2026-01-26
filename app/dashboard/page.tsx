@@ -2260,8 +2260,8 @@ export default function Dashboard() {
                                                         setAvailableLocations(selectedCountry ? selectedCountry.provinces : []);
                                                         setAvailableZones([]);
                                                     }}
-                                                    disabled={!hasSubscription && !isFreeMode}
-                                                    className={`w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none ${(!hasSubscription && !isFreeMode) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                    disabled={!hasSubscription && (!isFreeMode || kycStatus !== 'APPROVED')}
+                                                    className={`w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none ${(!hasSubscription && (!isFreeMode || kycStatus !== 'APPROVED')) ? 'opacity-50 cursor-not-allowed' : ''}`}
                                                 >
                                                     <option value="" className="bg-slate-900">{t('dashboard.profile_country')}</option>
                                                     {availableCountries.map((c: any) => (
@@ -2279,8 +2279,8 @@ export default function Dashboard() {
                                                         const selectedLoc = availableLocations.find((l: any) => l.name === prov);
                                                         setAvailableZones(selectedLoc ? selectedLoc.zones : []);
                                                     }}
-                                                    disabled={!hasSubscription && !isFreeMode}
-                                                    className={`w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none ${(!hasSubscription && !isFreeMode) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                    disabled={!hasSubscription && (!isFreeMode || kycStatus !== 'APPROVED')}
+                                                    className={`w-full bg-black/20 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-sm appearance-none ${(!hasSubscription && (!isFreeMode || kycStatus !== 'APPROVED')) ? 'opacity-50 cursor-not-allowed' : ''}`}
                                                 >
                                                     <option value="" className="bg-slate-900">{t('dashboard.profile_province')}</option>
                                                     {availableLocations.map((loc: any) => (
@@ -2296,11 +2296,11 @@ export default function Dashboard() {
                                             <div className="space-y-2">
                                                 <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.agency_zone')}</label>
 
-                                                {!hasSubscription && !isFreeMode ? (
+                                                {!hasSubscription && (!isFreeMode || kycStatus !== 'APPROVED') ? (
                                                     <div className="p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-center">
                                                         <p className="text-yellow-500 text-xs flex items-center justify-center gap-2">
                                                             <Zap size={14} />
-                                                            {t('dashboard.creator_zone_required')}
+                                                            {isFreeMode ? t('dashboard.kyc_required') : t('dashboard.creator_zone_required')}
                                                         </p>
                                                     </div>
                                                 ) : (
@@ -2481,9 +2481,9 @@ export default function Dashboard() {
                                     <section className="space-y-4">
                                         <h3 className="text-[#F84E6E] font-bold text-sm uppercase tracking-wider flex items-center gap-2"><ImageIcon size={14} /> {t('dashboard.creator_gallery')}</h3>
                                         {/* Subscription Barrier for Gallery */}
-                                        {!hasSubscription && !isFreeMode && (
+                                        {!hasSubscription && (!isFreeMode || kycStatus !== 'APPROVED') && (
                                             <div className="text-center py-4 px-2 border border-yellow-500/30 bg-yellow-500/10 rounded-xl mb-2">
-                                                <p className="text-yellow-500 text-xs">{t('dashboard.creator_gallery_required')}</p>
+                                                <p className="text-yellow-500 text-xs">{isFreeMode ? t('dashboard.kyc_required') : t('dashboard.creator_gallery_required')}</p>
                                             </div>
                                         )}
 
@@ -2501,10 +2501,10 @@ export default function Dashboard() {
                                                     </div>
                                                 </div>
                                             ))}
-                                            <label className={`aspect-square rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 border-dashed flex flex-col items-center justify-center gap-2 cursor-pointer transition ${(!hasSubscription && !isFreeMode) ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                            <label className={`aspect-square rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 border-dashed flex flex-col items-center justify-center gap-2 cursor-pointer transition ${(!hasSubscription && (!isFreeMode || kycStatus !== 'APPROVED')) ? 'opacity-50 cursor-not-allowed' : ''}`}>
                                                 <Plus className="text-white/30" />
                                                 <span className="text-[10px] text-white/30 font-medium">{t('dashboard.creator_add_image')}</span>
-                                                <input type="file" multiple accept="image/*" hidden onChange={handleGalleryUpload} disabled={!hasSubscription && !isFreeMode} />
+                                                <input type="file" multiple accept="image/*" hidden onChange={handleGalleryUpload} disabled={!hasSubscription && (!isFreeMode || kycStatus !== 'APPROVED')} />
                                             </label>
                                         </div>
                                     </section>
@@ -2547,7 +2547,7 @@ export default function Dashboard() {
                                 {/* New Post Input */}
                                 <div className="bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-4 shadow-xl border border-white/5">
                                     {/* Subscription Barrier */}
-                                    {!hasSubscription && !isFreeMode && (
+                                    {!hasSubscription && (!isFreeMode || kycStatus !== 'APPROVED') && (
                                         <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-6 text-center animate-pulse mb-4">
                                             {kycStatus === 'APPROVED' ? (
                                                 <>
@@ -2595,7 +2595,7 @@ export default function Dashboard() {
                                                     onChange={(e) => setCaption(e.target.value)}
                                                     placeholder={t('dashboard.creator_post_placeholder')}
                                                     className="w-full bg-transparent text-white placeholder-white/40 focus:outline-none mb-3 py-2"
-                                                    disabled={!hasSubscription && !isFreeMode}
+                                                    disabled={!hasSubscription && (!isFreeMode || kycStatus !== 'APPROVED')}
                                                 />
 
                                                 {/* Image Preview */}
@@ -2613,14 +2613,14 @@ export default function Dashboard() {
                                                 )}
 
                                                 <div className="flex justify-between items-center border-t border-white/10 pt-3">
-                                                    <label className={`flex items-center gap-2 text-sm text-[#F84E6E] font-medium hover:text-pink-400 cursor-pointer ${(!hasSubscription && !isFreeMode) ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                                    <label className={`flex items-center gap-2 text-sm text-[#F84E6E] font-medium hover:text-pink-400 cursor-pointer ${(!hasSubscription && (!isFreeMode || kycStatus !== 'APPROVED')) ? 'opacity-50 cursor-not-allowed' : ''}`}>
                                                         <ImageIcon size={18} />
                                                         {t('dashboard.creator_add_image_btn')}
-                                                        <input type="file" accept="image/*" hidden onChange={handleFileSelect} disabled={!hasSubscription && !isFreeMode} />
+                                                        <input type="file" accept="image/*" hidden onChange={handleFileSelect} disabled={!hasSubscription && (!isFreeMode || kycStatus !== 'APPROVED')} />
                                                     </label>
                                                     <button
                                                         type="submit"
-                                                        disabled={(!caption && !selectedFile) || isPosting || (!hasSubscription && !isFreeMode)}
+                                                        disabled={(!caption && !selectedFile) || isPosting || (!hasSubscription && (!isFreeMode || kycStatus !== 'APPROVED'))}
                                                         className="bg-[#F84E6E] text-white px-6 py-2 rounded-full font-bold text-sm shadow-lg shadow-pink-500/20 disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-110 transition flex items-center gap-2"
                                                     >
                                                         {isPosting ? t('dashboard.creator_post_btn_loading') : <><Send size={16} /> {t('dashboard.creator_post_btn')}</>}
