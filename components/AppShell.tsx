@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Menu, MapPin, Users, Award, MessageCircle, Send, LogOut, ChevronRight, X, User, Sparkles } from "lucide-react";
 import { API_BASE_URL } from "../lib/constants";
 import { usePathname, useRouter } from 'next/navigation';
-import { getAuthToken } from "../lib/auth";
+import { getAuthToken, getAuthUser } from "../lib/auth";
 import { useLanguage } from "../contexts/LanguageContext";
 import { Footer } from "./Footer";
 
@@ -17,6 +17,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     const [locations, setLocations] = useState<any[]>([]);
     const [zoneStats, setZoneStats] = useState<Record<string, number>>({});
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [user, setUser] = useState<any>(null);
 
     // Check path for auth page
     const pathname = usePathname();
@@ -26,6 +27,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         const token = getAuthToken();
         setIsLoggedIn(!!token);
+        const authUser = getAuthUser();
+        setUser(authUser);
     }, [pathname]);
 
     // Fetch telegram link and locations
@@ -139,6 +142,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                                 {t('nav.register')}
                             </Link>
                         )}
+                        {(!user || (user.role !== 'CREATOR' && user.role !== 'AGENCY')) && (
+                            <Link href="/jobs/create" className="hidden md:flex px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-sm font-bold rounded-full transition items-center gap-2">
+                                <Sparkles size={14} className="text-yellow-400" />
+                                <span>{t('nav.post_request') || 'Post Request'}</span>
+                            </Link>
+                        )}
                         <button
                             onClick={() => setIsSidebarOpen(true)}
                             className="w-9 h-9 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 transition cursor-pointer"
@@ -188,6 +197,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                                 <MessageCircle size={20} className="text-pink-400" />
                                 <span className="font-medium">{t('nav.check_homework')}</span>
                             </Link>
+
+                            {(!user || (user.role !== 'CREATOR' && user.role !== 'AGENCY')) && (
+                                <Link href="/jobs/create" onClick={() => setIsSidebarOpen(false)} className="flex items-center gap-3 p-3 text-white/80 hover:bg-white/5 rounded-lg transition">
+                                    <Sparkles size={20} className="text-yellow-400" />
+                                    <span className="font-medium">{t('nav.post_request') || 'Post Request'}</span>
+                                </Link>
+                            )}
+
                             {isLoggedIn && (
                                 <Link href="/dashboard" onClick={() => setIsSidebarOpen(false)} className="flex items-center gap-3 p-3 text-white/80 hover:bg-white/5 rounded-lg transition">
                                     <User size={20} className="text-[#F84E6E]" />

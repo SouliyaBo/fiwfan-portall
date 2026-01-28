@@ -15,7 +15,8 @@
         "check_homework": "Check Homework",
         "join_telegram": "Join on Telegram",
         "profile": "Profile",
-        "settings": "Settings"
+        "settings": "Settings",
+        "post_request": "Post Request"
     },
     "dashboard": {
         "title": "Dashboard",
@@ -629,6 +630,41 @@
     "plan_names": {
         "SUPER_STAR": "Super Star",
         "STAR": "Star",
-        "POPULAR": "Popular"
+        "POPULAR": "Popular",
+        "TOURIST_ONE_NIGHT": "One Night Stand",
+        "TOURIST_WEEKEND": "Weekend Vibes",
+        "TOURIST_VVIP": "VVIP Party"
+    },
+    "tourist": {
+        "post_request": "Post Request",
+        "find_entertainment": "Find Entertainment",
+        "find_entertainment_desc": "Post a request for creators to find you.",
+        "active_plan": "Your Plan:",
+        "buy_plan_btn": "Buy Plan",
+        "need_plan_msg": "You need a tourist plan to post.",
+        "form_content_label": "Request Details",
+        "form_content_placeholder": "e.g. Looking for guide in Thong Lo, budget 3000...",
+        "form_budget_label": "Budget (THB)",
+        "form_location_label": "Location",
+        "form_location_placeholder": "Specific location...",
+        "form_line_label": "Line ID",
+        "form_images_label": "Images (Optional)",
+        "submit_btn": "Post Now",
+        "submitting": "Posting...",
+        "success_msg": "Posted successfully!",
+        "plans_title": "Tourist Plans",
+        "plans_subtitle": "Choose a plan to post a request",
+        "pay_scan": "Scan to Pay",
+        "upload_slip": "Upload Slip",
+        "confirm_btn": "Confirm Payment",
+        "jobs_title": "Tourist Requests",
+        "jobs_subtitle": "Find tourists looking for entertainment right now!",
+        "vip_badge": "VVIP",
+        "weekend_badge": "Weekend",
+        "contact_line": "Contact Line",
+        "budget_label": "Budget:",
+        "expires_in": "Ends:",
+        "new_requests_widget": "New Requests",
+        "tourists_waiting_widget": "{count} Tourists Waiting!"
     }
 }

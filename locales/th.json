@@ -15,7 +15,8 @@
         "check_homework": "ตรวจการบ้าน",
         "join_telegram": "เข้าร่วมบนโทรเลข",
         "profile": "โปรไฟล์",
-        "settings": "ตั้งค่า"
+        "settings": "ตั้งค่า",
+        "post_request": "โพสต์หาคนดูแล"
     },
     "dashboard": {
         "title": "แดชบอร์ด",
@@ -630,6 +631,41 @@
     "plan_names": {
         "SUPER_STAR": "Super Star",
         "STAR": "Star",
-        "POPULAR": "Popular"
+        "POPULAR": "Popular",
+        "TOURIST_ONE_NIGHT": "One Night Stand",
+        "TOURIST_WEEKEND": "Weekend Vibes",
+        "TOURIST_VVIP": "VVIP Party"
+    },
+    "tourist": {
+        "post_request": "โพสต์หาคนดูแล",
+        "find_entertainment": "หาคนเอนเตอร์เทน",
+        "find_entertainment_desc": "โพสต์หาคนดูแล แฟนพาเที่ยว เพื่อนกินข้าว ง่ายๆ แค่ปลายนิ้ว",
+        "active_plan": "แพ็กเกจของคุณ:",
+        "buy_plan_btn": "ซื้อแพ็กเกจ",
+        "need_plan_msg": "คุณต้องมีแพ็กเกจนักท่องเที่ยวเพื่อโพสต์",
+        "form_content_label": "รายละเอียดโพสต์",
+        "form_content_placeholder": "เช่น หาคนดูแลโซนทองหล่อ งบ 3000...",
+        "form_budget_label": "งบประมาณ (บาท)",
+        "form_location_label": "สถานที่",
+        "form_location_placeholder": "ระบุสถานที่นัดพบ...",
+        "form_line_label": "Line ID (สำหรับติดต่อกลับ)",
+        "form_images_label": "รูปภาพประกอบ (ถ้ามี)",
+        "submit_btn": "โพสต์เลย",
+        "submitting": "กำลังโพสต์...",
+        "success_msg": "โพสต์เรียบร้อยแล้ว!",
+        "plans_title": "แพ็กเกจสำหรับนักท่องเที่ยว",
+        "plans_subtitle": "เลือกแพ็กเกจเพื่อโพสต์หาคนดูแล",
+        "pay_scan": "สแกนจ่าย",
+        "upload_slip": "แนบสลิป",
+        "confirm_btn": "ยืนยันการโอน",
+        "jobs_title": "รายการหาคนดูแล",
+        "jobs_subtitle": "นักท่องเที่ยวที่กำลังมองหาคนดูแลตอนนี้",
+        "vip_badge": "VVIP",
+        "weekend_badge": "Weekend",
+        "contact_line": "ทักไลน์",
+        "budget_label": "งบ:",
+        "expires_in": "หมดอายุ:",
+        "new_requests_widget": "มีงานใหม่มาแล้ว!",
+        "tourists_waiting_widget": "{count} คนกำลังรออยู่"
     }
 }

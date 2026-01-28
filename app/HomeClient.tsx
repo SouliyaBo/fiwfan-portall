@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { MessageCircle, ChevronRight, Search, Building2, Send, Sparkles } from "lucide-react";
+import { MessageCircle, ChevronRight, Search, Building2, Send, Sparkles, Megaphone } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
 import { API_BASE_URL } from "../lib/constants";
 import { getImageUrl } from "../lib/images";
@@ -28,7 +28,7 @@ interface Creator {
     isVerified: boolean;
     isHot: boolean;
     isSuperStar: boolean;
-    planId?: string; // Added planId
+    planId?: string;
     reviewCount?: number;
 }
 
@@ -54,6 +54,7 @@ function HomeContent() {
     const [activeFilters, setActiveFilters] = useState<any>({});
     const [zones, setZones] = useState<any[]>([]);
     const [telegramUrl, setTelegramUrl] = useState("");
+    const [jobCount, setJobCount] = useState(0);
 
     useEffect(() => {
         const token = getAuthToken();
@@ -79,6 +80,7 @@ function HomeContent() {
         fetchStories();
         fetchZones();
         fetchTelegramUrl();
+        fetchJobCount();
     }, [searchParams]);
 
     const fetchTelegramUrl = async () => {
@@ -90,6 +92,18 @@ function HomeContent() {
             }
         } catch (error) {
             console.error("Failed to fetch settings", error);
+        }
+    };
+
+    const fetchJobCount = async () => {
+        try {
+            const res = await fetch(`${API_BASE_URL}/jobs?limit=10`);
+            if (res.ok) {
+                const data = await res.json();
+                setJobCount(data.length);
+            }
+        } catch (error) {
+            console.error("Failed to fetch jobs");
         }
     };
 
@@ -369,6 +383,24 @@ function HomeContent() {
                     </>
                 )}
             </section>
+
+            {/* Floating Job Widget (Left Bottom) */}
+            {jobCount > 0 && (
+                <Link
+                    href="/jobs"
+                    className="fixed bottom-6 left-6 z-40 bg-white dark:bg-zinc-800 rounded-full shadow-xl border border-pink-200 dark:border-pink-900 pr-5 pl-2 py-2 flex items-center gap-3 animate-bounce hover:scale-105 transition cursor-pointer"
+                >
+                    <div className="w-10 h-10 bg-gradient-to-tr from-pink-500 to-rose-600 rounded-full flex items-center justify-center text-white shadow-md">
+                        <Megaphone size={20} className="animate-pulse" />
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="text-xs font-bold text-pink-600 dark:text-pink-400 uppercase tracking-wider">{t('tourist.new_requests_widget')}</span>
+                        <span className="text-sm font-bold text-zinc-900 dark:text-white leading-none">
+                            {t('tourist.tourists_waiting_widget').replace('{count}', jobCount.toString())}
+                        </span>
+                    </div>
+                </Link>
+            )}
 
             {/* Floating Telegram Button */}
             {
