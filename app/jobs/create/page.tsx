@@ -23,6 +23,7 @@ export default function CreateJobPage() {
     const [uploadedImages, setUploadedImages] = useState<File[]>([]);
     const [previewImages, setPreviewImages] = useState<string[]>([]);
     const [remainingTime, setRemainingTime] = useState("");
+    const [checkingPlan, setCheckingPlan] = useState(true);
 
     useEffect(() => {
         checkPlan();
@@ -41,14 +42,17 @@ export default function CreateJobPage() {
                 // Check if user has tourist plan
                 if (user.planId && user.planId.startsWith('TOURIST_')) {
                     setPlan(user);
-                    // Calculate remaining time?
+                    setCheckingPlan(false);
                 } else {
                     // Redirect to buy plan
                     return router.push('/plans/tourist');
                 }
+            } else {
+                router.push('/plans/tourist');
             }
         } catch (error) {
             console.error(error);
+            router.push('/plans/tourist');
         }
     };
 
@@ -115,6 +119,14 @@ export default function CreateJobPage() {
             setSubmitting(false);
         }
     };
+
+    if (checkingPlan) {
+        return (
+            <div className="min-h-screen bg-zinc-50 dark:bg-[#020617] flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500"></div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-[#020617] py-8 px-4">

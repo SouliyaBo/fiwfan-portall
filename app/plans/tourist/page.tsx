@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getAuthToken } from "../../../lib/auth";
 import { API_BASE_URL } from '../../../lib/constants';
@@ -16,6 +16,31 @@ export default function TouristPlansPage() {
     const [submitting, setSubmitting] = useState(false);
     const [slipUrl, setSlipUrl] = useState<string | null>(null);
     const [uploadingSlip, setUploadingSlip] = useState(false);
+
+    const [pendingSubscription, setPendingSubscription] = useState<any>(null);
+
+    useEffect(() => {
+        checkSubscription();
+    }, []);
+
+    const checkSubscription = async () => {
+        const token = getAuthToken();
+        if (!token) return;
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/payments/me`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.pending) {
+                    setPendingSubscription(data.pending);
+                }
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     const plans = [
         {
@@ -178,6 +203,18 @@ export default function TouristPlansPage() {
                     </p>
                 </div>
 
+                {pendingSubscription && (
+                    <div className="bg-yellow-500/10 border border-yellow-500 text-yellow-200 p-4 rounded-xl mb-8 flex items-center justify-between">
+                        <div>
+                            <p className="font-bold">{t('plans.payment_pending_title')}</p>
+                            <p className="text-sm opacity-80">{t('plans.payment_pending_desc')}</p>
+                        </div>
+                        <span className="bg-yellow-500 text-black text-xs font-bold px-3 py-1 rounded-full uppercase">
+                            {t('plans.payment_pending_badge')}
+                        </span>
+                    </div>
+                )}
+
                 <div className="grid md:grid-cols-3 gap-8">
                     {plans.map((plan) => (
                         <div key={plan.id} className={`relative bg-zinc-900 border-2 rounded-2xl p-6 flex flex-col ${plan.recommended ? 'border-pink-500 shadow-xl shadow-pink-500/20' : 'border-zinc-800'}`}>
@@ -208,12 +245,13 @@ export default function TouristPlansPage() {
 
                             <button
                                 onClick={() => handleSelectPlan(plan.id)}
-                                className={`w-full py-3 rounded-xl font-bold transition ${plan.recommended
+                                disabled={!!pendingSubscription}
+                                className={`w-full py-3 rounded-xl font-bold transition disabled:opacity-50 disabled:cursor-not-allowed ${plan.recommended
                                     ? 'bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white'
                                     : 'bg-white/10 hover:bg-white/20 text-white'
                                     }`}
                             >
-                                {t('tourist.buy_plan_btn')}
+                                {pendingSubscription ? t('plans.payment_pending_badge') : t('tourist.buy_plan_btn')}
                             </button>
                         </div>
                     ))}
