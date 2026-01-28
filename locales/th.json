@@ -229,7 +229,10 @@
         "pref_banner_btn": "เปิดใช้งานทันที",
         "gender_male_label": "ชาย (Male)",
         "gender_female_label": "หญิง (Female)",
-        "gender_lgbtq_label": "LGBTQ+"
+        "gender_lgbtq_label": "LGBTQ+",
+        "boost_rank": "เลื่อนอันดับ",
+        "want_to_be_superstar": "อยากเป็น Superstar ไหม?",
+        "superstar_benefits": "รับยอดเข้าชมมากขึ้น ลูกค้ามากขึ้น และฟีเจอร์พิเศษมากมายเพียงแค่อัพเกรดสถานะของคุณ"
     },
     "common": {
         "story_uploaded": "อัปโหลดสตอรี่เรียบร้อย",

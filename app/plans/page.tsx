@@ -37,11 +37,25 @@ export default function PlansPage() {
     const [slipFile, setSlipFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
     const [subscriptionStatus, setSubscriptionStatus] = useState<{ active: any, pending: any } | null>(null);
+    const [isFreeMode, setIsFreeMode] = useState(false);
 
     useEffect(() => {
         fetchPlans();
         fetchSubscription();
+        checkFreeMode();
     }, []);
+
+    const checkFreeMode = async () => {
+        try {
+            const res = await fetch(`${API_BASE_URL}/settings?key=isFreeMode`);
+            const data = await res.json();
+            if (data && data.value === 'true') {
+                setIsFreeMode(true);
+            }
+        } catch (error) {
+            console.error("Failed to check free mode");
+        }
+    };
 
     const fetchSubscription = async () => {
         const token = getAuthToken();
@@ -216,13 +230,24 @@ export default function PlansPage() {
                         const colors = getThemeColors(plan.theme);
                         const isSelected = selectedPlanId === plan.id;
 
+                        // Free Mode Adjustments
+                        let isCurrentPlan = false;
+                        if (isFreeMode && !subscriptionStatus?.active && plan.id === 'POPULAR') {
+                            isCurrentPlan = true;
+                        }
+
                         return (
                             <div
                                 key={plan.id}
-                                onClick={() => setSelectedPlanId(plan.id)}
-                                className={`relative rounded-xl border-2 transition-all cursor-pointer overflow-hidden flex flex-col ${isSelected ? `${colors.border} shadow-xl transform scale-105 z-10` : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 opacity-80 hover:opacity-100'}`}
+                                onClick={() => !isCurrentPlan && setSelectedPlanId(plan.id)}
+                                className={`relative rounded-xl border-2 transition-all cursor-pointer overflow-hidden flex flex-col ${isSelected ? `${colors.border} shadow-xl transform scale-105 z-10` : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 opacity-80 hover:opacity-100'} ${isCurrentPlan ? 'opacity-100 ring-2 ring-green-500 border-green-500 cursor-default' : ''}`}
                             >
-                                <div className={`p-6 ${isSelected ? 'bg-white dark:bg-zinc-900' : 'bg-zinc-50 dark:bg-zinc-900/50'}`}>
+                                {isCurrentPlan && (
+                                    <div className="absolute top-0 right-0 left-0 bg-green-500 text-white text-xs font-bold text-center py-1 z-20">
+                                        Current Status
+                                    </div>
+                                )}
+                                <div className={`p-6 ${isSelected ? 'bg-white dark:bg-zinc-900' : 'bg-zinc-50 dark:bg-zinc-900/50'} ${isCurrentPlan ? 'pt-8' : ''}`}>
                                     <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-4 uppercase">{plan.name}</h3>
 
                                     <ul className="space-y-3 mb-6 min-h-[160px]">
@@ -255,8 +280,16 @@ export default function PlansPage() {
                                         )}
                                     </ul>
 
-                                    <div className={`space-y-3 p-4 rounded-xl ${colors.bg}`}>
-                                        {plan.prices.map((price, idx) => {
+                                </div>
+
+                                <div className={`space-y-3 p-4 rounded-xl ${colors.bg}`}>
+                                    {isCurrentPlan ? (
+                                        <div className="text-center py-4">
+                                            <p className="font-bold text-green-600 mb-2">Active (Free Mode)</p>
+                                            <p className="text-xs text-zinc-500">Upgrade to Superstar to boost your visibility!</p>
+                                        </div>
+                                    ) : (
+                                        plan.prices.map((price, idx) => {
                                             const isPriceSelected = isSelected && (selectedDurationIndex[plan.id] || 0) === idx;
                                             // Calculate generic percentage savings if possible, or just skip it for now.
                                             // The JSON uses {percent}%.
@@ -286,8 +319,8 @@ export default function PlansPage() {
                                                     )}
                                                 </div>
                                             );
-                                        })}
-                                    </div>
+                                        })
+                                    )}
                                 </div>
                             </div>
                         );
@@ -412,6 +445,6 @@ export default function PlansPage() {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 }

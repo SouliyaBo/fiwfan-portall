@@ -2544,6 +2544,27 @@ export default function Dashboard() {
                                     </div>
                                 )}
 
+                                {/* Free Mode Upsell Banner */}
+                                {(!hasSubscription && isFreeMode) && (
+                                    <div className="bg-gradient-to-r from-purple-900/40 to-pink-900/40 border border-white/10 rounded-2xl p-6 relative overflow-hidden group hover:border-[#F84E6E]/50 transition cursor-pointer mb-6" onClick={() => router.push('/plans')}>
+                                        <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition transform group-hover:scale-110 duration-500">
+                                            <Star size={100} className="fill-white" />
+                                        </div>
+                                        <div className="relative z-10 flex items-center justify-between">
+                                            <div>
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <span className="bg-[#F84E6E] text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">{t('dashboard.boost_rank')}</span>
+                                                </div>
+                                                <h3 className="text-xl font-bold text-white mb-2">{t('dashboard.want_to_be_superstar')}</h3>
+                                                <p className="text-white/70 text-sm max-w-md">{t('dashboard.superstar_benefits')}</p>
+                                            </div>
+                                            <div className="bg-white text-black rounded-full p-3 shadow-lg group-hover:scale-110 transition transform">
+                                                <Zap size={24} className="fill-[#F84E6E] text-[#F84E6E]" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* New Post Input */}
                                 <div className="bg-[#1e1b4b]/80 backdrop-blur rounded-2xl p-4 shadow-xl border border-white/5">
                                     {/* Subscription Barrier */}

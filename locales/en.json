@@ -228,7 +228,10 @@
         "pref_banner_btn": "Activate Now",
         "gender_male_label": "Male",
         "gender_female_label": "Female",
-        "gender_lgbtq_label": "LGBTQ+"
+        "gender_lgbtq_label": "LGBTQ+",
+        "boost_rank": "Boost Rank",
+        "want_to_be_superstar": "Want to be a Superstar?",
+        "superstar_benefits": "Get more views, more customers, and exclusive features by upgrading your status."
     },
     "common": {
         "story_uploaded": "Story uploaded successfully",

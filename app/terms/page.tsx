@@ -132,7 +132,7 @@ export default function TermsPage() {
                 <section>
                     <h3 className="text-xl font-bold mb-2">10. {t('terms.privacy_title')}</h3>
                     <p>
-                        {t('terms.privacy_content')} <Link href="/policy" className="text-pink-500 hover:text-pink-600 font-medium">{t('terms.privacy_link')}</Link>.
+                        {t('terms.privacy_content')} <Link href="/privacy" className="text-pink-500 hover:text-pink-600 font-medium">{t('terms.privacy_link')}</Link>.
                     </p>
                 </section>
 

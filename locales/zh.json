@@ -229,7 +229,10 @@
         "pref_banner_btn": "立即激活",
         "gender_male_label": "男性 (Male)",
         "gender_female_label": "女性 (Female)",
-        "gender_lgbtq_label": "LGBTQ+"
+        "gender_lgbtq_label": "LGBTQ+",
+        "boost_rank": "提升排名",
+        "want_to_be_superstar": "想成为 Superstar 吗？",
+        "superstar_benefits": "通过升级您的状态，获得更多浏览量、更多客户和独家功能。"
     },
     "common": {
         "story_uploaded": "快拍上传成功",

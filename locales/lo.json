@@ -228,7 +228,10 @@
         "pref_banner_btn": "ເປີດໃຊ້ງານທັນທີ",
         "gender_male_label": "ຊາຍ (Male)",
         "gender_female_label": "ຍິງ (Female)",
-        "gender_lgbtq_label": "LGBTQ+"
+        "gender_lgbtq_label": "LGBTQ+",
+        "boost_rank": "ເລື່ອນອັນດັບ",
+        "want_to_be_superstar": "ຢາກເປັນ Superstar ບໍ່?",
+        "superstar_benefits": "ຮັບຍອດເຂົ້າຊົມຫຼາຍຂຶ້ນ, ລູກຄ້າຫຼາຍຂຶ້ນ ແລະ ຟີເຈີພິເສດຫຼາກຫຼາຍ ພຽງແຕ່ອັບເກຣດສະຖານະຂອງທ່ານ"
     },
     "common": {
         "loading": "ກຳລັງໂຫຼດ...",
