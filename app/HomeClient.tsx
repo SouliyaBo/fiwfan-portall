@@ -325,7 +325,7 @@ function HomeContent() {
                                 <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                                     <span className="text-2xl">🔥</span> {t('home.super_star_title')}
                                 </h3>
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                                     {creators
                                         .filter(c => (c.planId === 'SUPER_STAR' || c.planName === 'SUPER_STAR' || c.isHot))
                                         .map((creator) => (
@@ -341,7 +341,7 @@ function HomeContent() {
                                 <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                                     <span className="text-2xl">⭐</span> {t('home.star_title')}
                                 </h3>
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                                     {creators
                                         .filter(c => (c.planId === 'STAR' || c.planName === 'STAR'))
                                         .map((creator) => (

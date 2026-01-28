@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Check, Star, ShieldCheck, Zap, X, Upload, Loader2, Copy } from 'lucide-react';
+import { Check, Star, ShieldCheck, Zap, X, Upload, Loader2, Copy, ArrowLeft } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { API_BASE_URL } from '../../lib/constants';
 import { getAuthToken } from "../../lib/auth";
@@ -206,6 +206,14 @@ export default function PlansPage() {
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-[#020617] py-12 px-4">
             <div className="container mx-auto max-w-6xl">
+                <button
+                    onClick={() => router.push('/dashboard')}
+                    className="flex items-center gap-2 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition mb-6 cursor-pointer"
+                >
+                    <ArrowLeft size={20} />
+                    <span>{t('nav.dashboard')}</span>
+                </button>
+
                 <div className="mb-12">
                     <h1 className="text-3xl font-bold text-zinc-900 dark:text-white mb-2">{t('plans.title')}</h1>
                     <p className="text-red-500 font-medium">{t('plans.subtitle')}</p>
