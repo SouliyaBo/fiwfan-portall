@@ -97,7 +97,7 @@ export default function JobsPage() {
                     {jobs.map((job) => (
                         <div
                             key={job._id}
-                            className={`bg-white dark:bg-zinc-900 rounded-2xl p-6 border-2 transition hover:shadow-lg ${job.isPinned ? 'border-yellow-400 shadow-yellow-500/10' : job.isHighlighted ? 'border-pink-300' : 'border-zinc-200 dark:border-zinc-800'}`}
+                            className={`bg-[#0f172a] rounded-2xl p-6 border-2 transition hover:shadow-lg ${job.isPinned ? 'border-yellow-400 shadow-yellow-500/10' : job.isHighlighted ? 'border-pink-300' : 'border-zinc-800'}`}
                         >
                             <div className="flex flex-col md:flex-row gap-6">
                                 {/* User Info */}

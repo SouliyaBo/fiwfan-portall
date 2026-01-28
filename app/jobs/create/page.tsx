@@ -139,7 +139,7 @@ export default function CreateJobPage() {
                     <span>{t('common.cancel')}</span>
                 </button>
 
-                <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 md:p-8 shadow-xl border border-white/5">
+                <div className="bg-[#0f172a] rounded-2xl p-6 md:p-8 shadow-xl border border-white/5">
                     <div className="text-center mb-8">
                         <h1 className="text-2xl md:text-3xl font-bold text-zinc-900 dark:text-white mb-2">{t('tourist.post_request')}</h1>
                         <p className="text-zinc-500 dark:text-zinc-400">{t('tourist.find_entertainment_desc')}</p>

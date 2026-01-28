@@ -159,7 +159,7 @@ export default function EditJobPage() {
                     <span>{t('common.cancel')}</span>
                 </button>
 
-                <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 md:p-8 shadow-xl border border-white/5">
+                <div className="bg-[#0f172a] rounded-2xl p-6 md:p-8 shadow-xl border border-white/5">
                     <div className="text-center mb-8">
                         <h1 className="text-2xl md:text-3xl font-bold text-zinc-900 dark:text-white mb-2">Edit Request</h1>
                     </div>
