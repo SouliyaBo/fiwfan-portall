@@ -15,7 +15,8 @@
         "check_homework": "检查作业",
         "join_telegram": "加入 Telegram",
         "profile": "个人资料",
-        "settings": "设置"
+        "settings": "设置",
+        "post_request": "发布需求"
     },
     "dashboard": {
         "title": "仪表盘",
@@ -630,6 +631,41 @@
     "plan_names": {
         "SUPER_STAR": "Super Star 🔥",
         "STAR": "Star ⭐",
-        "POPULAR": "Popular ✨"
+        "POPULAR": "Popular ✨",
+        "TOURIST_ONE_NIGHT": "One Night Stand",
+        "TOURIST_WEEKEND": "Weekend Vibes",
+        "TOURIST_VVIP": "VVIP Party"
+    },
+    "tourist": {
+        "post_request": "发布需求",
+        "find_entertainment": "寻找娱乐",
+        "find_entertainment_desc": "发布寻找伴游、吃饭、导游的需求。简单快捷。",
+        "active_plan": "您的套餐：",
+        "buy_plan_btn": "购买套餐",
+        "need_plan_msg": "您需要游客套餐才能发布",
+        "form_content_label": "需求详情",
+        "form_content_placeholder": "例如：在 Thong Lor 寻找伴游，预算 3000...",
+        "form_budget_label": "预算 (THB)",
+        "form_location_label": "地点",
+        "form_location_placeholder": "指定见面地点...",
+        "form_line_label": "Line ID (用于联系)",
+        "form_images_label": "图片 (可选)",
+        "submit_btn": "立即发布",
+        "submitting": "发布中...",
+        "success_msg": "发布成功！",
+        "plans_title": "游客套餐",
+        "plans_subtitle": "选择套餐以发布需求",
+        "pay_scan": "扫码支付",
+        "upload_slip": "上传凭证",
+        "confirm_btn": "确认转账",
+        "jobs_title": "需求列表",
+        "jobs_subtitle": "正在寻找伴游的游客",
+        "vip_badge": "VVIP",
+        "weekend_badge": "周末",
+        "contact_line": "联系 Line",
+        "budget_label": "预算：",
+        "expires_in": "过期时间：",
+        "new_requests_widget": "新需求",
+        "tourists_waiting_widget": "{count} 位游客正在等待"
     }
 }

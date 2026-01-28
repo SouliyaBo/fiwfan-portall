@@ -15,7 +15,8 @@
         "check_homework": "ກວດວຽກບ້ານ",
         "join_telegram": "ເຂົ້າຮ່ວມໃນ Telegram",
         "profile": "ໂປຣໄຟລ໌",
-        "settings": "ຕັ້ງຄ່າ"
+        "settings": "ຕັ້ງຄ່າ",
+        "post_request": "ໂພສຫາຄົນເບິ່ງແຍງ"
     },
     "dashboard": {
         "title": "ແດຊບອດ",
@@ -628,6 +629,41 @@
     "plan_names": {
         "SUPER_STAR": "Super Star 🔥",
         "STAR": "Star ⭐",
-        "POPULAR": "Popular ✨"
+        "POPULAR": "Popular ✨",
+        "TOURIST_ONE_NIGHT": "One Night Stand",
+        "TOURIST_WEEKEND": "Weekend Vibes",
+        "TOURIST_VVIP": "VVIP Party"
+    },
+    "tourist": {
+        "post_request": "ໂພສຫາຄົນເບິ່ງແຍງ",
+        "find_entertainment": "ຫາຄົນເອນເຕີເທນ",
+        "find_entertainment_desc": "ໂພສຫາຄົນເບິ່ງແຍງ, ພາທ່ຽວ, ກິນເຂົ້າ. ງ່າຍໆພຽງປາຍນິ້ວ",
+        "active_plan": "ແພັກເກັດຂອງທ່ານ:",
+        "buy_plan_btn": "ຊື້ແພັກເກັດ",
+        "need_plan_msg": "ທ່ານຕ້ອງມີແພັກເກັດນັກທ່ອງທ່ຽວເພື່ອໂພສ",
+        "form_content_label": "ລາຍລະອຽດໂພສ",
+        "form_content_placeholder": "ເຊັ່ນ: ຫາຄົນເບິ່ງແຍງໂຊນທອງຫຼໍ່ ງົບ 3000...",
+        "form_budget_label": "ງົບປະມານ (ບາດ)",
+        "form_location_label": "ສະຖານທີ່",
+        "form_location_placeholder": "ລະບຸສະຖານທີ່ນັດພົບ...",
+        "form_line_label": "Line ID (ສຳລັບຕິດຕໍ່ກັບ)",
+        "form_images_label": "ຮູບປະກອບ (ຖ້າມີ)",
+        "submit_btn": "ໂພສເລີຍ",
+        "submitting": "ກຳລັງໂພສ...",
+        "success_msg": "ໂພສຮຽບຮ້ອຍແລ້ວ!",
+        "plans_title": "ແພັກເກັດສຳລັບນັກທ່ອງທ່ຽວ",
+        "plans_subtitle": "ເລືອກແພັກເກັດເພື່ອໂພສຫາຄົນເບິ່ງແຍງ",
+        "pay_scan": "ສະແກນຈ່າຍ",
+        "upload_slip": "ແນບສະລິບ",
+        "confirm_btn": "ຢືນຢັນການໂອນ",
+        "jobs_title": "ລາຍການຫາຄົນເບິ່ງແຍງ",
+        "jobs_subtitle": "ນັກທ່ອງທ່ຽວທີ່ກຳລັງຊອກຫາຄົນເບິ່ງແຍງຕອນນີ້",
+        "vip_badge": "VVIP",
+        "weekend_badge": "Weekend",
+        "contact_line": "ທັກລາຍ",
+        "budget_label": "ງົບ:",
+        "expires_in": "ໝົດອາຍຸ:",
+        "new_requests_widget": "ມີວຽກໃໝ່!",
+        "tourists_waiting_widget": "{count} ຄົນກຳລັງລໍຖ້າ"
     }
 }
