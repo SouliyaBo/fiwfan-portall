@@ -42,54 +42,68 @@ export default function TouristPlansPage() {
         }
     };
 
-    const plans = [
-        {
-            id: 'TOURIST_ONE_NIGHT',
-            name: t('plan_names.TOURIST_ONE_NIGHT'),
-            price: 199,
-            duration: '24 hrs',
-            days: 1,
-            features: [
-                'Post 1 Request',
-                'Displayed for 24 hours',
-                'Standard Visibility'
-            ],
-            color: 'bg-blue-500',
-            icon: <Zap size={24} />
-        },
-        {
-            id: 'TOURIST_WEEKEND',
-            name: t('plan_names.TOURIST_WEEKEND'),
-            price: 499,
-            duration: '3 Days',
-            days: 3,
-            features: [
-                'Post 1 Request',
-                'Displayed for 72 hours',
-                'Highlighted Post (Pink Border)',
-                'Top of Search Results'
-            ],
-            recommended: true,
-            color: 'bg-pink-500',
-            icon: <PartyPopper size={24} />
-        },
-        {
-            id: 'TOURIST_VVIP',
-            name: t('plan_names.TOURIST_VVIP'),
-            price: 999,
-            duration: '7 Days',
-            days: 7,
-            features: [
-                'Post Unlimited Requests',
-                'Displayed for 7 Days',
-                'VVIP Badge (Gold)',
-                'Pinned to Top',
-                'Dedicated Support'
-            ],
-            color: 'bg-yellow-500',
-            icon: <Star size={24} />
+    interface UIPlan {
+        id: string;
+        name: string;
+        price: number;
+        duration: string;
+        days: number;
+        features: string[];
+        recommended?: boolean;
+        color: string;
+        icon?: any;
+    }
+
+    const [plans, setPlans] = useState<UIPlan[]>([]);
+    const [loadingPlans, setLoadingPlans] = useState(true);
+
+    useEffect(() => {
+        fetchPlans();
+    }, []);
+
+    const fetchPlans = async () => {
+        setLoadingPlans(true);
+        try {
+            const res = await fetch(`${API_BASE_URL}/plans`);
+            const data = await res.json();
+
+            const mapThemeToColor = (theme: string) => {
+                switch (theme) {
+                    case 'pink': return 'bg-pink-500';
+                    case 'yellow': return 'bg-yellow-500';
+                    case 'blue': return 'bg-blue-500';
+                    default: return 'bg-zinc-800';
+                }
+            };
+
+            const mapIdToIcon = (id: string) => {
+                if (id.includes('VVIP') || id.includes('STAR')) return <Star size={24} />;
+                if (id.includes('WEEKEND') || id.includes('PARTY')) return <PartyPopper size={24} />;
+                return <Zap size={24} />;
+            };
+
+            const touristPlans = data
+                .filter((p: any) => p.id.startsWith('TOURIST_') || p.type === 'TOURIST')
+                .map((p: any) => ({
+                    id: p.id,
+                    name: p.name,
+                    price: p.prices?.[0]?.price || 0,
+                    duration: p.prices?.[0]?.duration || '',
+                    days: p.prices?.[0]?.days || 0,
+                    features: p.features || [],
+                    recommended: p.id.includes('WEEKEND'),
+                    color: mapThemeToColor(p.theme),
+                    icon: mapIdToIcon(p.id)
+                }))
+                .sort((a: any, b: any) => a.price - b.price);
+
+            setPlans(touristPlans);
+        } catch (error) {
+            console.error("Failed to fetch plans:", error);
+        } finally {
+            setLoadingPlans(false);
         }
-    ];
+    };
 
     const handleSelectPlan = (planId: string) => {
         const token = getAuthToken();
@@ -215,47 +229,53 @@ export default function TouristPlansPage() {
                     </div>
                 )}
 
-                <div className="grid md:grid-cols-3 gap-8">
-                    {plans.map((plan) => (
-                        <div key={plan.id} className={`relative bg-zinc-900 border-2 rounded-2xl p-6 flex flex-col ${plan.recommended ? 'border-pink-500 shadow-xl shadow-pink-500/20' : 'border-zinc-800'}`}>
-                            {plan.recommended && (
-                                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg">
-                                    {t('plans.recommended')}
+                {loadingPlans ? (
+                    <div className="flex justify-center items-center py-20">
+                        <Loader className="animate-spin text-pink-500" size={48} />
+                    </div>
+                ) : (
+                    <div className="grid md:grid-cols-3 gap-8">
+                        {plans.map((plan) => (
+                            <div key={plan.id} className={`relative bg-zinc-900 border-2 rounded-2xl p-6 flex flex-col ${plan.recommended ? 'border-pink-500 shadow-xl shadow-pink-500/20' : 'border-zinc-800'}`}>
+                                {plan.recommended && (
+                                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg">
+                                        {t('plans.recommended')}
+                                    </div>
+                                )}
+
+                                <div className={`w-12 h-12 rounded-xl ${plan.color} flex items-center justify-center mb-4`}>
+                                    {plan.icon}
                                 </div>
-                            )}
 
-                            <div className={`w-12 h-12 rounded-xl ${plan.color} flex items-center justify-center mb-4`}>
-                                {plan.icon}
+                                <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
+                                <div className="flex items-end gap-1 mb-6">
+                                    <span className="text-4xl font-bold">{plan.price}</span>
+                                    <span className="text-xl text-white/60">฿</span>
+                                </div>
+
+                                <ul className="space-y-3 mb-8 flex-grow">
+                                    {plan.features.map((feature, i) => (
+                                        <li key={i} className="flex items-start gap-3 text-white/80">
+                                            <Check size={18} className="text-green-500 mt-0.5 shrink-0" />
+                                            <span className="text-sm">{feature}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+
+                                <button
+                                    onClick={() => handleSelectPlan(plan.id)}
+                                    disabled={!!pendingSubscription}
+                                    className={`w-full py-3 rounded-xl font-bold transition disabled:opacity-50 disabled:cursor-not-allowed ${plan.recommended
+                                        ? 'bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white'
+                                        : 'bg-white/10 hover:bg-white/20 text-white'
+                                        }`}
+                                >
+                                    {pendingSubscription ? t('plans.payment_pending_badge') : t('tourist.buy_plan_btn')}
+                                </button>
                             </div>
-
-                            <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
-                            <div className="flex items-end gap-1 mb-6">
-                                <span className="text-4xl font-bold">{plan.price}</span>
-                                <span className="text-xl text-white/60">฿</span>
-                            </div>
-
-                            <ul className="space-y-3 mb-8 flex-grow">
-                                {plan.features.map((feature, i) => (
-                                    <li key={i} className="flex items-start gap-3 text-white/80">
-                                        <Check size={18} className="text-green-500 mt-0.5 shrink-0" />
-                                        <span className="text-sm">{feature}</span>
-                                    </li>
-                                ))}
-                            </ul>
-
-                            <button
-                                onClick={() => handleSelectPlan(plan.id)}
-                                disabled={!!pendingSubscription}
-                                className={`w-full py-3 rounded-xl font-bold transition disabled:opacity-50 disabled:cursor-not-allowed ${plan.recommended
-                                    ? 'bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white'
-                                    : 'bg-white/10 hover:bg-white/20 text-white'
-                                    }`}
-                            >
-                                {pendingSubscription ? t('plans.payment_pending_badge') : t('tourist.buy_plan_btn')}
-                            </button>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* Payment Modal */}
