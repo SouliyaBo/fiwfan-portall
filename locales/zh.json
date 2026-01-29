@@ -2,6 +2,7 @@
     "nav": {
         "home": "首页",
         "dashboard": "仪表盘",
+        "cancel": "取消",
         "login": "登录",
         "register": "注册",
         "logout": "退出",
