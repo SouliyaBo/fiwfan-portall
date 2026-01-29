@@ -2,6 +2,7 @@
     "nav": {
         "home": "Home",
         "dashboard": "Dashboard",
+        "cancel": "Cancel",
         "login": "Login",
         "register": "Register",
         "logout": "Logout",
@@ -607,6 +608,7 @@
         "cancel_btn": "Cancel",
         "payment_success_title": "Payment Submitted",
         "payment_success_desc": "We have received your payment information. Please wait for verification.",
+        "payment_error": "Payment processing failed. Please try again.",
         "upload_error": "Please upload a payment slip"
     },
     "search_modal": {
@@ -665,6 +667,17 @@
         "budget_label": "Budget:",
         "expires_in": "Ends:",
         "new_requests_widget": "New Requests",
-        "tourists_waiting_widget": "{count} Tourists Waiting!"
+        "tourists_waiting_widget": "{count} Tourists Waiting!",
+        "edit_request_title": "Edit Request",
+        "edit_request_subtitle": "Update your job details and preferences",
+        "update_request_button": "Update Request",
+        "create_failed": "Failed to create request. Please try again.",
+        "update_failed": "Failed to update request.",
+        "job_not_found": "Request not found.",
+        "job_limit_reached": "You can only post one request. Please delete or edit your existing request.",
+        "delete_request_button": "Delete",
+        "confirm_delete_request": "Are you sure you want to delete this request?",
+        "delete_success": "Request deleted successfully",
+        "delete_failed": "Failed to delete request"
     }
 }

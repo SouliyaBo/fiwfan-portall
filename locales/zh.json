@@ -608,6 +608,7 @@
         "cancel_btn": "取消",
         "payment_success_title": "付款已提交",
         "payment_success_desc": "我们已收到您的付款信息。 请等待验证。",
+        "payment_error": "支付处理失败，请重试。",
         "upload_error": "请上传付款凭证"
     },
     "search_modal": {
@@ -666,6 +667,17 @@
         "budget_label": "预算：",
         "expires_in": "过期时间：",
         "new_requests_widget": "新需求",
-        "tourists_waiting_widget": "{count} 位游客正在等待"
+        "tourists_waiting_widget": "{count} 位游客正在等待",
+        "edit_request_title": "编辑请求",
+        "edit_request_subtitle": "更新您的工作详情和偏好",
+        "update_request_button": "更新请求",
+        "create_failed": "发布请求失败，请重试。",
+        "update_failed": "更新请求失败。",
+        "job_not_found": "未找到请求。",
+        "job_limit_reached": "您只能发布一个请求。 请先删除或编辑已有的请求。",
+        "delete_request_button": "删除",
+        "confirm_delete_request": "您确定要删除此请求吗？",
+        "delete_success": "请求已删除",
+        "delete_failed": "删除请求失败"
     }
 }

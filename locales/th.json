@@ -2,6 +2,7 @@
     "nav": {
         "home": "หน้าแรก",
         "dashboard": "แดชบอร์ด",
+        "cancel": "ยกเลิก",
         "login": "เข้าสู่ระบบ",
         "register": "สมัครสมาชิก",
         "logout": "ออกจากระบบ",
@@ -608,6 +609,7 @@
         "cancel_btn": "ยกเลิก",
         "payment_success_title": "แจ้งชำระเงินเรียบร้อย",
         "payment_success_desc": "ระบบได้รับข้อมูลการชำระเงินของคุณแล้ว กรุณารอการตรวจสอบ",
+        "payment_error": "เกิดข้อผิดพลาดในการชำระเงิน กรุณาลองใหม่อีกครั้ง",
         "upload_error": "กรุณาอัปโหลดสลิปโอนเงิน"
     },
     "search_modal": {
@@ -666,6 +668,17 @@
         "budget_label": "งบ:",
         "expires_in": "หมดอายุ:",
         "new_requests_widget": "มีงานใหม่มาแล้ว!",
-        "tourists_waiting_widget": "{count} คนกำลังรออยู่"
+        "tourists_waiting_widget": "{count} คนกำลังรออยู่",
+        "edit_request_title": "แก้ไขคำขอ",
+        "edit_request_subtitle": "อัปเดตรายละเอียดงานและความต้องการของคุณ",
+        "update_request_button": "อัปเดตข้อมูล",
+        "create_failed": "โพสต์คำขอไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
+        "update_failed": "อัปเดตคำขอไม่สำเร็จ",
+        "job_not_found": "ไม่พบรายการคำขอ",
+        "job_limit_reached": "คุณสามารถโพสต์คำขอได้เพียง 1 รายการเท่านั้น กรุณาลบหรือแก้ไขรายการเดิมก่อน",
+        "delete_request_button": "ลบโพสต์",
+        "confirm_delete_request": "คุณแน่ใจหรือไม่ที่จะลบโพสต์นี้?",
+        "delete_success": "ลบโพสต์เรียบร้อยแล้ว",
+        "delete_failed": "ลบโพสต์ไม่สำเร็จ"
     }
 }

@@ -6,6 +6,8 @@ import { getAuthToken } from "../../../lib/auth";
 import { API_BASE_URL } from '../../../lib/constants';
 import { Check, Star, PartyPopper, Zap, ArrowLeft, Loader, Upload, Copy } from 'lucide-react';
 import { useLanguage } from "../../../contexts/LanguageContext";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function TouristPlansPage() {
     const { t } = useLanguage();
@@ -137,11 +139,11 @@ export default function TouristPlansPage() {
                 const data = await res.json();
                 setSlipUrl(data.url);
             } else {
-                alert(t('common.upload_failed'));
+                toast.error(t('common.upload_failed'));
             }
         } catch (error) {
             console.error(error);
-            alert(t('common.upload_failed'));
+            toast.error(t('common.upload_failed'));
         } finally {
             setUploadingSlip(false);
         }
@@ -154,7 +156,7 @@ export default function TouristPlansPage() {
         if (!plan) return;
 
         if (!slipUrl) {
-            alert(t('plans.upload_error'));
+            toast.error(t('plans.upload_error'));
             return;
         }
 
@@ -182,15 +184,15 @@ export default function TouristPlansPage() {
                 // If payment is pending, we can't post yet.
                 // But for demo/development let's assume admin approves or we can just proceed?
                 // The current flow requires Admin Approval.
-                alert(t('plans.payment_success_desc'));
+                toast.success(t('plans.payment_success_desc'));
                 router.push('/dashboard');
             } else {
                 const err = await res.json();
-                alert(err.message || t('common.error'));
+                toast.error(err.message || t('plans.payment_error'));
             }
         } catch (error) {
             console.error(error);
-            alert("Error processing payment");
+            toast.error(t('plans.payment_error'));
         } finally {
             setSubmitting(false);
             setIsModalOpen(false);
@@ -281,7 +283,7 @@ export default function TouristPlansPage() {
             {/* Payment Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
-                    <div className="bg-white dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 relative">
+                    <div className="bg-[#1e1b4b] dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 relative">
                         <button
                             onClick={() => setIsModalOpen(false)}
                             className="absolute top-4 right-4 text-zinc-400 hover:text-white"
@@ -289,9 +291,9 @@ export default function TouristPlansPage() {
                             ✕
                         </button>
 
-                        <h2 className="text-xl font-bold mb-6 text-zinc-900 dark:text-white">{t('tourist.pay_scan')}</h2>
+                        <h2 className="text-xl font-bold mb-6 text-white dark:text-white">{t('tourist.pay_scan')}</h2>
 
-                        <div className="bg-white p-4 rounded-xl mb-6 flex justify-center">
+                        <div className="bg-[#1e1b4b] p-4 rounded-xl mb-6 flex justify-center">
                             {/* Mock QR */}
                             <div className="w-48 h-48 bg-zinc-200 flex items-center justify-center text-zinc-400">
                                 QR Code
@@ -300,18 +302,18 @@ export default function TouristPlansPage() {
 
                         <div className="space-y-4 mb-6">
                             <div className="flex justify-between text-sm">
-                                <span className="text-zinc-500">{t('plans.plan_label')}</span>
+                                <span className="text-white">{t('plans.plan_label')}</span>
                                 <span className="font-bold text-white">{plans.find(p => p.id === selectedPlan)?.name}</span>
                             </div>
                             <div className="flex justify-between text-sm">
-                                <span className="text-zinc-500">{t('plans.price_label')}</span>
+                                <span className="text-white">{t('plans.price_label')}</span>
                                 <span className="font-bold text-green-500">{plans.find(p => p.id === selectedPlan)?.price} ฿</span>
                             </div>
                         </div>
 
                         {/* Slip Upload */}
                         <div className="mb-6">
-                            <label className="block text-sm font-medium text-zinc-400 mb-2">{t('plans.upload_slip_label')}</label>
+                            <label className="block text-sm font-medium text-white mb-2">{t('plans.upload_slip_label')}</label>
 
                             {!slipUrl ? (
                                 <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-zinc-700 rounded-xl cursor-pointer hover:border-pink-500 hover:bg-zinc-800 transition">

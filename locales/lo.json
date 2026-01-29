@@ -2,6 +2,7 @@
     "nav": {
         "home": "ໜ້າຫຼັກ",
         "dashboard": "ແດຊບອດ",
+        "cancel": "ຍົກເລີກ",
         "login": "ເຂົ້າສູ່ລະບົບ",
         "register": "ລົງທະບຽນ",
         "logout": "ອອກຈາກລະບົບ",
@@ -606,6 +607,7 @@
         "cancel_btn": "ຍົກເລີກ",
         "payment_success_title": "ແຈ້ງຊຳລະເງິນຮຽບຮ້ອຍ",
         "payment_success_desc": "ລະບົບໄດ້ຮັບຂໍ້ມູນການຊຳລະເງິນຂອງທ່ານແລ້ວ ກະລຸນາລໍຖ້າການກວດສອບ",
+        "payment_error": "ເກີດຂໍ້ຜິດພາດໃນການຊຳລະເງິນ ກະລຸນາລອງໃໝ່ອີກຄັ້ງ",
         "upload_error": "ກະລຸນາອັບໂຫຼດສະລິບໂອນເງິນ"
     },
     "search_modal": {
@@ -664,6 +666,17 @@
         "budget_label": "ງົບ:",
         "expires_in": "ໝົດອາຍຸ:",
         "new_requests_widget": "ມີວຽກໃໝ່!",
-        "tourists_waiting_widget": "{count} ຄົນກຳລັງລໍຖ້າ"
+        "tourists_waiting_widget": "{count} ຄົນກຳລັງລໍຖ້າ",
+        "edit_request_title": "ແກ້ໄຂຄຳຂໍ",
+        "edit_request_subtitle": "ອັບເດດລາຍລະອຽດວຽກແລະຄວາມຕ້ອງການຂອງທ່ານ",
+        "update_request_button": "ອັບເດດຂໍ້ມູນ",
+        "create_failed": "ໂພສຄຳຂໍບໍ່ສຳເລັດ ກະລຸນາລອງໃໝ່ອີກຄັ້ງ",
+        "update_failed": "ອັບເດດຄຳຂໍບໍ່ສຳເລັດ",
+        "job_not_found": "ບໍ່ພົບລາຍການຄຳຂໍ",
+        "job_limit_reached": "ທ່ານສາມາດໂພສຄຳຂໍໄດ້ພຽງ 1 ລາຍການເທົ່ານັ້ນ ກະລຸນາລຶບຫຼືແກ້ໄຂລາຍການເດີມກ່ອນ",
+        "delete_request_button": "ລຶບໂພສ",
+        "confirm_delete_request": "ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບໂພສນີ້?",
+        "delete_success": "ລຶບໂພສຮຽບຮ້ອຍແລ້ວ",
+        "delete_failed": "ລຶບໂພສບໍ່ສຳເລັດ"
     }
 }
