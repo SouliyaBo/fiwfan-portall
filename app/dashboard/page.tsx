@@ -133,7 +133,10 @@ const AgencyDashboard = ({ user, onLogout }: any) => {
 
     const fetchLocations = async () => {
         try {
-            const res = await fetch(`${API_BASE_URL}/settings/locations`);
+            const token = getAuthToken();
+            const res = await fetch(`${API_BASE_URL}/settings/locations`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
             if (res.ok) {
                 const data = await res.json();
                 // Data is now array of countries with provinces

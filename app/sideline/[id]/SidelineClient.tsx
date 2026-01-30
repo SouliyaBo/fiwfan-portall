@@ -27,6 +27,7 @@ export interface CreatorDetail {
     };
     location?: string;
     province?: string;
+    country?: string;
     age?: number;
     height?: number;
     weight?: number;
@@ -369,6 +370,7 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
         }
     };
 
+
     if (loading) return <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-[#020617] text-zinc-500">{t('sideline.loading')}</div>;
     if (!creator) return <div className="min-h-screen flex items-center justify-center text-red-500">{t('sideline.creator_not_found')}</div>;
 
@@ -450,7 +452,7 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                                 <div className="bg-white/5 rounded-xl p-4 space-y-2 text-sm">
                                     <div className="flex items-center gap-2 font-medium">
                                         <MapPin size={16} className="text-red-500" />
-                                        {creator.location || t('sideline.bangkok')}
+                                        {creator.location === "" ? creator.province || "ไม่ระบุ" : creator.location}, {creator.country || "Thailand"}
                                     </div>
                                     {creator.transport && (
                                         <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-300 ml-6">
@@ -677,7 +679,7 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                                         <h3 className="font-bold text-white truncate group-hover:text-[#F84E6E] transition">{item.displayName}</h3>
                                         <div className="flex items-center gap-1 text-[10px] text-gray-400 mt-1">
                                             <MapPin size={10} />
-                                            {item.province || t('sideline.bangkok')}
+                                            {item.province || t('sideline.bangkok')}, {item.country || "Thailand"}
                                         </div>
                                     </div>
                                 </div>

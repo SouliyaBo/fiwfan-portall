@@ -2,13 +2,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { MessageCircle, ChevronRight, Search, Building2, Send, Sparkles, Megaphone } from "lucide-react";
-import { Suspense, useEffect, useState } from "react";
+import { ChevronRight, Search, Building2, Send, Sparkles, Megaphone } from "lucide-react";
+import { useEffect, useState } from "react";
 import { API_BASE_URL } from "../lib/constants";
 import { getImageUrl } from "../lib/images";
 import StoryViewer from "../components/StoryViewer";
 import SearchModal from "@/app/components/SearchModal";
-import { Loader2 } from "lucide-react";
 import { useSearchParams } from 'next/navigation';
 import { getAuthToken } from "../lib/auth";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -21,6 +20,7 @@ interface Creator {
     };
     displayName?: string;
     location?: string;
+    country?: string;
     age?: number;
     price?: number;
     zones?: string[];
@@ -544,7 +544,7 @@ function CreatorCard({ creator }: { creator: Creator }) {
                             {creator.displayName}
                         </h2>
                         <span className="bg-green-600 text-white text-[10px] px-2 py-0.5 rounded-full font-medium truncate max-w-[35%] shadow-sm shadow-green-900/20">
-                            {creator.zones && creator.zones.length > 0 ? creator.zones[0] : "Bangkok"}
+                            {creator?.country === "Thailand" ? "TH" : creator?.country} {creator.zones && creator.zones.length > 0 ? creator.zones[0] : "Bangkok"}
                         </span>
                     </div>
 
