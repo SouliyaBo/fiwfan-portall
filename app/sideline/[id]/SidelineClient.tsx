@@ -199,7 +199,6 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
     const badgeStyle = getBadgeStyle(creator?.activeSubscription?.planType);
     const badgeLabel = getBadgeLabel(creator?.activeSubscription?.planType);
 
-    console.log("creator: ", creator)
 
     // Priority: Avatar -> Gallery Images -> Post Images
     const avatarImage = creator?.user?.avatarUrl ? [getImageUrl(creator.user.avatarUrl)] : [];
