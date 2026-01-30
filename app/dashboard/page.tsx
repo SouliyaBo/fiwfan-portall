@@ -1909,6 +1909,10 @@ export default function Dashboard() {
 
 
     const handleProfileUpdate = async () => {
+        if (kycStatus !== 'APPROVED') {
+            toast.error(t('dashboard.kyc_required_desc'));
+            return;
+        }
         try {
             const token = getAuthToken();
             const payload = {
@@ -2521,12 +2525,39 @@ export default function Dashboard() {
                             <div className="space-y-6">
                                 {/* Action Buttons */}
                                 <div className="grid grid-cols-1 gap-4">
-                                    <button
-                                        onClick={() => setIsEditing(true)}
-                                        className="bg-[#1e1b4b]/50 backdrop-blur border border-white/10 hover:bg-white/5 text-white py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-lg cursor-pointer"
-                                    >
-                                        <Edit size={18} className="text-[#F84E6E] cursor-pointer" /> {t('dashboard.creator_edit_profile')}
-                                    </button>
+                                    {kycStatus === 'APPROVED' ? (
+                                        <button
+                                            onClick={() => setIsEditing(true)}
+                                            className="bg-[#1e1b4b]/50 backdrop-blur border border-white/10 hover:bg-white/5 text-white py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-lg cursor-pointer"
+                                        >
+                                            <Edit size={18} className="text-[#F84E6E]" /> {t('dashboard.creator_edit_profile')}
+                                        </button>
+                                    ) : (
+                                        <div className="space-y-3">
+                                            <div className="bg-yellow-500/10 border border-yellow-500/20 p-4 rounded-xl flex items-center gap-3">
+                                                <div className="p-2 bg-yellow-500/20 rounded-full text-yellow-500">
+                                                    <ShieldCheck size={20} />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <h4 className="font-bold text-white text-sm">{t('dashboard.kyc_required_title')}</h4>
+                                                    <p className="text-xs text-white/60">{t('dashboard.kyc_required_desc')}</p>
+                                                </div>
+                                                <button
+                                                    onClick={() => setCreatorTab('verification')}
+                                                    className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-black text-xs font-bold rounded-lg transition"
+                                                >
+                                                    {t('dashboard.kyc_required_btn')}
+                                                </button>
+                                            </div>
+
+                                            <button
+                                                disabled
+                                                className="w-full bg-[#1e1b4b]/30 border border-white/5 text-white/30 py-3 rounded-xl font-bold flex items-center justify-center gap-2 cursor-not-allowed"
+                                            >
+                                                <Edit size={18} /> {t('dashboard.creator_edit_profile')}
+                                            </button>
+                                        </div>
+                                    )}
 
                                 </div>
 

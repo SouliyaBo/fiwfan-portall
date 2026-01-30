@@ -337,7 +337,7 @@ function HomeContent() {
                         {creators.some(c => (c.planId === 'THE_ANGEL' || c.planName === 'The_Angel' || c.isHot)) && (
                             <div className="mb-8">
                                 <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                                    <span className="text-2xl">🔥</span> {t('home.the_angel_title')}
+                                    <span className="text-2xl">🔥</span> The Angel Phusao
                                 </h3>
                                 <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                                     {creators

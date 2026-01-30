@@ -176,7 +176,7 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
 
     const getBadgeStyle = (planType?: string) => {
         switch (planType) {
-            case 'THE_ANGEL':
+            case 'The_Angel':
                 return "bg-gradient-to-r from-amber-400 to-yellow-600 text-white shadow-yellow-500/50";
             case 'STAR':
                 return "bg-gradient-to-r from-blue-400 to-indigo-600 text-white shadow-blue-500/50";
@@ -189,10 +189,10 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
 
     const getBadgeLabel = (planType?: string) => {
         switch (planType) {
-            case 'planType': return t('sideline.super_star');
+            case 'The_Angel': return "THE ANGEL";
             case 'STAR': return t('sideline.star');
             case 'POPULAR': return t('sideline.popular');
-            default: return null;
+            default: return "RISING STAR";
         }
     };
 
