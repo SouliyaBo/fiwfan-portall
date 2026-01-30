@@ -634,28 +634,6 @@
         "zone_label": "Zone",
         "zone_all": "All Zones"
     },
-    "home": {
-        "hero_title": "Find your perfect companion",
-        "hero_desc": "Discover thousands of profiles, read reviews, and find your ideal match.<br/>Safe, verified, and community-trusted.",
-        "search_placeholder": "Search by name, location...",
-        "search_btn": "Search",
-        "tag_verified": "Verified",
-        "tag_video": "Video",
-        "tag_review": "Reviews",
-        "tag_contact": "Contact",
-        "tag_location": "Location",
-        "stories_empty": "No stories yet",
-        "agencies_title": "Top Agencies",
-        "agencies_empty": "No agencies available",
-        "creators_empty": "No creators found matching your criteria",
-        "super_star_title": "Superstar Phusao",
-        "the_angel_title": "The Angel Phusao",
-        "star_title": "Star Phusao",
-        "popular_title": "Popular Phusao",
-        "zone_title": "Browse by Zone",
-        "filter_active": "Filters Active",
-        "filter_inactive": "Filters"
-    },
     "plan_names": {
         "THE_ANGEL": "The Angel",
         "SUPER_STAR": "Super Star",
