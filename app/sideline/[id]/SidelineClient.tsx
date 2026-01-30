@@ -176,7 +176,7 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
 
     const getBadgeStyle = (planType?: string) => {
         switch (planType) {
-            case 'SUPER_STAR':
+            case 'THE_ANGEL':
                 return "bg-gradient-to-r from-amber-400 to-yellow-600 text-white shadow-yellow-500/50";
             case 'STAR':
                 return "bg-gradient-to-r from-blue-400 to-indigo-600 text-white shadow-blue-500/50";
@@ -189,7 +189,7 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
 
     const getBadgeLabel = (planType?: string) => {
         switch (planType) {
-            case 'SUPER_STAR': return t('sideline.super_star');
+            case 'planType': return t('sideline.super_star');
             case 'STAR': return t('sideline.star');
             case 'POPULAR': return t('sideline.popular');
             default: return null;
@@ -199,14 +199,13 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
     const badgeStyle = getBadgeStyle(creator?.activeSubscription?.planType);
     const badgeLabel = getBadgeLabel(creator?.activeSubscription?.planType);
 
-    // Priority: Gallery Images -> Post Images -> Avatar
+    console.log("creator: ", creator)
+
+    // Priority: Avatar -> Gallery Images -> Post Images
+    const avatarImage = creator?.user?.avatarUrl ? [getImageUrl(creator.user.avatarUrl)] : [];
     const galleryImages = creator?.images?.map(img => getImageUrl(img)) || [];
     const postImages = creator?.posts?.flatMap(p => p.media.map((m: any) => getImageUrl(m.url))) || [];
-    const availableImages = [...galleryImages, ...postImages];
-
-    if (availableImages.length === 0 && creator?.user?.avatarUrl) {
-        availableImages.push(getImageUrl(creator.user.avatarUrl));
-    }
+    const availableImages = [...avatarImage, ...galleryImages, ...postImages];
 
     const displayImages = availableImages.length > 0
         ? availableImages
@@ -369,7 +368,7 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
             console.error('Error sharing:', err);
         }
     };
-
+    console.log("creator: ", creator)
 
     if (loading) return <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-[#020617] text-zinc-500">{t('sideline.loading')}</div>;
     if (!creator) return <div className="min-h-screen flex items-center justify-center text-red-500">{t('sideline.creator_not_found')}</div>;
@@ -452,7 +451,7 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                                 <div className="bg-white/5 rounded-xl p-4 space-y-2 text-sm">
                                     <div className="flex items-center gap-2 font-medium">
                                         <MapPin size={16} className="text-red-500" />
-                                        {creator.location === "" ? creator.province || "ไม่ระบุ" : creator.location}, {creator.country || "Thailand"}
+                                        {creator.location === "" ? creator.province || "ไม่ระบุ" : creator.location}, {creator.province}, {creator.country || "Thailand"}
                                     </div>
                                     {creator.transport && (
                                         <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-300 ml-6">
@@ -478,6 +477,42 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                                         <span key={i} className="flex items-center gap-1">💙 {s}</span>
                                     ))}
                                 </div>
+
+                                {/* Physical Stats */}
+                                {(creator.height || creator.weight || creator.chest || creator.waist || creator.hips) && (
+                                    <div className="bg-white/5 rounded-xl p-4 grid grid-cols-2 gap-y-3 gap-x-4 text-sm border border-white/5">
+                                        {creator.height && (
+                                            <div className="flex justify-between items-center text-zinc-400">
+                                                <span>{t('sideline.height')}</span>
+                                                <span className="text-white font-bold">{creator.height} cm</span>
+                                            </div>
+                                        )}
+                                        {creator.weight && (
+                                            <div className="flex justify-between items-center text-zinc-400">
+                                                <span>{t('sideline.weight')}</span>
+                                                <span className="text-white font-bold">{creator.weight} kg</span>
+                                            </div>
+                                        )}
+                                        {creator.chest && (
+                                            <div className="flex justify-between items-center text-zinc-400">
+                                                <span>{t('sideline.chest')}</span>
+                                                <span className="text-white font-bold">{creator.chest}"</span>
+                                            </div>
+                                        )}
+                                        {creator.waist && (
+                                            <div className="flex justify-between items-center text-zinc-400">
+                                                <span>{t('sideline.waist')}</span>
+                                                <span className="text-white font-bold">{creator.waist}"</span>
+                                            </div>
+                                        )}
+                                        {creator.hips && (
+                                            <div className="flex justify-between items-center text-zinc-400">
+                                                <span>{t('sideline.hips')}</span>
+                                                <span className="text-white font-bold">{creator.hips}"</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
 
                                 <div className="text-xl font-bold text-white">
                                     {creator.price}.- <span className="text-sm font-normal text-zinc-400">/ {creator.priceTime || '1 ชม.'} ({t('sideline.start_price')})</span>

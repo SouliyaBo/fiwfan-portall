@@ -296,8 +296,9 @@
         "agencies_empty": "暂无机构数据",
         "creators_title": "Superstar Phusao",
         "super_star_title": "Superstar Phusao",
-        "star_title": "Star Phusao",
-        "popular_title": "Popular Phusao",
+        "the_angel_title": "The Angel Phusao",
+        "popular": "Popular",
+        "rising_star": "Rising Star",
         "filter_active": "偏好筛选已开启",
         "filter_inactive": "偏好筛选",
         "creators_empty": "暂时没有创作者数据",
@@ -514,6 +515,11 @@
         "bangkok": "曼谷"
     },
     "sideline": {
+        "height": "身高",
+        "weight": "体重",
+        "chest": "胸围",
+        "waist": "腰围",
+        "hips": "臀围",
         "verified_badge": "已验证",
         "super_star": "SUPER STAR",
         "star": "STAR",
@@ -631,6 +637,7 @@
         "zone_all": "所有区域"
     },
     "plan_names": {
+        "THE_ANGEL": "The Angel",
         "SUPER_STAR": "Super Star 🔥",
         "STAR": "Star ⭐",
         "POPULAR": "Popular ✨",

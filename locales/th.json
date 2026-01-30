@@ -296,8 +296,8 @@
         "agencies_empty": "ยังไม่มีข้อมูลสังกัด",
         "creators_title": "Superstar Phusao",
         "super_star_title": "Superstar Phusao",
-        "star_title": "Star Phusao",
-        "popular_title": "Popular Phusao",
+        "popular": "Popular",
+        "rising_star": "Rising Star",
         "filter_active": "กรองตามความชอบแล้ว",
         "filter_inactive": "กรองตามความชอบ",
         "creators_empty": "ยังไม่มีข้อมูลน้องๆ ในขณะนี้",
@@ -514,6 +514,11 @@
         "bangkok": "กรุงเทพมหานคร"
     },
     "sideline": {
+        "height": "ส่วนสูง",
+        "weight": "น้ำหนัก",
+        "chest": "หน้าอก",
+        "waist": "เอว",
+        "hips": "สะโพก",
         "verified_badge": "ยืนยันตัวตน",
         "super_star": "SUPER STAR",
         "star": "STAR",
@@ -631,6 +636,7 @@
         "zone_all": "ทุกโซน"
     },
     "plan_names": {
+        "THE_ANGEL": "The Angel",
         "SUPER_STAR": "Super Star",
         "STAR": "Star",
         "POPULAR": "Popular",

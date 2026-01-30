@@ -333,15 +333,15 @@ function HomeContent() {
                     <div className="text-center py-20 text-white/50">{t('home.creators_empty')}</div>
                 ) : (
                     <>
-                        {/* Super Star Section */}
-                        {creators.some(c => (c.planId === 'SUPER_STAR' || c.planName === 'SUPER_STAR' || c.isHot)) && (
+                        {/* The Angel Section */}
+                        {creators.some(c => (c.planId === 'THE_ANGEL' || c.planName === 'The_Angel' || c.isHot)) && (
                             <div className="mb-8">
                                 <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                                    <span className="text-2xl">🔥</span> {t('home.super_star_title')}
+                                    <span className="text-2xl">🔥</span> {t('home.the_angel_title')}
                                 </h3>
                                 <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                                     {creators
-                                        .filter(c => (c.planId === 'SUPER_STAR' || c.planName === 'SUPER_STAR' || c.isHot))
+                                        .filter(c => (c.planId === 'THE_ANGEL' || c.planName === 'The_Angel' || c.isHot))
                                         .map((creator) => (
                                             <CreatorCard key={creator._id} creator={creator} />
                                         ))}
@@ -350,14 +350,14 @@ function HomeContent() {
                         )}
 
                         {/* Star Section */}
-                        {creators.some(c => (c.planId === 'STAR' || c.planName === 'STAR')) && (
+                        {creators.some(c => (c.planId === 'POPULAR' || c.planName === 'POPULAR')) && (
                             <div className="mb-8">
                                 <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                                    <span className="text-2xl">⭐</span> {t('home.star_title')}
+                                    <span className="text-2xl">⭐</span> Popular Phusao
                                 </h3>
                                 <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                                     {creators
-                                        .filter(c => (c.planId === 'STAR' || c.planName === 'STAR'))
+                                        .filter(c => (c.planId === 'POPULAR' || c.planName === 'POPULAR'))
                                         .map((creator) => (
                                             <CreatorCard key={creator._id} creator={creator} />
                                         ))}
@@ -366,14 +366,14 @@ function HomeContent() {
                         )}
 
                         {/* Popular Section (Rest) */}
-                        {creators.some(c => !(c.planId === 'SUPER_STAR' || c.planName === 'SUPER_STAR' || c.isHot) && !(c.planId === 'STAR' || c.planName === 'STAR')) && (
+                        {creators.some(c => !(c.planId === 'THE_ANGEL' || c.planName === 'The_Angel' || c.isHot) && !(c.planId === 'POPULAR' || c.planName === 'POPULAR')) && (
                             <div>
                                 <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                                    <span className="text-2xl">✨</span> {t('home.popular_title')}
+                                    <span className="text-2xl">✨</span> Rising Star Phusao
                                 </h3>
                                 <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                                     {creators
-                                        .filter(c => !(c.planId === 'SUPER_STAR' || c.planName === 'SUPER_STAR' || c.isHot) && !(c.planId === 'STAR' || c.planName === 'STAR'))
+                                        .filter(c => !(c.planId === 'THE_ANGEL' || c.planName === 'The_Angel' || c.isHot) && !(c.planId === 'POPULAR' || c.planName === 'POPULAR'))
                                         .map((creator) => (
                                             <CreatorCard key={creator._id} creator={creator} />
                                         ))}
@@ -472,11 +472,11 @@ function CreatorCard({ creator }: { creator: Creator }) {
         : `/mock/creators/${(parseInt(creator._id.slice(-1), 16) % 8) + 1}.png`;
 
     const planKey = (creator.planId || creator.planName || "").toUpperCase();
-    const isSuperStar = planKey === 'SUPER_STAR' || creator.isHot;
-    const isStar = planKey === 'STAR';
+    const isAngel = planKey === 'THE_ANGEL' || planKey === 'THE ANGEL' || creator.isHot;
+    const isStar = planKey === 'POPULAR';
 
     // Default to displaying nothing for Popular if desired, or just show translated
-    const displayPlanName = planKey && ['SUPER_STAR', 'STAR', 'POPULAR'].includes(planKey)
+    const displayPlanName = planKey && ['THE_ANGEL', 'POPULAR', 'RISING_STAR'].includes(planKey)
         ? t(`plan_names.${planKey}`)
         : creator.planName || "";
 
@@ -484,7 +484,7 @@ function CreatorCard({ creator }: { creator: Creator }) {
     let containerClasses = "block relative rounded-[14px] overflow-hidden group transition shadow-lg hover:shadow-xl hover:-translate-y-1 h-full flex flex-col";
     let innerClasses = "relative w-full h-full bg-[#0a101f] overflow-hidden flex flex-col";
 
-    if (isSuperStar) {
+    if (isAngel) {
         // Fire/Red Gradient
         containerClasses += " p-[3px] bg-gradient-to-br from-yellow-400 via-orange-500 to-red-600 shadow-red-500/30";
         innerClasses += " rounded-[11px]";
@@ -513,7 +513,7 @@ function CreatorCard({ creator }: { creator: Creator }) {
                     {/* Status Icons (Top Right) */}
                     <div className="absolute top-2 right-2 flex flex-col gap-1 z-10">
                         {(() => {
-                            if (isSuperStar) {
+                            if (isAngel) {
                                 return (
                                     <div className="w-7 h-7 rounded-full bg-red-600/90 backdrop-blur-md flex items-center justify-center border border-white/10 text-white shadow-lg shadow-red-500/40">
                                         <span className="text-xs">🔥</span>
@@ -563,7 +563,7 @@ function CreatorCard({ creator }: { creator: Creator }) {
                         <div className="text-xs text-zinc-400 font-medium">
                             อายุ <span className="text-white text-sm font-bold">{creator.age || "??"}</span>
                         </div>
-                        <span className={`text-[11px] font-bold px-2 py-0.5 rounded border ${isSuperStar ? 'text-red-300 border-red-500/30 bg-red-500/10' : isStar ? 'text-blue-300 border-blue-500/30 bg-blue-500/10' : 'text-zinc-400 border-zinc-700 bg-zinc-800'}`}>
+                        <span className={`text-[11px] font-bold px-2 py-0.5 rounded border ${isAngel ? 'text-red-300 border-red-500/30 bg-red-500/10' : isStar ? 'text-blue-300 border-blue-500/30 bg-blue-500/10' : 'text-zinc-400 border-zinc-700 bg-zinc-800'}`}>
                             {displayPlanName || "MEMBER"}
                         </span>
                     </div>

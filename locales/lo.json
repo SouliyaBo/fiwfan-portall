@@ -294,8 +294,9 @@
         "agencies_empty": "ຍັງບໍ່ມີຂໍ້ມູນສັງກັດ",
         "creators_title": "Superstar Phusao",
         "super_star_title": "Superstar Phusao",
-        "star_title": "Star Phusao",
-        "popular_title": "Popular Phusao",
+        "the_angel_title": "The Angel Phusao",
+        "popular": "Popular",
+        "rising_star": "Rising Star",
         "filter_active": "ກັ່ນຕອງຕາມຄວາມມັກແລ້ວ",
         "filter_inactive": "ກັ່ນຕອງຕາມຄວາມມັກ",
         "creators_empty": "ຍັງບໍ່ມີຂໍ້ມູນນ້ອງໆໃນຂະນະນີ້",
@@ -512,6 +513,11 @@
         "bangkok": "ບາງກອກ"
     },
     "sideline": {
+        "height": "ສ່ວນສູງ",
+        "weight": "ນ້ຳໜັກ",
+        "chest": "ໜ້າເອິກ",
+        "waist": "ແອວ",
+        "hips": "ສະໂພກ",
         "verified_badge": "ຢືນຢັນຕົວຕົນ",
         "super_star": "SUPER STAR",
         "star": "STAR",
@@ -629,6 +635,7 @@
         "zone_all": "ທຸກເຂດ"
     },
     "plan_names": {
+        "THE_ANGEL": "The Angel",
         "SUPER_STAR": "Super Star 🔥",
         "STAR": "Star ⭐",
         "POPULAR": "Popular ✨",
