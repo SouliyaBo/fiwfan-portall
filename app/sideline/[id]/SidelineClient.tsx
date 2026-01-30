@@ -198,16 +198,18 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
     const badgeStyle = getBadgeStyle(creator?.activeSubscription?.planType);
     const badgeLabel = getBadgeLabel(creator?.activeSubscription?.planType);
 
-    const mockImages = ["1.png", "2.png", "3.png", "4.png"];
-
-    // Priority: Gallery Images -> Post Images -> Mock
+    // Priority: Gallery Images -> Post Images -> Avatar
     const galleryImages = creator?.images?.map(img => getImageUrl(img)) || [];
     const postImages = creator?.posts?.flatMap(p => p.media.map((m: any) => getImageUrl(m.url))) || [];
     const availableImages = [...galleryImages, ...postImages];
 
+    if (availableImages.length === 0 && creator?.user?.avatarUrl) {
+        availableImages.push(getImageUrl(creator.user.avatarUrl));
+    }
+
     const displayImages = availableImages.length > 0
         ? availableImages
-        : mockImages.map(img => `/mock/creators/${img}`);
+        : ['/default-avatar.png'];
 
     const [isFavorited, setIsFavorited] = useState(false);
     const [currentUser, setCurrentUser] = useState<any>(null);

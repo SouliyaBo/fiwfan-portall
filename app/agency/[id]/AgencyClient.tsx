@@ -147,14 +147,10 @@ function CreatorCard({ creator }: { creator: any }) {
     const { t } = useLanguage();
     // Logic handles populated creator object which might have nested user or direct fields depending on aggregation
     const avatar = creator.user?.avatarUrl || creator.images?.[0]; // Fallback to first gallery image if avatar missing
-    const imageSrc = avatar
-        ? getImageUrl(avatar)
-        : `/mock/creators/${(parseInt(creator._id.slice(-1), 16) % 8) + 1}.png`;
-
     return (
         <Link href={`/sideline/${creator._id}`} className="block relative aspect-[3/4] rounded-xl overflow-hidden group bg-zinc-900 shadow-lg hover:shadow-xl transition dark:border border-white/5">
             <Image
-                src={imageSrc}
+                src={getImageUrl(avatar)}
                 alt={creator.displayName || "Creator"}
                 fill
                 className="object-cover group-hover:scale-105 transition duration-500"
