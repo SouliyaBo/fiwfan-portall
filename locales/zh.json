@@ -164,6 +164,10 @@
         "creator_add_story": "添加快拍",
         "creator_status_active": "有效",
         "creator_status_inactive": "无有效套餐",
+        "creator_accepting_work": "开始接单",
+        "creator_not_accepting_work": "停止接单",
+        "creator_now_accepting": "正在接单",
+        "creator_stopped_accepting": "暂停接单",
         "copy_link_success": "链接已复制！",
         "copy_link_failed": "复制链接失败",
         "no_zone_data": "该省份暂无区域数据",
@@ -273,7 +277,8 @@
     "auth": {
         "welcome": "欢迎",
         "login_desc": "登录以管理您的帐户",
-        "register_desc": "注册新帐户"
+        "register_desc": "注册新帐户",
+        "age_restriction": "必须年满20岁"
     },
     "home": {
         "hero_title": "Phusao – 老挝和泰国排名第一的约会和娱乐平台",

@@ -1631,9 +1631,9 @@ export default function Dashboard() {
                 setAvailableZones(zonesForProvince);
 
                 setEditForm({
-                    displayName: data.displayName || "",
+                    displayName: data.displayName || parsedUser.displayName || "",
                     bio: data.bio || "",
-                    age: data.age || 0,
+                    age: data.age || parsedUser.age || 0,
                     price: data.price || 0,
                     priceTime: data.priceTime || "",
                     country: data.country || "Thailand",
@@ -1916,6 +1916,12 @@ export default function Dashboard() {
             toast.error(t('dashboard.kyc_required_desc'));
             return;
         }
+
+        if (editForm.age < 20) {
+            toast.error(t('auth.age_restriction') || "ต้องมีอายุ 20 ปีขึ้นไป");
+            return;
+        }
+
         try {
             const token = getAuthToken();
             const payload = {
@@ -2301,7 +2307,7 @@ export default function Dashboard() {
                                     </div>
 
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                        <InputField label={t('dashboard.creator_age')} type="number" value={editForm.age} onChange={(e: any) => setEditForm({ ...editForm, age: parseInt(e.target.value) })} />
+                                        <InputField label={t('dashboard.creator_age')} type="number" min={20} value={editForm.age} onChange={(e: any) => setEditForm({ ...editForm, age: parseInt(e.target.value) })} />
                                         <div className="space-y-1.5">
                                             <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.creator_gender')}</label>
                                             <select
@@ -2643,7 +2649,7 @@ export default function Dashboard() {
                                 )}
 
                                 {/* Free Mode Upsell Banner */}
-                                {(!hasSubscription && isFreeMode) && (
+                                {(!hasSubscription && isFreeMode && kycStatus === 'APPROVED') && (
                                     <div className="bg-gradient-to-r from-purple-900/40 to-pink-900/40 border border-white/10 rounded-2xl p-6 relative overflow-hidden group hover:border-[#F84E6E]/50 transition cursor-pointer mb-6" onClick={() => router.push('/plans')}>
                                         <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition transform group-hover:scale-110 duration-500">
                                             <Star size={100} className="fill-white" />

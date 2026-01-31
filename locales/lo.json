@@ -164,6 +164,10 @@
         "creator_add_story": "ເພີ່ມສຕໍຣີ",
         "creator_status_active": "ໃຊ້ງານຢູ່",
         "creator_status_inactive": "ບໍ່ມີແພັກເກັດ",
+        "creator_accepting_work": "ເປີດຮັບວຽກ",
+        "creator_not_accepting_work": "ປິດຮັບວຽກ",
+        "creator_now_accepting": "ກຳລັງຮັບວຽກ",
+        "creator_stopped_accepting": "ງົດຮັບວຽກຊົ່ວຄາວ",
         "copy_link_success": "ຄັດລອກລິ້ງໂປຣໄຟລ໌ແລ້ວ!",
         "copy_link_failed": "ບໍ່ສາມາດຄັດລອກລິ້ງໄດ້",
         "no_zone_data": "ບໍ່ມີຂໍ້ມູນໂຊນສຳລັບແຂວງນີ້",
@@ -271,7 +275,8 @@
     "auth": {
         "welcome": "ຍິນດີຕ້ອນຮັບ",
         "login_desc": "ເຂົ້າສູ່ລະບົບເພື່ອຈັດການຂໍ້ມູນຂອງທ່ານ",
-        "register_desc": "ສະໝັກສະມາຊິກໃໝ່"
+        "register_desc": "ສະໝັກສະມາຊິກໃໝ່",
+        "age_restriction": "ຕ້ອງມີອາຍຸ 20 ປີຂຶ້ນໄປ"
     },
     "home": {
         "hero_title": "Phusao (ຜູ້ສາວ) – ແພລັດຟອມຫາຄູ່ເດດ ແລະ ເດັກເອັນ ອັນດັບ 1 ໃນລາວ ແລະ ໄທ",

@@ -166,6 +166,8 @@
         "creator_status_inactive": "NO ACTIVE PACKAGE",
         "creator_accepting_work": "เปิดรับงาน",
         "creator_not_accepting_work": "ปิดรับงาน",
+        "creator_now_accepting": "กำลังรับงาน",
+        "creator_stopped_accepting": "งดรับงานชั่วคราว",
         "copy_link_success": "คัดลอกลิงก์โปรไฟล์แล้ว!",
         "copy_link_failed": "ไม่สามารถคัดลอกลิงก์ได้",
         "no_zone_data": "ไม่มีข้อมูลโซนสำหรับจังหวัดนี้",
@@ -275,7 +277,8 @@
     "auth": {
         "welcome": "ยินดีต้อนรับ",
         "login_desc": "เข้าสู่ระบบเพื่อจัดการข้อมูลของคุณ",
-        "register_desc": "สมัครสมาชิกใหม่"
+        "register_desc": "สมัครสมาชิกใหม่",
+        "age_restriction": "ต้องมีอายุ 20 ปีขึ้นไป"
     },
     "home": {
         "hero_title": "Phusao (ผู้สาว) – แพลตฟอร์มหาคู่เดทและเด็กเอน อันดับ 1 ในลาวและไทย",

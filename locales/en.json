@@ -166,6 +166,8 @@
         "creator_status_inactive": "NO ACTIVE PACKAGE",
         "creator_accepting_work": "Accepting Work",
         "creator_not_accepting_work": "Not Accepting Work",
+        "creator_now_accepting": "Now Accepting",
+        "creator_stopped_accepting": "Stopped Accepting",
         "copy_link_success": "Profile link copied!",
         "copy_link_failed": "Failed to copy link",
         "no_zone_data": "No zone data for this province",
@@ -274,7 +276,8 @@
     "auth": {
         "welcome": "Welcome",
         "login_desc": "Login to manage your account",
-        "register_desc": "Create new account"
+        "register_desc": "Create new account",
+        "age_restriction": "Must be 20 years or older"
     },
     "home": {
         "hero_title": "Phusao – #1 Dating & Entertainment Platform in Laos and Thailand",
