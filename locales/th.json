@@ -164,6 +164,8 @@
         "creator_add_story": "Add Story",
         "creator_status_active": "ACTIVE",
         "creator_status_inactive": "NO ACTIVE PACKAGE",
+        "creator_accepting_work": "เปิดรับงาน",
+        "creator_not_accepting_work": "ปิดรับงาน",
         "copy_link_success": "คัดลอกลิงก์โปรไฟล์แล้ว!",
         "copy_link_failed": "ไม่สามารถคัดลอกลิงก์ได้",
         "no_zone_data": "ไม่มีข้อมูลโซนสำหรับจังหวัดนี้",

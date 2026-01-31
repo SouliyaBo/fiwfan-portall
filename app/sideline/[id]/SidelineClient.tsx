@@ -59,6 +59,7 @@ export interface CreatorDetail {
         planType: string;
         status: string;
     };
+    isAcceptingWork?: boolean;
 }
 
 interface SidelineClientProps {
@@ -432,7 +433,22 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                             <div className="space-y-3">
                                 <div className="space-y-1">
                                     <div className="flex justify-between items-start">
-                                        <h1 className="text-3xl font-bold">{creator.displayName}</h1>
+                                        <div className="flex flex-col">
+                                            <h1 className="text-3xl font-bold flex items-center gap-2">
+                                                {creator.displayName}
+                                                {creator.isAcceptingWork !== false ? (
+                                                    <span className="bg-green-500/20 text-green-400 text-[10px] px-2 py-0.5 rounded-full border border-green-500/30 flex items-center gap-1 font-bold tracking-wider uppercase">
+                                                        <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+                                                        Open
+                                                    </span>
+                                                ) : (
+                                                    <span className="bg-red-500/20 text-red-400 text-[10px] px-2 py-0.5 rounded-full border border-red-500/30 flex items-center gap-1 font-bold tracking-wider uppercase">
+                                                        <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                                                        Busy
+                                                    </span>
+                                                )}
+                                            </h1>
+                                        </div>
                                         {badgeLabel && (
                                             <div className={`${badgeStyle} text-xs font-bold px-2 py-1 rounded shadow-lg`}>
                                                 {badgeLabel}

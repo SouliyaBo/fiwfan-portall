@@ -30,6 +30,7 @@ interface Creator {
     isSuperStar: boolean;
     planId?: string;
     reviewCount?: number;
+    isAcceptingWork?: boolean;
 }
 
 interface Agency {
@@ -531,6 +532,11 @@ function CreatorCard({ creator }: { creator: Creator }) {
                         {creator.isVerified && (
                             <div className="w-7 h-7 rounded-full bg-green-600/90 backdrop-blur-md flex items-center justify-center border border-white/10 text-white">
                                 <span className="text-[8px] font-bold">VER</span>
+                            </div>
+                        )}
+                        {creator.isAcceptingWork === false && (
+                            <div className="w-7 h-7 rounded-full bg-black/80 backdrop-blur-md flex items-center justify-center border border-white/10 text-white">
+                                <span className="text-[8px] font-bold text-red-500">OFF</span>
                             </div>
                         )}
                     </div>

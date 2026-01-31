@@ -1386,6 +1386,7 @@ export default function Dashboard() {
         services: string;
         interests: string;
         availability: string;
+        isAcceptingWork: boolean;
         lineId: string;
         whatsapp?: string;
         instagram: string;
@@ -1415,6 +1416,7 @@ export default function Dashboard() {
         services: "",
         interests: "",
         availability: "",
+        isAcceptingWork: true,
         lineId: "",
         whatsapp: "",
         instagram: "",
@@ -1649,6 +1651,7 @@ export default function Dashboard() {
                     services: data.services ? data.services.join(", ") : "",
                     interests: data.interests ? data.interests.join(", ") : "",
                     availability: data.availability || "",
+                    isAcceptingWork: data.isAcceptingWork ?? true,
                     lineId: data.lineId || "",
                     whatsapp: data.whatsapp || "",
                     instagram: data.instagram || "",
@@ -1944,6 +1947,40 @@ export default function Dashboard() {
         }
     };
 
+    const handleToggleAvailability = async () => {
+        try {
+            const token = getAuthToken();
+            const newStatus = creator?.isAcceptingWork === false; // Toggle logic: if false -> true, if true/undefined -> false (wait, undefined means true usually, so we want to toggle to FALSE if currently true/undefined)
+            // Correction: if creator.isAcceptingWork !== false (meaning it is true or undefined) -> we want to set it to FALSE.
+            // If creator.isAcceptingWork === false -> we want to set it to TRUE.
+
+            const isCurrentlyAccepting = creator?.isAcceptingWork !== false;
+            const payload = { isAcceptingWork: !isCurrentlyAccepting };
+
+            const res = await fetch(`${API_BASE_URL}/creators/me`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                const updated = await res.json();
+                setCreator({ ...creator, isAcceptingWork: updated.isAcceptingWork });
+                // Also update editForm to reflect the change if user opens edit mode
+                setEditForm(prev => ({ ...prev, isAcceptingWork: updated.isAcceptingWork }));
+                toast.success(updated.isAcceptingWork ? t('dashboard.creator_now_accepting') : t('dashboard.creator_stopped_accepting'));
+            } else {
+                toast.error(t('common.error'));
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error(t('common.error'));
+        }
+    };
+
     const handleShareProfile = async () => {
         if (!creator?._id) return;
 
@@ -2046,6 +2083,17 @@ export default function Dashboard() {
                                 <span className="px-2 py-1 bg-white/10 rounded text-[10px] backdrop-blur font-medium">AGE: {creator?.age || "-"}</span>
                                 <span className="px-2 py-1 bg-white/10 rounded text-[10px] backdrop-blur font-medium flex items-center gap-1"><MapPin size={10} /> {creator?.location || "-"}</span>
                                 {creator?.isVerified && <span className="px-2 py-1 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded text-[10px] backdrop-blur font-medium flex items-center gap-1"><ShieldCheck size={10} /> Verified</span>}
+                                {creator?.isAcceptingWork !== false ? (
+                                    <button onClick={handleToggleAvailability} className="px-2 py-1 bg-green-500/20 text-green-300 border border-green-500/30 rounded text-[10px] backdrop-blur font-medium flex items-center gap-1 hover:bg-green-500/30 transition cursor-pointer">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                                        {t('dashboard.creator_accepting_work')}
+                                    </button>
+                                ) : (
+                                    <button onClick={handleToggleAvailability} className="px-2 py-1 bg-red-500/20 text-red-300 border border-red-500/30 rounded text-[10px] backdrop-blur font-medium flex items-center gap-1 hover:bg-red-500/30 transition cursor-pointer">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                                        {t('dashboard.creator_not_accepting_work')}
+                                    </button>
+                                )}
                             </div>
                         </div>
 
@@ -2225,6 +2273,22 @@ export default function Dashboard() {
 
                                 <div className="space-y-5">
                                     <InputField label={t('dashboard.creator_display_name')} value={editForm.displayName} onChange={(e: any) => setEditForm({ ...editForm, displayName: e.target.value })} />
+
+                                    <div className="bg-white/5 p-4 rounded-xl border border-white/10 flex items-center justify-between">
+                                        <div>
+                                            <h4 className="text-sm font-medium text-white mb-1">{t('dashboard.creator_accepting_work')}?</h4>
+                                            <p className="text-xs text-white/50">{editForm.isAcceptingWork ? t('dashboard.creator_accepting_work') : t('dashboard.creator_not_accepting_work')}</p>
+                                        </div>
+                                        <label className="relative inline-flex items-center cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                className="sr-only peer"
+                                                checked={editForm.isAcceptingWork}
+                                                onChange={(e) => setEditForm({ ...editForm, isAcceptingWork: e.target.checked })}
+                                            />
+                                            <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#F84E6E]/30 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#F84E6E]"></div>
+                                        </label>
+                                    </div>
 
                                     <div className="space-y-1.5">
                                         <label className="text-xs font-medium text-white/70 ml-1">{t('dashboard.creator_bio')}</label>

@@ -39,11 +39,31 @@ export default function PlansPage() {
     const [subscriptionStatus, setSubscriptionStatus] = useState<{ active: any, pending: any } | null>(null);
     const [isFreeMode, setIsFreeMode] = useState(false);
 
+    // QR Code State
+    const [qrCodes, setQrCodes] = useState<{ th: string, la: string, wc: string }>({ th: '', la: '', wc: '' });
+    const [selectedQrType, setSelectedQrType] = useState<'th' | 'la' | 'wc'>('th');
+
     useEffect(() => {
         fetchPlans();
         fetchSubscription();
         checkFreeMode();
+        fetchQrSettings();
     }, []);
+
+    const fetchQrSettings = async () => {
+        try {
+            const res = await fetch(`${API_BASE_URL}/settings`);
+            if (res.ok) {
+                const data = await res.json();
+                const th = data.find((s: any) => s.key === 'payment_qr_th')?.value || '';
+                const la = data.find((s: any) => s.key === 'payment_qr_la')?.value || '';
+                const wc = data.find((s: any) => s.key === 'payment_qr_wechat')?.value || '';
+                setQrCodes({ th, la, wc });
+            }
+        } catch (error) {
+            console.error("Failed to fetch QR settings", error);
+        }
+    };
 
     const checkFreeMode = async () => {
         try {
@@ -240,7 +260,7 @@ export default function PlansPage() {
 
                         // Free Mode Adjustments
                         let isCurrentPlan = false;
-                        if (isFreeMode && !subscriptionStatus?.active && plan.id === 'POPULAR') {
+                        if (isFreeMode && !subscriptionStatus?.active && plan.id === 'RISING_STAR') {
                             isCurrentPlan = true;
                         }
 
@@ -390,22 +410,53 @@ export default function PlansPage() {
                                 <div className="text-center">
                                     <p className="text-zinc-500 mb-2">{t('plans.total_label')}</p>
                                     <div className="text-4xl font-bold text-blue-600 mb-4">{selectedPrice.price.toFixed(2)} ฿</div>
-                                    <div className="bg-zinc-50 dark:bg-zinc-800 p-4 rounded-xl inline-block border-2 border-dashed border-zinc-200 dark:border-zinc-700 relative group">
-                                        {/* Placeholder for QR Code */}
-                                        <div className="w-64 h-64 bg-white flex items-center justify-center">
-                                            <img
-                                                src="/payment-qr-placeholder.png"
-                                                alt="Payment QR Code"
-                                                className="max-w-full max-h-full object-contain"
-                                                onError={(e) => {
-                                                    // Fallback if image not found
-                                                    e.currentTarget.style.display = 'none';
-                                                    e.currentTarget.parentElement!.innerHTML = '<span class="text-zinc-400 text-sm">QR Code Placeholder</span>';
-                                                }}
-                                            />
+
+
+                                    {/* QR Code Selection Tabs */}
+                                    <div className="flex justify-center gap-2 mb-4">
+                                        <button
+                                            onClick={() => setSelectedQrType('th')}
+                                            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2 ${selectedQrType === 'th' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 ring-2 ring-blue-500/50' : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'}`}
+                                        >
+                                            <span className="text-base">🇹🇭</span> Thai QR
+                                        </button>
+                                        <button
+                                            onClick={() => setSelectedQrType('la')}
+                                            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2 ${selectedQrType === 'la' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 ring-2 ring-blue-500/50' : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'}`}
+                                        >
+                                            <span className="text-base">🇱🇦</span> Lao QR
+                                        </button>
+                                        <button
+                                            onClick={() => setSelectedQrType('wc')}
+                                            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2 ${selectedQrType === 'wc' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 ring-2 ring-blue-500/50' : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'}`}
+                                        >
+                                            <span className="text-base">🇨🇳</span> WeChat
+                                        </button>
+                                    </div>
+
+                                    <div className="bg-zinc-50 dark:bg-zinc-800 p-4 rounded-xl inline-block border-2 border-dashed border-zinc-200 dark:border-zinc-700 relative group min-h-[290px]">
+                                        {/* Dynamic QR Code Display */}
+                                        <div className="w-64 h-64 bg-white flex items-center justify-center relative">
+                                            {qrCodes[selectedQrType] ? (
+                                                <img
+                                                    src={qrCodes[selectedQrType]}
+                                                    alt="Payment QR Code"
+                                                    className="w-full h-full object-contain"
+                                                />
+                                            ) : (
+                                                <div className="flex flex-col items-center justify-center p-4 text-center">
+                                                    <p className="text-zinc-300 text-sm mb-2">QR Code Not Set</p>
+                                                    <p className="text-xs text-zinc-400">Please contact support</p>
+                                                    {/* Fallback Static for dev if needed, or just empty */}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
-                                    <p className="text-xs text-zinc-400 mt-2">{t('plans.payment_modal_title')}</p>
+                                    <p className="text-xs text-zinc-400 mt-2">
+                                        {selectedQrType === 'th' && "Scan using Thai Bank App"}
+                                        {selectedQrType === 'la' && "Scan using OnePay / BCEL"}
+                                        {selectedQrType === 'wc' && "Scan using WeChat Pay"}
+                                    </p>
                                 </div>
 
                                 <div className="space-y-2">
