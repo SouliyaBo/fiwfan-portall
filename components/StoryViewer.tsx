@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { X, ChevronLeft, ChevronRight, Volume2, VolumeX, Heart, MoreHorizontal } from "lucide-react";
+import { X, Volume2, VolumeX } from "lucide-react";
 import { getImageUrl } from "../lib/images";
 
 interface Story {
@@ -145,7 +145,7 @@ export default function StoryViewer({ creators, initialCreatorIndex, onClose }: 
                     <div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-full border border-white/20 overflow-hidden relative">
                             <Image
-                                src={getImageUrl(currentCreator.user.avatarUrl)}
+                                src={getImageUrl(currentCreator.user.avatarUrl || "/default-avatar.png")}
                                 alt={currentCreator.displayName}
                                 fill
                                 className="object-cover"
@@ -159,9 +159,9 @@ export default function StoryViewer({ creators, initialCreatorIndex, onClose }: 
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
-                        <button onClick={() => setIsPaused(!isPaused)} className="text-white/80 hover:text-white">
+                        {/* <button onClick={() => setIsPaused(!isPaused)} className="text-white/80 hover:text-white">
                             <MoreHorizontal size={20} />
-                        </button>
+                        </button> */}
                         <button onClick={onClose} className="text-white/80 hover:text-white">
                             <X size={24} />
                         </button>
@@ -205,7 +205,7 @@ export default function StoryViewer({ creators, initialCreatorIndex, onClose }: 
                         />
                     ) : (
                         <Image
-                            src={getImageUrl(currentStory.mediaUrl)}
+                            src={getImageUrl(currentStory.mediaUrl || "/default-avatar.png")}
                             alt="Story"
                             fill
                             className="object-contain"
@@ -226,19 +226,18 @@ export default function StoryViewer({ creators, initialCreatorIndex, onClose }: 
 
                 {/* Footer / Reply (Visual Interaction) */}
                 <div className="absolute bottom-0 left-0 right-0 z-20 p-4 bg-gradient-to-t from-black/80 to-transparent flex items-center gap-3">
-                    <input
+                    {/* <input
                         type="text"
                         placeholder="ส่งข้อความ..."
                         className="flex-1 bg-transparent border border-white/30 rounded-full px-4 py-2.5 text-white text-sm focus:outline-none focus:border-white placeholder:text-white/50 backdrop-blur-md"
-                        // Prevent navigation clicks when typing
                         onClick={(e) => e.stopPropagation()}
-                    />
-                    <button className="text-white hover:scale-110 transition">
+                    /> */}
+                    {/* <button className="text-white hover:scale-110 transition">
                         <Heart size={28} />
-                    </button>
-                    <button className="text-white hover:scale-110 transition">
-                        <Volume2 size={28} className="opacity-0" /> {/* Spacer or extra action */}
-                    </button>
+                    </button> */}
+                    {/* <button className="text-white hover:scale-110 transition">
+                        <Volume2 size={28} className="opacity-0" />
+                    </button> */}
                 </div>
 
             </div>
