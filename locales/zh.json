@@ -183,6 +183,7 @@
         "agency_unverified_desc": "在通过身份验证之前，您无法接收成员加入。",
         "agency_verification_pending": "⏳ 等待管理员审核中...",
         "agency_verification_rejected": "请求被拒绝",
+        "agency_verification_approved": "身份验证成功",
         "agency_rejection_reason": "原因：",
         "agency_no_reason": "未说明原因",
         "agency_resubmit_kyc": "重新提交身份验证 (Resubmit)",

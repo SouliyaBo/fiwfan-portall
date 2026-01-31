@@ -8,22 +8,47 @@ import { Check, Star, PartyPopper, Zap, ArrowLeft, Loader, Upload, Copy } from '
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Link from 'next/link';
 
 export default function TouristPlansPage() {
     const { t } = useLanguage();
     const router = useRouter();
     const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [slip, setSlip] = useState<File | null>(null);
     const [submitting, setSubmitting] = useState(false);
     const [slipUrl, setSlipUrl] = useState<string | null>(null);
     const [uploadingSlip, setUploadingSlip] = useState(false);
-
     const [pendingSubscription, setPendingSubscription] = useState<any>(null);
+
+    const [qrCodes, setQrCodes] = useState<{ th: string, la: string, wc: string }>({ th: '', la: '', wc: '' });
+    const [selectedQrType, setSelectedQrType] = useState<'th' | 'la' | 'wc'>('th');
+    const [exchangeRates, setExchangeRates] = useState<{ lak: number, cny: number }>({ lak: 0, cny: 0 });
 
     useEffect(() => {
         checkSubscription();
+        fetchQrSettings();
     }, []);
+
+    const fetchQrSettings = async () => {
+        try {
+            const res = await fetch(`${API_BASE_URL}/settings`);
+            if (res.ok) {
+                const data = await res.json();
+
+                const th = data.find((s: any) => s.key === 'payment_qr_th')?.value || '';
+                const la = data.find((s: any) => s.key === 'payment_qr_la')?.value || '';
+                const wc = data.find((s: any) => s.key === 'payment_qr_wechat')?.value || '';
+
+                const rateLak = parseFloat(data.find((s: any) => s.key === 'exchange_rate_lak')?.value || '0');
+                const rateCny = parseFloat(data.find((s: any) => s.key === 'exchange_rate_cny')?.value || '0');
+
+                setQrCodes({ th, la, wc });
+                setExchangeRates({ lak: rateLak, cny: rateCny });
+            }
+        } catch (error) {
+            console.error("Failed to fetch QR settings", error);
+        }
+    };
 
     const checkSubscription = async () => {
         const token = getAuthToken();
@@ -180,10 +205,6 @@ export default function TouristPlansPage() {
             });
 
             if (res.ok) {
-                // If auto-approve for tourists (or if pending but we allow posting immediately? No, job controller checks activeSub)
-                // If payment is pending, we can't post yet.
-                // But for demo/development let's assume admin approves or we can just proceed?
-                // The current flow requires Admin Approval.
                 toast.success(t('plans.payment_success_desc'));
                 router.push('/dashboard');
             } else {
@@ -199,16 +220,19 @@ export default function TouristPlansPage() {
         }
     };
 
+    // Helper to get selected plan details properly
+    const activePlan = plans.find(p => p.id === selectedPlan);
+
     return (
         <div className="min-h-screen bg-[#020617] text-white py-12 px-4">
             <div className="container mx-auto max-w-5xl">
-                <button
-                    onClick={() => router.back()}
+                <Link
+                    href="/"
                     className="flex items-center gap-2 text-white/50 hover:text-white transition mb-8"
                 >
                     <ArrowLeft size={20} />
                     <span>{t('common.cancel')}</span>
-                </button>
+                </Link>
 
                 <div className="text-center mb-16">
                     <h1 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-pink-400 to-rose-400 text-transparent bg-clip-text mb-4">
@@ -281,7 +305,7 @@ export default function TouristPlansPage() {
             </div>
 
             {/* Payment Modal */}
-            {isModalOpen && (
+            {isModalOpen && activePlan && (
                 <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
                     <div className="bg-[#1e1b4b] dark:bg-zinc-900 w-full max-w-md rounded-2xl p-6 relative">
                         <button
@@ -293,21 +317,78 @@ export default function TouristPlansPage() {
 
                         <h2 className="text-xl font-bold mb-6 text-white dark:text-white">{t('tourist.pay_scan')}</h2>
 
+                        {/* Price Display */}
+                        <div className="text-center mb-6">
+                            <p className="text-zinc-400 text-sm mb-1">{t('plans.total_label')}</p>
+
+                            {selectedQrType === 'la' && exchangeRates.lak > 0 ? (
+                                <div>
+                                    <div className="text-4xl font-bold text-green-500">
+                                        {(activePlan.price * exchangeRates.lak).toLocaleString()} ₭
+                                    </div>
+                                    <div className="text-sm text-zinc-400">
+                                        ({activePlan.price.toFixed(2)} THB)
+                                    </div>
+                                </div>
+                            ) : selectedQrType === 'wc' && exchangeRates.cny > 0 ? (
+                                <div>
+                                    <div className="text-4xl font-bold text-green-500">
+                                        {(activePlan.price / exchangeRates.cny).toFixed(2)} ¥
+                                    </div>
+                                    <div className="text-sm text-zinc-400">
+                                        ({activePlan.price.toFixed(2)} THB)
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="text-4xl font-bold text-green-500">
+                                    {activePlan.price.toFixed(2)} ฿
+                                </div>
+                            )}
+                        </div>
+
+                        {/* QR Selection Tabs */}
+                        <div className="flex justify-center gap-2 mb-4">
+                            <button
+                                onClick={() => setSelectedQrType('th')}
+                                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2 ${selectedQrType === 'th' ? 'bg-blue-600 text-white' : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'}`}
+                            >
+                                <span className="text-base">🇹🇭</span> Thai QR
+                            </button>
+                            <button
+                                onClick={() => setSelectedQrType('la')}
+                                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2 ${selectedQrType === 'la' ? 'bg-blue-600 text-white' : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'}`}
+                            >
+                                <span className="text-base">🇱🇦</span> Lao QR
+                            </button>
+                            <button
+                                onClick={() => setSelectedQrType('wc')}
+                                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2 ${selectedQrType === 'wc' ? 'bg-blue-600 text-white' : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'}`}
+                            >
+                                <span className="text-base">🇨🇳</span> WeChat
+                            </button>
+                        </div>
+
                         <div className="bg-[#1e1b4b] p-4 rounded-xl mb-6 flex justify-center">
-                            {/* Mock QR */}
-                            <div className="w-48 h-48 bg-zinc-200 flex items-center justify-center text-zinc-400">
-                                QR Code
+                            {/* Dynamic QR */}
+                            <div className="w-48 h-48 bg-white flex items-center justify-center relative rounded-lg overflow-hidden">
+                                {qrCodes[selectedQrType] ? (
+                                    <img
+                                        src={qrCodes[selectedQrType]}
+                                        className="w-full h-full object-contain"
+                                        alt={selectedQrType}
+                                    />
+                                ) : (
+                                    <div className="text-zinc-500 text-xs text-center p-2">
+                                        QR Code Not Set
+                                    </div>
+                                )}
                             </div>
                         </div>
 
                         <div className="space-y-4 mb-6">
                             <div className="flex justify-between text-sm">
                                 <span className="text-white">{t('plans.plan_label')}</span>
-                                <span className="font-bold text-white">{plans.find(p => p.id === selectedPlan)?.name}</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                                <span className="text-white">{t('plans.price_label')}</span>
-                                <span className="font-bold text-green-500">{plans.find(p => p.id === selectedPlan)?.price} ฿</span>
+                                <span className="font-bold text-white">{activePlan.name}</span>
                             </div>
                         </div>
 

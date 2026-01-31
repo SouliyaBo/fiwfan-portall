@@ -185,6 +185,7 @@
         "agency_unverified_desc": "You cannot accept members until your identity is verified.",
         "agency_verification_pending": "⏳ Waiting for admin approval...",
         "agency_verification_rejected": "Request Rejected",
+        "agency_verification_approved": "Identity Verification Successful",
         "agency_rejection_reason": "Reason:",
         "agency_no_reason": "No reason specified",
         "agency_resubmit_kyc": "Resubmit KYC",
@@ -639,8 +640,8 @@
     "plan_names": {
         "THE_ANGEL": "The Angel",
         "SUPER_STAR": "Super Star",
-        "STAR": "Star",
         "POPULAR": "Popular",
+        "RISING_STAR": "Rising Star ✨",
         "TOURIST_ONE_NIGHT": "One Night Stand",
         "TOURIST_WEEKEND": "Weekend Vibes",
         "TOURIST_VVIP": "VVIP Party"

@@ -25,6 +25,7 @@ export interface CreatorDetail {
         avatarUrl?: string;
         lineId?: string;
     };
+    lineId?: string; // Top level lineId
     location?: string;
     province?: string;
     country?: string;
@@ -583,6 +584,18 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                                     </svg>
                                     {creator.whatsapp ? `${t('sideline.whatsapp_label')} ${creator.whatsapp}` : "WhatsApp"}
                                 </a>
+
+                                {creator.lineId && (
+                                    <a
+                                        href={`https://line.me/ti/p/~${creator.lineId}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="w-full bg-[#06C755] hover:bg-[#05b54d] text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition shadow-lg shadow-green-500/20 cursor-pointer"
+                                    >
+                                        <MessageCircle size={24} className="text-white" />
+                                        Line: {creator.lineId}
+                                    </a>
+                                )}
                                 <div className="flex gap-3">
                                     {currentUser?.role !== 'CREATOR' && (
                                         <button

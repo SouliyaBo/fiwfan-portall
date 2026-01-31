@@ -185,6 +185,7 @@
         "agency_unverified_desc": "คุณยังไม่สามารถรับสมาชิกเข้าสังกัดได้ จนกว่าจะผ่านการตรวจสอบตัวตน",
         "agency_verification_pending": "⏳ กำลังรอการตรวจสอบจากแอดมิน...",
         "agency_verification_rejected": "คำขอถูกปฏิเสธ",
+        "agency_verification_approved": "ยืนยันตัวตนสำเร็จ",
         "agency_rejection_reason": "เหตุผล:",
         "agency_no_reason": "ไม่ระบุเหตุผล",
         "agency_resubmit_kyc": "ส่งเอกสารยืนยันตัวตนใหม่ (Resubmit)",
@@ -641,7 +642,7 @@
         "THE_ANGEL": "The Angel",
         "SUPER_STAR": "Super Star",
         "STAR": "Star",
-        "POPULAR": "Popular",
+        "RISING_STAR": "Rising Star",
         "TOURIST_ONE_NIGHT": "One Night Stand",
         "TOURIST_WEEKEND": "Weekend Vibes",
         "TOURIST_VVIP": "VVIP Party"

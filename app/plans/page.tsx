@@ -21,6 +21,7 @@ interface Plan {
     features: string[];
     prices: PlanPrice[];
     theme: string;
+    type?: string;
 }
 
 export default function PlansPage() {
@@ -42,6 +43,7 @@ export default function PlansPage() {
     // QR Code State
     const [qrCodes, setQrCodes] = useState<{ th: string, la: string, wc: string }>({ th: '', la: '', wc: '' });
     const [selectedQrType, setSelectedQrType] = useState<'th' | 'la' | 'wc'>('th');
+    const [exchangeRates, setExchangeRates] = useState<{ lak: number, cny: number }>({ lak: 0, cny: 0 });
 
     useEffect(() => {
         fetchPlans();
@@ -55,10 +57,16 @@ export default function PlansPage() {
             const res = await fetch(`${API_BASE_URL}/settings`);
             if (res.ok) {
                 const data = await res.json();
+
                 const th = data.find((s: any) => s.key === 'payment_qr_th')?.value || '';
                 const la = data.find((s: any) => s.key === 'payment_qr_la')?.value || '';
                 const wc = data.find((s: any) => s.key === 'payment_qr_wechat')?.value || '';
+
+                const rateLak = parseFloat(data.find((s: any) => s.key === 'exchange_rate_lak')?.value || '0');
+                const rateCny = parseFloat(data.find((s: any) => s.key === 'exchange_rate_cny')?.value || '0');
+
                 setQrCodes({ th, la, wc });
+                setExchangeRates({ lak: rateLak, cny: rateCny });
             }
         } catch (error) {
             console.error("Failed to fetch QR settings", error);
@@ -98,10 +106,11 @@ export default function PlansPage() {
             const res = await fetch(`${API_BASE_URL}/payments/plans`);
             if (res.ok) {
                 const data = await res.json();
-                setPlans(data);
+                const filteredPlans = data.filter((p: Plan) => p.type !== 'TOURIST');
+                setPlans(filteredPlans);
                 // Initialize duration selection
                 const initialDurations: any = {};
-                data.forEach((p: Plan) => initialDurations[p.id] = 0);
+                filteredPlans.forEach((p: Plan) => initialDurations[p.id] = 0);
                 setSelectedDurationIndex(initialDurations);
             }
             setLoading(false);
@@ -222,7 +231,6 @@ export default function PlansPage() {
 
     const selectedPlan = plans.find(p => p.id === selectedPlanId);
     const selectedPrice = selectedPlan ? selectedPlan.prices[selectedDurationIndex[selectedPlan.id] || 0] : null;
-
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-[#020617] py-12 px-4">
             <div className="container mx-auto max-w-6xl">
@@ -409,7 +417,30 @@ export default function PlansPage() {
                             <div className="p-6 space-y-6">
                                 <div className="text-center">
                                     <p className="text-zinc-500 mb-2">{t('plans.total_label')}</p>
-                                    <div className="text-4xl font-bold text-blue-600 mb-4">{selectedPrice.price.toFixed(2)} ฿</div>
+
+                                    {selectedQrType === 'la' && exchangeRates.lak > 0 ? (
+                                        <div className="mb-4">
+                                            <div className="text-4xl font-bold text-blue-600">
+                                                {(selectedPrice.price * exchangeRates.lak).toLocaleString()} ₭
+                                            </div>
+                                            <div className="text-sm text-zinc-400">
+                                                ({selectedPrice.price.toFixed(2)} THB)
+                                            </div>
+                                        </div>
+                                    ) : selectedQrType === 'wc' && exchangeRates.cny > 0 ? (
+                                        <div className="mb-4">
+                                            <div className="text-4xl font-bold text-blue-600">
+                                                {(selectedPrice.price / exchangeRates.cny).toFixed(2)} ¥
+                                            </div>
+                                            <div className="text-sm text-zinc-400">
+                                                ({selectedPrice.price.toFixed(2)} THB)
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="text-4xl font-bold text-blue-600 mb-4">
+                                            {selectedPrice.price.toFixed(2)} ฿
+                                        </div>
+                                    )}
 
 
                                     {/* QR Code Selection Tabs */}

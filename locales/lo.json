@@ -183,6 +183,7 @@
         "agency_unverified_desc": "ທ່ານຍັງບໍ່ສາມາດຮັບສະມາຊິກເຂົ້າສັງກັດໄດ້ ຈົນກວ່າຈະຜ່ານການກວດສອບຕົວຕົນ",
         "agency_verification_pending": "⏳ ກຳລັງລໍຖ້າການກວດສອບຈາກແອດມິນ...",
         "agency_verification_rejected": "ຄຳຂໍຖືກປະຕິເສດ",
+        "agency_verification_approved": "ຢືນຢັນຕົວຕົນສຳເລັດ",
         "agency_rejection_reason": "ເຫດຜົນ:",
         "agency_no_reason": "ບໍ່ລະບຸເຫດຜົນ",
         "agency_resubmit_kyc": "ສົ່ງເອກະສານຢືນຢັນຕົວຕົນໃໝ່ (Resubmit)",
@@ -638,7 +639,7 @@
         "THE_ANGEL": "The Angel",
         "SUPER_STAR": "Super Star 🔥",
         "STAR": "Star ⭐",
-        "POPULAR": "Popular ✨",
+        "RISING_STAR": "Rising Star ✨",
         "TOURIST_ONE_NIGHT": "One Night Stand",
         "TOURIST_WEEKEND": "Weekend Vibes",
         "TOURIST_VVIP": "VVIP Party"
