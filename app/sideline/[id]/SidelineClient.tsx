@@ -894,6 +894,37 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                     </div>
                 )
             }
+            {/* Zone Stats */}
+            <div className="mt-8 border-t border-white/10 pt-8 px-4">
+                <h2 className="text-xl md:text-2xl font-bold mb-6 text-white flex items-center gap-3">
+                    <span className="w-1 h-8 bg-[#F84E6E] rounded-full"></span>
+                    {t('home.zone_title')}
+                </h2>
+
+                {zones.length > 0 && (
+                    <div className="space-y-4">
+                        {zones.map((group: any) => (
+                            <div key={group.country} className="space-y-2">
+                                <h3 className="text-white/50 text-xs font-semibold uppercase tracking-wider text-center">{group.country}</h3>
+                                <div className="flex flex-wrap gap-2 justify-center">
+                                    {group.items.map((zone: any, i: number) => (
+                                        <Link
+                                            href={`/location/${zone.name}`}
+                                            key={i}
+                                            className="flex items-center gap-2 bg-[#1e1b4b] text-white px-3 py-1.5 rounded-full text-sm font-bold shadow-sm hover:scale-105 transition group border border-white/10"
+                                        >
+                                            <span className="group-hover:text-[#F84E6E] transition">{zone.name}</span>
+                                            <span className="bg-[#1e1b4b] text-white text-[10px] px-1.5 py-0.5 rounded-md font-bold min-w-[20px] text-center group-hover:bg-[#F84E6E] transition">
+                                                {zone.count}
+                                            </span>
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

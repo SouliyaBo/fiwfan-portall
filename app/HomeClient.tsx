@@ -462,7 +462,8 @@ function HomeContent() {
                         ))}
                     </div>
                 )}
-            </div>    </div >
+            </div>
+        </div >
     );
 }
 

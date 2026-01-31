@@ -12,7 +12,6 @@ import 'react-toastify/dist/ReactToastify.css';
 export default function CreateJobPage() {
     const { t } = useLanguage();
     const router = useRouter();
-    const [loading, setLoading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [plan, setPlan] = useState<any>(null);
     const [form, setForm] = useState({
@@ -20,11 +19,11 @@ export default function CreateJobPage() {
         budget: '',
         location: '',
         lineId: '',
+        whatsapp: '',
         images: [] as string[]
     });
     const [uploadedImages, setUploadedImages] = useState<File[]>([]);
     const [previewImages, setPreviewImages] = useState<string[]>([]);
-    const [remainingTime, setRemainingTime] = useState("");
     const [checkingPlan, setCheckingPlan] = useState(true);
 
     useEffect(() => {
@@ -227,6 +226,23 @@ export default function CreateJobPage() {
                                         onChange={e => setForm({ ...form, lineId: e.target.value })}
                                         className="w-full bg-black/20 hover:bg-black/30 border border-white/10 rounded-2xl pl-14 pr-4 py-4 text-white placeholder:text-zinc-600 focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 transition outline-none"
                                         placeholder="Line ID"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* WhatsApp */}
+                            <div className="space-y-3">
+                                <label className="text-sm font-semibold text-zinc-300 ml-1 uppercase tracking-wide">{t('tourist.form_whatsapp_label')}</label>
+                                <div className="relative group">
+                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center text-green-500 group-focus-within:bg-green-500 group-focus-within:text-white transition">
+                                        <MessageCircle size={16} />
+                                    </div>
+                                    <input
+                                        type="text"
+                                        value={form.whatsapp}
+                                        onChange={e => setForm({ ...form, whatsapp: e.target.value })}
+                                        className="w-full bg-black/20 hover:bg-black/30 border border-white/10 rounded-2xl pl-14 pr-4 py-4 text-white placeholder:text-zinc-600 focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 transition outline-none"
+                                        placeholder="WhatsApp"
                                     />
                                 </div>
                             </div>

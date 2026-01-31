@@ -22,6 +22,7 @@ interface Job {
     budget: number;
     location: string;
     lineId: string;
+    whatsapp?: string;
     images: string[];
     createdAt: string;
     expiresAt: string;
@@ -75,6 +76,10 @@ export default function JobsPage() {
 
     const handleContact = (lineId: string) => {
         window.open(`https://line.me/ti/p/~${lineId}`, '_blank');
+    };
+
+    const handleWhatsApp = (whatsapp: string) => {
+        window.open(`https://wa.me/${whatsapp}`, '_blank');
     };
 
     const handleDelete = (jobId: string) => {
@@ -323,6 +328,16 @@ export default function JobsPage() {
                                             <MessageCircle size={18} />
                                             <span>{t('tourist.contact_line')}</span>
                                         </button>
+
+                                        {job.whatsapp && (
+                                            <button
+                                                onClick={() => handleWhatsApp(job.whatsapp!)}
+                                                className="flex-1 bg-[#25D366] hover:bg-[#20bd5a] text-white py-2.5 rounded-lg font-bold flex items-center justify-center gap-2 shadow-lg shadow-green-500/20 transition transform hover:-translate-y-0.5 active:translate-y-0 text-sm"
+                                            >
+                                                <MessageCircle size={18} />
+                                                <span>{t('tourist.contact_whatsapp')}</span>
+                                            </button>
+                                        )}
 
                                         {currentUser && currentUser.id === job.user?._id && (
                                             <button
