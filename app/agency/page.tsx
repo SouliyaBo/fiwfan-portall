@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { User, ChevronRight, Search, Menu, Send, Flame } from "lucide-react";
+import { Send, Flame } from "lucide-react";
 import { useState, useEffect } from "react";
 import { API_BASE_URL } from "../../lib/constants";
 import { getImageUrl } from "../../lib/images";

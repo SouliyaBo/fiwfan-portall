@@ -137,11 +137,11 @@ function CreatorCard({ creator }: { creator: any }) {
         ? getImageUrl(creator.user.avatarUrl)
         : `/mock/creators/${(parseInt((creator._id || "0").slice(-1), 16) % 8) + 1}.png`;
 
-    const planKey = (creator.planId || creator.planName || "").toUpperCase();
-    const isAngel = planKey === 'THE_ANGEL' || planKey === 'THE ANGEL' || creator.isHot;
-    const isStar = planKey === 'POPULAR';
+    const planKey = (creator.planId || creator.planName || "").toUpperCase().replace(/ /g, '_');
+    const isAngel = planKey === 'THE_ANGEL' || creator.isHot;
+    const isPopular = planKey === 'POPULAR';
+    const isRisingStar = planKey === 'RISING_STAR';
 
-    // Default to displaying nothing for Popular if desired, or just show translated
     const displayPlanName = planKey && ['THE_ANGEL', 'POPULAR', 'RISING_STAR'].includes(planKey)
         ? t(`plan_names.${planKey}`)
         : creator.planName || "";
@@ -154,8 +154,12 @@ function CreatorCard({ creator }: { creator: any }) {
         // Fire/Red Gradient
         containerClasses += " p-[3px] bg-gradient-to-br from-yellow-400 via-orange-500 to-red-600 shadow-red-500/30";
         innerClasses += " rounded-[11px]";
-    } else if (isStar) {
-        // Star/Blue Gradient
+    } else if (isPopular) {
+        // Teal/Green Gradient for POPULAR
+        containerClasses += " p-[3px] bg-gradient-to-br from-teal-400 via-emerald-500 to-green-600 shadow-teal-500/30";
+        innerClasses += " rounded-[11px]";
+    } else if (isRisingStar) {
+        // Blue/Indigo Gradient for RISING_STAR (Taking old STAR slot)
         containerClasses += " p-[3px] bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600 shadow-blue-500/30";
         innerClasses += " rounded-[11px]";
     } else {
@@ -185,10 +189,16 @@ function CreatorCard({ creator }: { creator: any }) {
                                         <span className="text-xs">🔥</span>
                                     </div>
                                 );
-                            } else if (isStar) {
+                            } else if (isPopular) {
+                                return (
+                                    <div className="w-7 h-7 rounded-full bg-emerald-600/90 backdrop-blur-md flex items-center justify-center border border-white/10 text-white shadow-lg shadow-teal-500/40">
+                                        <span className="text-xs">⭐</span>
+                                    </div>
+                                );
+                            } else if (isRisingStar) {
                                 return (
                                     <div className="w-7 h-7 rounded-full bg-blue-600/90 backdrop-blur-md flex items-center justify-center border border-white/10 text-white shadow-lg shadow-blue-500/40">
-                                        <span className="text-xs">⭐</span>
+                                        <span className="text-xs">✨</span>
                                     </div>
                                 );
                             }
@@ -234,7 +244,7 @@ function CreatorCard({ creator }: { creator: any }) {
                         <div className="text-xs text-zinc-400 font-medium">
                             อายุ <span className="text-white text-sm font-bold">{creator.age || "??"}</span>
                         </div>
-                        <span className={`text-[11px] font-bold px-2 py-0.5 rounded border ${isAngel ? 'text-red-300 border-red-500/30 bg-red-500/10' : isStar ? 'text-blue-300 border-blue-500/30 bg-blue-500/10' : 'text-zinc-400 border-zinc-700 bg-zinc-800'}`}>
+                        <span className={`text-[11px] font-bold px-2 py-0.5 rounded border ${isAngel ? 'text-red-300 border-red-500/30 bg-red-500/10' : isPopular ? 'text-emerald-300 border-emerald-500/30 bg-emerald-500/10' : isRisingStar ? 'text-blue-300 border-blue-500/30 bg-blue-500/10' : 'text-zinc-400 border-zinc-700 bg-zinc-800'}`}>
                             {displayPlanName || "MEMBER"}
                         </span>
                     </div>
