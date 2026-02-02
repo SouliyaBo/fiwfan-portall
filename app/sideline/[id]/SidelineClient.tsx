@@ -400,13 +400,13 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                             {/* Nav Buttons */}
                             <button
                                 onClick={() => setCurrentImageIndex(prev => (prev - 1 + displayImages.length) % displayImages.length)}
-                                className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-black/40 text-white rounded-full hover:bg-white/20 transition backdrop-blur-md opacity-0 group-hover:opacity-100 cursor-pointer"
+                                className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-black/40 text-white rounded-full hover:bg-white/20 transition backdrop-blur-md cursor-pointer"
                             >
                                 <ChevronLeft size={24} />
                             </button>
                             <button
                                 onClick={() => setCurrentImageIndex(prev => (prev + 1) % displayImages.length)}
-                                className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-black/40 text-white rounded-full hover:bg-white/20 transition backdrop-blur-md opacity-0 group-hover:opacity-100 cursor-pointer"
+                                className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-black/40 text-white rounded-full hover:bg-white/20 transition backdrop-blur-md cursor-pointer"
                             >
                                 <ChevronRight size={24} />
                             </button>

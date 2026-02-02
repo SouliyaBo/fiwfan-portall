@@ -60,10 +60,10 @@ export default function AgencyClient({ initialAgency, initialZones }: AgencyClie
                         <p className="text-white/70 max-w-2xl mt-2">{agency.description || t('agency.no_description')}</p>
 
                         <div className="flex flex-wrap gap-4 mt-4">
-                            {agency.location && (
+                            {agency.province && (
                                 <div className="flex items-center gap-2 text-sm bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-md">
                                     <MapPin size={14} className="text-[#F84E6E]" />
-                                    {agency.province}
+                                    {agency.province}, {agency.country || 'Thailand'}
                                 </div>
                             )}
                             {agency.phone && (
@@ -165,25 +165,33 @@ function CreatorCard({ creator }: { creator: any }) {
     let innerClasses = "relative w-full h-full bg-[#0a101f] overflow-hidden flex flex-col";
 
     if (isAngel) {
-        // Fire/Red Gradient
-        containerClasses += " p-[3px] bg-gradient-to-br from-yellow-400 via-orange-500 to-red-600 shadow-red-500/30";
-        innerClasses += " rounded-[11px]";
+        // Premium Angel Gradient (Gold/Red/Grand)
+        containerClasses += " p-[3px] bg-gradient-to-br from-[#FCD34D] via-[#F59E0B] to-[#EF4444] shadow-xl shadow-amber-500/50 hover:shadow-2xl hover:shadow-amber-500/70 rounded-2xl";
+        innerClasses += " rounded-[13px]";
     } else if (isPopular) {
         // Teal/Green Gradient for POPULAR
-        containerClasses += " p-[3px] bg-gradient-to-br from-teal-400 via-emerald-500 to-green-600 shadow-teal-500/30";
-        innerClasses += " rounded-[11px]";
+        containerClasses += " p-[3px] bg-gradient-to-br from-teal-400 via-emerald-500 to-green-600 shadow-teal-500/30 rounded-2xl";
+        innerClasses += " rounded-[13px]";
     } else if (isRisingStar) {
         // Blue/Indigo Gradient for RISING_STAR
-        containerClasses += " p-[3px] bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600 shadow-blue-500/30";
-        innerClasses += " rounded-[11px]";
+        containerClasses += " p-[3px] bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600 shadow-blue-500/30 rounded-2xl";
+        innerClasses += " rounded-[13px]";
     } else {
         // Default
-        containerClasses += " border border-white/5 bg-zinc-900";
-        innerClasses += " rounded-[11px]";
+        containerClasses += " border border-white/5 bg-zinc-900 rounded-2xl";
+        innerClasses += " rounded-[15px]";
     }
 
     return (
         <Link href={`/sideline/${creator._id}`} className={containerClasses}>
+            {isAngel && (
+                <>
+                    {/* Continuous Shine Effect */}
+                    <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent z-20 pointer-events-none mix-blend-overlay" />
+                    {/* Moving Glint on Hover */}
+                    <div className="absolute -inset-full top-0 block h-full w-1/2 -skew-x-12 bg-gradient-to-r from-transparent to-white opacity-40 group-hover:animate-shine z-20" />
+                </>
+            )}
             <div className={innerClasses}>
                 {/* Image Section */}
                 <div className="relative aspect-[3/4] w-full overflow-hidden">
@@ -193,6 +201,15 @@ function CreatorCard({ creator }: { creator: any }) {
                         fill
                         className="object-cover group-hover:scale-105 transition duration-700"
                     />
+
+                    {/* Country Badge (Top Left) */}
+                    <div className="absolute top-2 left-2 z-10">
+                        <div className="min-w-[28px] h-7 px-1.5 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/10 text-white shadow-lg">
+                            <span className="text-[14px] font-bold uppercase">
+                                {creator?.country === "Thailand" ? "🇹🇭" : creator?.country === "Laos" ? "🇱🇦" : "🇹🇭"}
+                            </span>
+                        </div>
+                    </div>
 
                     {/* Status Icons (Top Right) */}
                     <div className="absolute top-2 right-2 flex flex-col gap-1 z-10">
