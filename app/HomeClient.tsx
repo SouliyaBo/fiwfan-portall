@@ -528,7 +528,7 @@ function CreatorCard({ creator }: { creator: Creator }) {
                     <div className="absolute top-2 left-2 z-10">
                         <div className="min-w-[28px] h-7 px-1.5 rounded-full  flex items-center justify-center text-white shadow-lg">
                             <span className="text-[14px] font-bold uppercase">
-                                {creator?.country === "Thailand" ? "🇹🇭" : creator?.country === "Laos" ? "🇱🇦" : "🇹🇭"}
+                                {creator?.country === "Thailand" ? <Image src="/Thai.gif" alt="Flag" width={20} height={20} /> : creator?.country === "Laos" ? <Image src="/Laos.gif" alt="Flag" width={20} height={20} /> : "🇹🇭"}
                             </span>
                         </div>
                     </div>
@@ -538,8 +538,8 @@ function CreatorCard({ creator }: { creator: Creator }) {
                         {(() => {
                             if (isAngel) {
                                 return (
-                                    <div className="w-7 h-7 rounded-full bg-red-600/90 backdrop-blur-md flex items-center justify-center border border-white/10 text-white shadow-lg shadow-red-500/40">
-                                        <span className="text-xs">🔥</span>
+                                    <div className="w-7 h-7 rounded-full bg-back-600/90 backdrop-blur-md flex items-center justify-center border border-white/10 text-white shadow-lg shadow-back-500/40">
+                                        <Image src="/fire.gif" alt="Flag" width={20} height={20} />
                                     </div>
                                 );
                             } else if (isPopular) {
@@ -558,8 +558,8 @@ function CreatorCard({ creator }: { creator: Creator }) {
                             return null;
                         })()}
                         {creator.isVerified && (
-                            <div className="w-7 h-7 rounded-full bg-green-600/90 backdrop-blur-md flex items-center justify-center border border-white/10 text-white">
-                                <span className="text-[8px] font-bold">VER</span>
+                            <div className="w-7 h-7 rounded-full flex items-center justify-center">
+                                <Image src="/verification.gif" alt="Flag" width={32} height={32} />
                             </div>
                         )}
                         {creator.isAcceptingWork === false && (

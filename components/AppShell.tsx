@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Menu, MapPin, Users, Award, MessageCircle, Send, LogOut, ChevronRight, X, User, Sparkles } from "lucide-react";
 import { API_BASE_URL } from "../lib/constants";
 import { usePathname, useRouter } from 'next/navigation';
@@ -113,9 +114,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     <div className="flex items-center gap-2">
                         {/* Logo */}
                         <Link href="/" className="text-2xl font-bold tracking-tight flex items-center gap-1">
-                            <Sparkles className="text-pink-400 animate-pulse" size={20} />
+                            <Image src="/logo-phusao.png" alt="Logo" width={60} height={60} />
+                            {/* <Sparkles className="text-pink-400 animate-pulse" size={20} />
                             <span className="bg-gradient-to-r from-pink-300 via-pink-400 to-rose-400 text-transparent bg-clip-text drop-shadow-[0_0_5px_rgba(244,114,182,0.5)]">Phu</span>
-                            <span className="text-white">sao</span>
+                            <span className="text-white">sao</span> */}
                         </Link>
                     </div>
 
