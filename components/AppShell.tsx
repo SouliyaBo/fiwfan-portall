@@ -219,6 +219,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                                     <span>{t('nav.join_telegram')}</span>
                                 </a>
                             )}
+
+                            {/* Contact Admin Line */}
+                            <a href="https://lin.ee/J5qWrGq" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 text-white/80 hover:bg-white/5 rounded-lg transition">
+                                <MessageCircle size={20} className="text-[#06C755]" />
+                                <span>{t('nav.contact_admin')}</span>
+                            </a>
                         </nav>
 
                         <div className="mt-auto border-t border-white/10 pt-6 flex flex-col gap-4">

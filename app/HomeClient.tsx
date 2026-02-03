@@ -38,6 +38,7 @@ interface Agency {
     name: string;
     logoUrl?: string;
     creators?: any[];
+    country?: string;
 }
 
 function HomeContent() {
@@ -286,24 +287,26 @@ function HomeContent() {
                     </div>
                 ) : (
                     <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-                        {agencies.map((agency, i) => (
-                            <Link href={`/agency/${agency._id}`} key={agency._id} className="flex-shrink-0 w-64 h-24 bg-[#1e1b4b]/50 hover:bg-[#1e1b4b] transition rounded-xl border border-white/5 flex items-center p-4 gap-4 relative overflow-hidden group">
-                                <div className="absolute top-0 left-0 w-6 h-6 bg-yellow-500 rounded-tl-xl rounded-br-xl text-black font-bold flex items-center justify-center text-xs z-10 shadow-lg">
-                                    {i + 1}
-                                </div>
-                                <div className="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center text-white font-bold text-xl z-10 overflow-hidden relative border-2 border-white/10 group-hover:border-[#F84E6E] transition">
-                                    {agency.logoUrl ? (
-                                        <Image src={getImageUrl(agency.logoUrl)} fill className="object-cover" alt={agency.name} />
-                                    ) : (
-                                        <Building2 size={24} className="text-white/50" />
-                                    )}
-                                </div>
-                                <div className="z-10 overflow-hidden">
-                                    <div className="font-bold truncate text-white group-hover:text-[#F84E6E] transition">{agency.name}</div>
-                                    <div className="text-xs text-white/40">{agency.creators ? agency.creators.length : 0} Creators</div>
-                                </div>
-                            </Link>
-                        ))}
+                        {agencies
+                            .filter(a => !selectedCountry || a.country === selectedCountry || (selectedCountry === 'Thailand' && !a.country))
+                            .map((agency, i) => (
+                                <Link href={`/agency/${agency._id}`} key={agency._id} className="flex-shrink-0 w-64 h-24 bg-[#1e1b4b]/50 hover:bg-[#1e1b4b] transition rounded-xl border border-white/5 flex items-center p-4 gap-4 relative overflow-hidden group">
+                                    <div className="absolute top-0 left-0 w-6 h-6 bg-yellow-500 rounded-tl-xl rounded-br-xl text-black font-bold flex items-center justify-center text-xs z-10 shadow-lg">
+                                        {i + 1}
+                                    </div>
+                                    <div className="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center text-white font-bold text-xl z-10 overflow-hidden relative border-2 border-white/10 group-hover:border-[#F84E6E] transition">
+                                        {agency.logoUrl ? (
+                                            <Image src={getImageUrl(agency.logoUrl)} fill className="object-cover" alt={agency.name} />
+                                        ) : (
+                                            <Building2 size={24} className="text-white/50" />
+                                        )}
+                                    </div>
+                                    <div className="z-10 overflow-hidden">
+                                        <div className="font-bold truncate text-white group-hover:text-[#F84E6E] transition">{agency.name}</div>
+                                        <div className="text-xs text-white/40">{agency.creators ? agency.creators.length : 0} Creators</div>
+                                    </div>
+                                </Link>
+                            ))}
                     </div>
                 )}
             </section>
@@ -322,7 +325,7 @@ function HomeContent() {
 
                         <button
                             onClick={() => setSelectedCountry("Thailand")}
-                            className={`relative z-10 px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all duration-300 ${selectedCountry === 'Thailand' ? 'text-white' : 'text-white/50 hover:text-white/80'
+                            className={`relative z-10 px-4 py-1 rounded-full text-xs font-bold flex items-center gap-1 transition-all duration-300 ${selectedCountry === 'Thailand' ? 'text-white' : 'text-white/50 hover:text-white/80'
                                 }`}
                         >
                             <span className="text-base">🇹🇭</span> Thailand
@@ -436,6 +439,16 @@ function HomeContent() {
                     </div>
                 </Link>
             )}
+
+            {/* Admin Contact Floating Button (Line) */}
+            <a
+                href="https://lin.ee/J5qWrGq"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="fixed bottom-24 right-6 w-14 h-14 bg-[#06C755] rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition z-40 animate-bounce"
+            >
+                <span className="text-white font-bold text-sm">LINE</span>
+            </a>
 
             {/* Floating Telegram Button */}
             {

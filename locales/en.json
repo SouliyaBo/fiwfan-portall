@@ -17,7 +17,8 @@
         "join_telegram": "Join on Telegram",
         "profile": "Profile",
         "settings": "Settings",
-        "post_request": "Post Request"
+        "post_request": "Post Request",
+        "contact_admin": "Contact Admin"
     },
     "dashboard": {
         "title": "Dashboard",

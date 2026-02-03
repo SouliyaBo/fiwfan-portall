@@ -17,7 +17,8 @@
         "join_telegram": "เข้าร่วมบนโทรเลข",
         "profile": "โปรไฟล์",
         "settings": "ตั้งค่า",
-        "post_request": "โพสต์หาคนดูแล"
+        "post_request": "โพสต์หาคนดูแล",
+        "contact_admin": "ติดต่อแอดมิน"
     },
     "dashboard": {
         "title": "แดชบอร์ด",
