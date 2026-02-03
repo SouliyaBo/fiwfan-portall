@@ -56,6 +56,7 @@ function HomeContent() {
     const [zones, setZones] = useState<any[]>([]);
     const [telegramUrl, setTelegramUrl] = useState("");
     const [jobCount, setJobCount] = useState(0);
+    const [selectedCountry, setSelectedCountry] = useState("Thailand");
 
     useEffect(() => {
         const token = getAuthToken();
@@ -311,7 +312,29 @@ function HomeContent() {
             <section className="px-4 space-y-8">
                 {/* Header with Filter */}
                 <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-bold border-l-4 border-[#F84E6E] pl-3"></h2>
+                    {/* Country Filter Switcher (Left) */}
+                    <div className="bg-[#1e1b4b]/80 p-0.5 rounded-full border border-white/10 flex relative backdrop-blur-sm shadow-md">
+                        {/* Sliding Background */}
+                        <div
+                            className={`absolute top-0.5 bottom-0.5 w-[calc(50%-2px)] bg-[#F84E6E] rounded-full transition-all duration-300 ease-in-out shadow-sm ${selectedCountry === 'Thailand' ? 'left-0.5' : 'left-[50%]'
+                                }`}
+                        />
+
+                        <button
+                            onClick={() => setSelectedCountry("Thailand")}
+                            className={`relative z-10 px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all duration-300 ${selectedCountry === 'Thailand' ? 'text-white' : 'text-white/50 hover:text-white/80'
+                                }`}
+                        >
+                            <span className="text-base">🇹🇭</span> Thailand
+                        </button>
+                        <button
+                            onClick={() => setSelectedCountry("Laos")}
+                            className={`relative z-10 px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all duration-300 ${selectedCountry === 'Laos' ? 'text-white' : 'text-white/50 hover:text-white/80'
+                                }`}
+                        >
+                            <span className="text-base">🇱🇦</span> Laos
+                        </button>
+                    </div>
 
                     {isLoggedIn && (
                         <button
@@ -328,6 +351,8 @@ function HomeContent() {
                     )}
                 </div>
 
+
+
                 {loading ? (
                     <div className="text-center py-20 text-white/50">{t('common.loading')}</div>
                 ) : creators.length === 0 ? (
@@ -335,52 +360,61 @@ function HomeContent() {
                 ) : (
                     <>
                         {/* The Angel Section */}
-                        {creators.some(c => (c.planId === 'THE_ANGEL' || c.planName === 'The_Angel' || c.planName === 'THE_ANGEL' || c.isHot)) && (
-                            <div className="mb-8">
-                                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                                    <span className="text-2xl">🔥</span> The Angel Phusao
-                                </h3>
-                                <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-                                    {creators
-                                        .filter(c => (c.planId === 'THE_ANGEL' || c.planName === 'The_Angel' || c.planName === 'THE_ANGEL' || c.isHot))
-                                        .map((creator) => (
-                                            <CreatorCard key={creator._id} creator={creator} />
-                                        ))}
+                        {creators
+                            .filter(c => !selectedCountry || c.country === selectedCountry || (selectedCountry === 'Thailand' && !c.country))
+                            .some(c => (c.planId === 'THE_ANGEL' || c.planName === 'The_Angel' || c.planName === 'THE_ANGEL' || c.isHot)) && (
+                                <div className="mb-8">
+                                    <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                                        <span className="text-2xl">🔥</span> The Angel Phusao
+                                    </h3>
+                                    <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+                                        {creators
+                                            .filter(c => !selectedCountry || c.country === selectedCountry || (selectedCountry === 'Thailand' && !c.country))
+                                            .filter(c => (c.planId === 'THE_ANGEL' || c.planName === 'The_Angel' || c.planName === 'THE_ANGEL' || c.isHot))
+                                            .map((creator) => (
+                                                <CreatorCard key={creator._id} creator={creator} />
+                                            ))}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
 
                         {/* Popular Section (Mid Tier) */}
-                        {creators.some(c => (c.planId === 'POPULAR' || c.planName === 'Popular' || c.planName === 'POPULAR')) && (
-                            <div className="mb-8">
-                                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                                    <span className="text-2xl">⭐</span> Popular Phusao
-                                </h3>
-                                <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-                                    {creators
-                                        .filter(c => (c.planId === 'POPULAR' || c.planName === 'Popular' || c.planName === 'POPULAR'))
-                                        .map((creator) => (
-                                            <CreatorCard key={creator._id} creator={creator} />
-                                        ))}
+                        {creators
+                            .filter(c => !selectedCountry || c.country === selectedCountry || (selectedCountry === 'Thailand' && !c.country))
+                            .some(c => (c.planId === 'POPULAR' || c.planName === 'Popular' || c.planName === 'POPULAR')) && (
+                                <div className="mb-8">
+                                    <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                                        <span className="text-2xl">⭐</span> Popular Phusao
+                                    </h3>
+                                    <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+                                        {creators
+                                            .filter(c => !selectedCountry || c.country === selectedCountry || (selectedCountry === 'Thailand' && !c.country))
+                                            .filter(c => (c.planId === 'POPULAR' || c.planName === 'Popular' || c.planName === 'POPULAR'))
+                                            .map((creator) => (
+                                                <CreatorCard key={creator._id} creator={creator} />
+                                            ))}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
 
                         {/* Rising Star Section (Entry Tier) */}
-                        {creators.some(c => (c.planId === 'RISING_STAR' || c.planName === 'Rising Star' || c.planName === 'RISING_STAR' || c.planName === 'Free Mode')) && (
-                            <div>
-                                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                                    <span className="text-2xl">✨</span> Rising Star Phusao
-                                </h3>
-                                <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-                                    {creators
-                                        .filter(c => (c.planId === 'RISING_STAR' || c.planName === 'Rising Star' || c.planName === 'RISING_STAR' || c.planName === 'Free Mode'))
-                                        .map((creator) => (
-                                            <CreatorCard key={creator._id} creator={creator} />
-                                        ))}
+                        {creators
+                            .filter(c => !selectedCountry || c.country === selectedCountry || (selectedCountry === 'Thailand' && !c.country))
+                            .some(c => (c.planId === 'RISING_STAR' || c.planName === 'Rising Star' || c.planName === 'RISING_STAR' || c.planName === 'Free Mode')) && (
+                                <div>
+                                    <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                                        <span className="text-2xl">✨</span> Rising Star Phusao
+                                    </h3>
+                                    <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+                                        {creators
+                                            .filter(c => !selectedCountry || c.country === selectedCountry || (selectedCountry === 'Thailand' && !c.country))
+                                            .filter(c => (c.planId === 'RISING_STAR' || c.planName === 'Rising Star' || c.planName === 'RISING_STAR' || c.planName === 'Free Mode'))
+                                            .map((creator) => (
+                                                <CreatorCard key={creator._id} creator={creator} />
+                                            ))}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
                     </>
                 )}
             </section>
@@ -524,34 +558,33 @@ function CreatorCard({ creator }: { creator: Creator }) {
                         className="object-cover group-hover:scale-105 transition duration-700"
                     />
 
-                    {/* Country Badge (Top Left) */}
-                    <div className="absolute top-2 left-2 z-10">
-                        <div className="min-w-[28px] h-7 px-1.5 rounded-full  flex items-center justify-center text-white shadow-lg">
-                            <span className="text-[14px] font-bold uppercase">
-                                {creator?.country === "Thailand" ? <Image src="/Thai.gif" alt="Flag" width={20} height={20} /> : creator?.country === "Laos" ? <Image src="/Laos.gif" alt="Flag" width={20} height={20} /> : "🇹🇭"}
-                            </span>
-                        </div>
-                    </div>
+
 
                     {/* Status Icons (Top Right) */}
                     <div className="absolute top-2 right-2 flex flex-col gap-1 z-10">
+
+                        <div className="w-7 h-7 rounded-full  flex items-center justify-center text-white">
+                            {creator?.country === "Thailand" ? <Image src="/Thai.gif" alt="Flag" width={20} height={20} /> : creator?.country === "Laos" ? <Image src="/Laos.gif" alt="Flag" width={20} height={20} /> : "🇹🇭"}
+                        </div>
+
                         {(() => {
+
                             if (isAngel) {
                                 return (
-                                    <div className="w-7 h-7 rounded-full bg-back-600/90 backdrop-blur-md flex items-center justify-center border border-white/10 text-white shadow-lg shadow-back-500/40">
-                                        <Image src="/fire.gif" alt="Flag" width={20} height={20} />
+                                    <div className="w-7 h-7 rounded-full  flex items-center justify-center text-white">
+                                        <Image src="/recommend.gif" alt="angel" width={20} height={20} />
                                     </div>
                                 );
                             } else if (isPopular) {
                                 return (
-                                    <div className="w-7 h-7 rounded-full bg-emerald-600/90 backdrop-blur-md flex items-center justify-center border border-white/10 text-white shadow-lg shadow-teal-500/40">
-                                        <span className="text-xs">⭐</span>
+                                    <div className="w-7 h-7 rounded-full  flex items-center justify-center text-white">
+                                        <Image src="/Fire.gif" alt="Fire" width={20} height={20} />
                                     </div>
                                 );
                             } else if (isRisingStar) {
                                 return (
                                     <div className="w-7 h-7 rounded-full bg-blue-600/90 backdrop-blur-md flex items-center justify-center border border-white/10 text-white shadow-lg shadow-blue-500/40">
-                                        <span className="text-xs">✨</span>
+                                        <Image src="/Star.gif" alt="rising" width={20} height={20} />
                                     </div>
                                 );
                             }
@@ -559,7 +592,7 @@ function CreatorCard({ creator }: { creator: Creator }) {
                         })()}
                         {creator.isVerified && (
                             <div className="w-7 h-7 rounded-full flex items-center justify-center">
-                                <Image src="/verification.gif" alt="Flag" width={32} height={32} />
+                                <Image src="/verification.gif" alt="Flag" width={25} height={25} />
                             </div>
                         )}
                         {creator.isAcceptingWork === false && (
