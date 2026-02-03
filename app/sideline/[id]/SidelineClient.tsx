@@ -428,7 +428,7 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
 
                     {/* RIGHT COLUMN: INFO */}
                     <div className="col-span-1 md:col-span-4 px-4 md:px-0">
-                        <div className="sticky top-6 space-y-6">
+                        <div className="sticky top-6 space-y-2">
 
                             {/* Header Info */}
                             <div className="space-y-3">
@@ -456,10 +456,10 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                                             </div>
                                         )}
                                     </div>
-                                    <div className="flex flex-col gap-1 text-sm text-zinc-500 dark:text-zinc-400">
-                                        {creator.whatsapp && <div className="flex items-center gap-2">{t('sideline.whatsapp_label')} <span className="text-zinc-900 dark:text-white font-medium">{creator.whatsapp}</span></div>}
+                                    <div className="flex flex-col gap-1 text-sm text-zinc-500">
+                                        {creator.whatsapp && <div className="flex items-center gap-2"><MessageCircle size={14} /> {t('sideline.whatsapp_label')} <span className="text-white font-medium">{creator.whatsapp}</span></div>}
                                         {creator.instagram && <div className="flex items-center gap-2"><Instagram size={14} /> {t('sideline.instagram_label')} <a href={`https://instagram.com/${creator.instagram.replace('@', '')}`} target="_blank" className="text-blue-500 hover:underline">{creator.instagram}</a></div>}
-                                        {creator.phone && <div className="flex items-center gap-2"><Phone size={14} /> {t('sideline.phone_label')} <span className="text-zinc-900 dark:text-white font-medium">{creator.phone}</span></div>}
+                                        {creator.phone && <div className="flex items-center gap-2"><Phone size={14} /> {t('sideline.phone_label')} <span className="text-white font-medium">{creator.phone}</span></div>}
                                     </div>
                                 </div>
 
@@ -470,12 +470,12 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                                         {creator.location === "" ? creator.province || "ไม่ระบุ" : creator.location}, {creator.province}, {creator.country || "Thailand"}
                                     </div>
                                     {creator.transport && (
-                                        <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-300 ml-6">
+                                        <div className="flex items-center gap-2 text-zinc-500 ml-6">
                                             <Train size={14} /> {creator.transport}
                                         </div>
                                     )}
                                     {creator.parking && (
-                                        <div className="flex items-center gap-2 text-green-600 dark:text-green-400 ml-6">
+                                        <div className="flex items-center gap-2 text-green-600 ml-6">
                                             <Car size={14} /> {t('sideline.parking_available')}
                                         </div>
                                     )}
@@ -483,8 +483,8 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                             </div>
 
                             {/* Bio & Details */}
-                            <div className="space-y-4">
-                                <div className="text-sm leading-relaxed whitespace-pre-line text-white">
+                            <div className="space-y-2 ">
+                                <div className="bg-white/5 rounded-xl p-4 text-sm leading-relaxed whitespace-pre-line text-white ">
                                     {creator.bio ? creator.bio : t('sideline.default_bio')}
                                 </div>
 
@@ -495,8 +495,14 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                                 </div>
 
                                 {/* Physical Stats */}
-                                {(creator.height || creator.weight || creator.chest || creator.waist || creator.hips) && (
+                                {(creator.gender || creator.height || creator.weight || creator.chest || creator.waist || creator.hips) && (
                                     <div className="bg-white/5 rounded-xl p-4 grid grid-cols-2 gap-y-3 gap-x-4 text-sm border border-white/5">
+                                        {creator.gender && (
+                                            <div className="flex justify-between items-center text-zinc-400">
+                                                <span>{t('sideline.gender')}</span>
+                                                <span className="text-white font-bold">{creator.gender}</span>
+                                            </div>
+                                        )}
                                         {creator.height && (
                                             <div className="flex justify-between items-center text-zinc-400">
                                                 <span>{t('sideline.height')}</span>
@@ -531,7 +537,7 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                                 )}
 
                                 <div className="text-xl font-bold text-white">
-                                    {creator.price}.- <span className="text-sm font-normal text-zinc-400">/ {creator.priceTime || '1 ชม.'} ({t('sideline.start_price')})</span>
+                                    {creator.price}.- <span className="text-sm font-normal text-white">/ {creator.priceTime || '1 ชม.'} ({t('sideline.start_price')})</span>
                                 </div>
 
                                 {/* Service Packages */}
@@ -547,13 +553,13 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                                                     </div>
 
                                                     <div className="flex-1">
-                                                        <div className="font-bold text-lg sm:text-xl text-zinc-900 dark:text-white flex flex-wrap items-center gap-2 align-middle">
+                                                        <div className="font-bold text-lg sm:text-xl text-white flex flex-wrap items-center gap-2 align-middle">
                                                             <span className="text-[#F84E6E]">{pkg.price}</span>
-                                                            <span className="text-zinc-400 text-base">/</span>
+                                                            <span className="text-white text-base">/</span>
                                                             {pkg.details && (
                                                                 <>
                                                                     <span>{pkg.details}</span>
-                                                                    <span className="text-zinc-400 text-base">/</span>
+                                                                    <span className="text-white text-base">/</span>
                                                                 </>
                                                             )}
                                                             <span>{pkg.time}</span>
@@ -684,10 +690,10 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                                 )}
 
                                 {/* Detailed Ratings (Optional display) */}
-                                <div className="flex gap-4 mt-4 pt-4 border-t border-zinc-100 dark:border-white/5 text-xs text-zinc-500">
-                                    <span className="flex items-center gap-1">{t('sideline.review_rating_accuracy')}: <b className="text-zinc-700 dark:text-zinc-300">{review.accuracyRating}</b></span>
-                                    <span className="flex items-center gap-1">{t('sideline.review_rating_service')}: <b className="text-zinc-700 dark:text-zinc-300">{review.serviceRating}</b></span>
-                                    <span className="flex items-center gap-1">{t('sideline.review_rating_value')}: <b className="text-zinc-700 dark:text-zinc-300">{review.valueRating}</b></span>
+                                <div className="flex gap-4 mt-4 pt-4 border-t border-zinc-100 dark:border-white/5 text-xs text-gray-400">
+                                    <span className="flex items-center gap-1">{t('sideline.review_rating_accuracy')}: <b className="text-white">{review.accuracyRating}</b></span>
+                                    <span className="flex items-center gap-1">{t('sideline.review_rating_service')}: <b className="text-white">{review.serviceRating}</b></span>
+                                    <span className="flex items-center gap-1">{t('sideline.review_rating_value')}: <b className="text-white">{review.valueRating}</b></span>
                                 </div>
                             </div>
                         ))

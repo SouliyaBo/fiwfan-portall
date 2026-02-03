@@ -528,7 +528,6 @@ function CreatorCard({ creator }: { creator: Creator }) {
     const displayPlanName = planKey && ['THE_ANGEL', 'POPULAR', 'RISING_STAR'].includes(planKey)
         ? t(`plan_names.${planKey}`)
         : creator.planName || "";
-
     // Dynamic card styling with gradients
     let containerClasses = "block relative rounded-[14px] overflow-hidden group transition shadow-lg hover:shadow-xl hover:-translate-y-1 h-full flex flex-col";
     let innerClasses = "relative w-full h-full bg-[#0a101f] overflow-hidden flex flex-col";
@@ -538,8 +537,8 @@ function CreatorCard({ creator }: { creator: Creator }) {
         containerClasses += " p-[3px] bg-gradient-to-br from-[#FCD34D] via-[#F59E0B] to-[#EF4444] shadow-xl shadow-amber-500/50 hover:shadow-2xl hover:shadow-amber-500/70 rounded-2xl";
         innerClasses += " rounded-[13px]";
     } else if (isPopular) {
-        // Teal/Green Gradient for POPULAR
-        containerClasses += " p-[3px] bg-gradient-to-br from-teal-400 via-emerald-500 to-green-600 shadow-teal-500/30 rounded-2xl";
+        // Purple/Fuchsia Gradient for POPULAR (Requested: Purple, less prominent than Angel)
+        containerClasses += " p-[3px] bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-600 shadow-purple-500/30 rounded-2xl";
         innerClasses += " rounded-[13px]";
     } else if (isRisingStar) {
         // Blue/Indigo Gradient for RISING_STAR
@@ -629,13 +628,13 @@ function CreatorCard({ creator }: { creator: Creator }) {
                     </div>
 
                     {/* Review Bar */}
-                    <div className="bg-gradient-to-r from-[#be123c] to-[#e11d48] px-3 py-1.5 flex items-center justify-between text-white shadow-inner relative z-10">
+                    <div className="bg-gradient-to-r from-[#be123c]/90 to-transparent px-3 py-1.5 flex items-center justify-between text-white shadow-inner relative z-10">
                         <div className="flex items-center gap-1">
                             <div className="flex bg-white/20 rounded px-1 py-0.5 gap-0.5">
                                 {[1, 2, 3].map(i => <Sparkles key={i} size={8} className="text-yellow-200 fill-yellow-200" />)}
                             </div>
                         </div>
-                        <span className="font-bold text-[11px] uppercase tracking-wide opacity-90">{creator.reviewCount || 0} : Reviews</span>
+                        <span className="font-bold text-[11px] tracking-wide opacity-90">{creator.reviewCount || 0} : รีวิว</span>
                     </div>
 
                     {/* Footer: Age & Plan */}
@@ -643,7 +642,7 @@ function CreatorCard({ creator }: { creator: Creator }) {
                         <div className="text-xs text-zinc-400 font-medium">
                             อายุ <span className="text-white text-sm font-bold">{creator.age || "??"}</span>
                         </div>
-                        <span className={`text-[11px] font-bold px-2 py-0.5 rounded border ${isAngel ? 'text-red-300 border-red-500/30 bg-red-500/10' : isPopular ? 'text-emerald-300 border-emerald-500/30 bg-emerald-500/10' : isRisingStar ? 'text-blue-300 border-blue-500/30 bg-blue-500/10' : 'text-zinc-400 border-zinc-700 bg-zinc-800'}`}>
+                        <span className={`text-[11px] font-bold px-2 py-0.5 rounded border ${isAngel ? 'text-red-300 border-red-500/30 bg-red-500/10' : isPopular ? 'text-purple-300 border-purple-500/30 bg-purple-500/10' : isRisingStar ? 'text-blue-300 border-blue-500/30 bg-blue-500/10' : 'text-zinc-400 border-zinc-700 bg-zinc-800'}`}>
                             {displayPlanName || "MEMBER"}
                         </span>
                     </div>

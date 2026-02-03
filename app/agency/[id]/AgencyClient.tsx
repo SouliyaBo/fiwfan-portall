@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { API_BASE_URL } from "../../../lib/constants";
 import { getImageUrl } from "../../../lib/images";
 import { MapPin, Phone, MessageCircle, Globe, ShieldCheck, ChevronLeft, Building2, Sparkles } from "lucide-react";
 import { useLanguage } from "../../../contexts/LanguageContext";
@@ -17,7 +16,6 @@ export default function AgencyClient({ initialAgency, initialZones }: AgencyClie
     const { t } = useLanguage();
     const [agency, setAgency] = useState<any>(initialAgency);
     const [zones, setZones] = useState<any[]>(initialZones || []);
-    console.log(agency);
     // If for some reason initial data is missing, we could fetch it here, 
     // but for SEO pages we expect server to provide it.
 
@@ -155,7 +153,6 @@ function CreatorCard({ creator }: { creator: any }) {
     const isAngel = planKey === 'THE_ANGEL' || creator.isHot;
     const isPopular = planKey === 'POPULAR';
     const isRisingStar = planKey === 'RISING_STAR';
-
     const displayPlanName = planKey && ['THE_ANGEL', 'POPULAR', 'RISING_STAR'].includes(planKey)
         ? t(`plan_names.${planKey}`)
         : creator.planName || "";
@@ -169,8 +166,8 @@ function CreatorCard({ creator }: { creator: any }) {
         containerClasses += " p-[3px] bg-gradient-to-br from-[#FCD34D] via-[#F59E0B] to-[#EF4444] shadow-xl shadow-amber-500/50 hover:shadow-2xl hover:shadow-amber-500/70 rounded-2xl";
         innerClasses += " rounded-[13px]";
     } else if (isPopular) {
-        // Teal/Green Gradient for POPULAR
-        containerClasses += " p-[3px] bg-gradient-to-br from-teal-400 via-emerald-500 to-green-600 shadow-teal-500/30 rounded-2xl";
+        // Purple/Fuchsia Gradient for POPULAR (Requested: Purple, less prominent than Angel)
+        containerClasses += " p-[3px] bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-600 shadow-purple-500/30 rounded-2xl";
         innerClasses += " rounded-[13px]";
     } else if (isRisingStar) {
         // Blue/Indigo Gradient for RISING_STAR
@@ -179,7 +176,7 @@ function CreatorCard({ creator }: { creator: any }) {
     } else {
         // Default
         containerClasses += " border border-white/5 bg-zinc-900 rounded-2xl";
-        innerClasses += " rounded-[15px]";
+        innerClasses += " rounded-[15px]"; // Slightly smaller to fit border? standard usually 1px diff, but with padding 3px, r_in = r_out - padding roughly. 16 - 3 = 13.
     }
 
     return (
@@ -202,42 +199,39 @@ function CreatorCard({ creator }: { creator: any }) {
                         className="object-cover group-hover:scale-105 transition duration-700"
                     />
 
-                    {/* Country Badge (Top Left) */}
-                    <div className="absolute top-2 left-2 z-10">
-                        <div className="min-w-[28px] h-7 px-1.5 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/10 text-white shadow-lg">
-                            <span className="text-[14px] font-bold uppercase">
-                                {creator?.country === "Thailand" ? "🇹🇭" : creator?.country === "Laos" ? "🇱🇦" : "🇹🇭"}
-                            </span>
-                        </div>
-                    </div>
-
                     {/* Status Icons (Top Right) */}
                     <div className="absolute top-2 right-2 flex flex-col gap-1 z-10">
+
+                        <div className="w-7 h-7 rounded-full  flex items-center justify-center text-white">
+                            {creator?.country === "Thailand" ? <Image src="/Thai.gif" alt="Flag" width={20} height={20} /> : creator?.country === "Laos" ? <Image src="/Laos.gif" alt="Flag" width={20} height={20} /> : "🇹🇭"}
+                        </div>
+
                         {(() => {
+
                             if (isAngel) {
                                 return (
-                                    <div className="w-7 h-7 rounded-full bg-red-600/90 backdrop-blur-md flex items-center justify-center border border-white/10 text-white shadow-lg shadow-red-500/40">
-                                        <span className="text-xs">🔥</span>
+                                    <div className="w-7 h-7 rounded-full  flex items-center justify-center text-white">
+                                        <Image src="/recommend.gif" alt="angel" width={20} height={20} />
                                     </div>
                                 );
                             } else if (isPopular) {
                                 return (
-                                    <div className="w-7 h-7 rounded-full bg-emerald-600/90 backdrop-blur-md flex items-center justify-center border border-white/10 text-white shadow-lg shadow-teal-500/40">
-                                        <span className="text-xs">⭐</span>
+                                    <div className="w-7 h-7 rounded-full  flex items-center justify-center text-white">
+                                        <Image src="/Fire.gif" alt="Fire" width={20} height={20} />
                                     </div>
                                 );
                             } else if (isRisingStar) {
                                 return (
                                     <div className="w-7 h-7 rounded-full bg-blue-600/90 backdrop-blur-md flex items-center justify-center border border-white/10 text-white shadow-lg shadow-blue-500/40">
-                                        <span className="text-xs">✨</span>
+                                        <Image src="/Star.gif" alt="rising" width={20} height={20} />
                                     </div>
                                 );
                             }
                             return null;
                         })()}
                         {creator.isVerified && (
-                            <div className="w-7 h-7 rounded-full bg-green-600/90 backdrop-blur-md flex items-center justify-center border border-white/10 text-white">
-                                <span className="text-[8px] font-bold">VER</span>
+                            <div className="w-7 h-7 rounded-full flex items-center justify-center">
+                                <Image src="/verification.gif" alt="Flag" width={25} height={25} />
                             </div>
                         )}
                         {creator.isAcceptingWork === false && (
@@ -256,18 +250,18 @@ function CreatorCard({ creator }: { creator: any }) {
                             {creator.displayName}
                         </h2>
                         <span className="bg-green-600 text-white text-[10px] px-2 py-0.5 rounded-full font-medium truncate max-w-[35%] shadow-sm shadow-green-900/20">
-                            {creator?.country === "Thailand" ? "TH" : creator?.country} {creator.zones && creator.zones.length > 0 ? creator.zones[0] : "Bangkok"}
+                            {creator.zones && creator.zones.length > 0 ? creator.zones[0] : "Bangkok"}
                         </span>
                     </div>
 
                     {/* Review Bar */}
-                    <div className="bg-gradient-to-r from-[#be123c] to-[#e11d48] px-3 py-1.5 flex items-center justify-between text-white shadow-inner relative z-10">
+                    <div className="bg-gradient-to-r from-[#be123c]/90 to-transparent px-3 py-1.5 flex items-center justify-between text-white shadow-inner relative z-10">
                         <div className="flex items-center gap-1">
                             <div className="flex bg-white/20 rounded px-1 py-0.5 gap-0.5">
                                 {[1, 2, 3].map(i => <Sparkles key={i} size={8} className="text-yellow-200 fill-yellow-200" />)}
                             </div>
                         </div>
-                        <span className="font-bold text-[11px] uppercase tracking-wide opacity-90">{creator.reviewCount || 0} : Reviews</span>
+                        <span className="font-bold text-[11px] tracking-wide opacity-90">{creator.reviewCount || 0} : รีวิว</span>
                     </div>
 
                     {/* Footer: Age & Plan */}
@@ -275,7 +269,7 @@ function CreatorCard({ creator }: { creator: any }) {
                         <div className="text-xs text-zinc-400 font-medium">
                             อายุ <span className="text-white text-sm font-bold">{creator.age || "??"}</span>
                         </div>
-                        <span className={`text-[11px] font-bold px-2 py-0.5 rounded border ${isAngel ? 'text-red-300 border-red-500/30 bg-red-500/10' : isPopular ? 'text-emerald-300 border-emerald-500/30 bg-emerald-500/10' : isRisingStar ? 'text-blue-300 border-blue-500/30 bg-blue-500/10' : 'text-zinc-400 border-zinc-700 bg-zinc-800'}`}>
+                        <span className={`text-[11px] font-bold px-2 py-0.5 rounded border ${isAngel ? 'text-red-300 border-red-500/30 bg-red-500/10' : isPopular ? 'text-purple-300 border-purple-500/30 bg-purple-500/10' : isRisingStar ? 'text-blue-300 border-blue-500/30 bg-blue-500/10' : 'text-zinc-400 border-zinc-700 bg-zinc-800'}`}>
                             {displayPlanName || "MEMBER"}
                         </span>
                     </div>

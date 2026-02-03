@@ -519,6 +519,7 @@
         "bangkok": "ບາງກອກ"
     },
     "sideline": {
+        "gender": "ເພດ",
         "height": "ສ່ວນສູງ",
         "weight": "ນ້ຳໜັກ",
         "chest": "ໜ້າເອິກ",

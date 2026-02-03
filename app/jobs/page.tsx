@@ -17,6 +17,10 @@ interface Job {
         displayName: string;
         username: string;
         avatarUrl?: string;
+        age?: number;
+        gender?: string;
+        province?: string;
+        country?: string;
     };
     content: string;
     budget: number;
@@ -275,9 +279,33 @@ export default function JobsPage() {
                                             />
                                         </div>
                                     </div>
-                                    <div className="text-center">
-                                        <div className="font-bold text-white text-base max-w-[120px] truncate">{job.user?.displayName}</div>
-                                        <div className="text-[10px] font-medium text-zinc-400 bg-white/5 py-0.5 px-2 rounded-full mt-1">Tourist</div>
+                                    <div className="text-center w-full">
+                                        <div className="font-bold text-white text-base max-w-[120px] truncate mx-auto">{job.user?.displayName}</div>
+                                        <div className="text-[10px] font-medium text-zinc-400 bg-white/5 py-0.5 px-2 rounded-full mt-1 inline-block">Tourist</div>
+
+                                        {/* Added User Details */}
+                                        <div className="flex flex-col items-center gap-1 mt-2 text-xs text-zinc-400">
+                                            {(job.user?.age || job.user?.gender) && (
+                                                <div className="flex items-center gap-1">
+                                                    {job.user.gender && <span>{
+                                                        job.user.gender === 'male' ? t('dashboard.gender_male') :
+                                                            job.user.gender === 'female' ? t('dashboard.gender_female') :
+                                                                job.user.gender === 'lgbtq' ? t('dashboard.gender_lgbtq') :
+                                                                    job.user.gender === 'other' ? t('dashboard.gender_other') :
+                                                                        job.user.gender
+                                                    }</span>}
+                                                    {job.user.age && <span>{job.user.age} {t('agency.age') || 'y/o'}</span>}
+                                                </div>
+                                            )}
+                                            {(job.user?.province || job.user?.country) && (
+                                                <div className="flex items-center gap-1 text-[10px] text-zinc-500">
+                                                    <MapPin size={10} />
+                                                    <span className="truncate max-w-[80px]">
+                                                        {job.user.province ? job.user.province : job.user.country}
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
 
