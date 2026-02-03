@@ -17,7 +17,8 @@
         "join_telegram": "加入 Telegram",
         "profile": "个人资料",
         "settings": "设置",
-        "post_request": "发布需求"
+        "post_request": "发布需求",
+        "contact_admin": "联系管理员"
     },
     "dashboard": {
         "title": "仪表盘",

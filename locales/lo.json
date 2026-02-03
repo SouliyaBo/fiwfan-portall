@@ -17,7 +17,8 @@
         "join_telegram": "ເຂົ້າຮ່ວມໃນ Telegram",
         "profile": "ໂປຣໄຟລ໌",
         "settings": "ຕັ້ງຄ່າ",
-        "post_request": "ໂພສຫາຄົນເບິ່ງແຍງ"
+        "post_request": "ໂພສຫາຄົນເບິ່ງແຍງ",
+        "contact_admin": "ຕິດຕໍ່ແອດມິນ"
     },
     "dashboard": {
         "title": "ແດຊບອດ",
