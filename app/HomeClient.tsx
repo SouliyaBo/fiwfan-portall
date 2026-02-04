@@ -584,7 +584,7 @@ function CreatorCard({ creator }: { creator: Creator }) {
                             if (isAngel) {
                                 return (
                                     <div className="w-7 h-7 rounded-full  flex items-center justify-center text-white">
-                                        <Image src="/recommend.gif" alt="angel" width={20} height={20} />
+                                        <Image src="/Angel2.gif" alt="angel" width={20} height={20} />
                                     </div>
                                 );
                             } else if (isPopular) {
