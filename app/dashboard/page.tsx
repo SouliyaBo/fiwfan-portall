@@ -2304,6 +2304,7 @@ export default function Dashboard() {
                                             className="w-full bg-black/20 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#F84E6E] min-h-[100px] text-sm"
                                             placeholder={t('dashboard.creator_bio_placeholder')}
                                         />
+                                        <p className="text-red-500 text-xs ml-1">{t('dashboard.creator_bio_warning')}</p>
                                     </div>
 
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -2557,6 +2558,7 @@ export default function Dashboard() {
                                     {/* 2. Gallery */}
                                     <section className="space-y-4">
                                         <h3 className="text-[#F84E6E] font-bold text-sm uppercase tracking-wider flex items-center gap-2"><ImageIcon size={14} /> {t('dashboard.creator_gallery')}</h3>
+                                        <p className="text-red-500 text-xs">{t('dashboard.creator_gallery_warning')}</p>
                                         {/* Subscription Barrier for Gallery */}
                                         {!hasSubscription && (!isFreeMode || kycStatus !== 'APPROVED') && (
                                             <div className="text-center py-4 px-2 border border-yellow-500/30 bg-yellow-500/10 rounded-xl mb-2">

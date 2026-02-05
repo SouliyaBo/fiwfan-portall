@@ -518,19 +518,20 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                                         {creator.chest && (
                                             <div className="flex justify-between items-center text-zinc-400">
                                                 <span>{t('sideline.chest')}</span>
-                                                <span className="text-white font-bold">{creator.chest}"</span>
+                                                <span className="text-white font-bold">{creator.chest === 0 ? "ไม่ระบุ" : creator.chest}"</span>
                                             </div>
                                         )}
+
                                         {creator.waist && (
                                             <div className="flex justify-between items-center text-zinc-400">
                                                 <span>{t('sideline.waist')}</span>
-                                                <span className="text-white font-bold">{creator.waist}"</span>
+                                                <span className="text-white font-bold">{creator.waist === 0 ? "" : creator.waist}"</span>
                                             </div>
                                         )}
                                         {creator.hips && (
                                             <div className="flex justify-between items-center text-zinc-400">
                                                 <span>{t('sideline.hips')}</span>
-                                                <span className="text-white font-bold">{creator.hips}"</span>
+                                                <span className="text-white font-bold">{creator.hips === 0 ? "" : creator.hips}"</span>
                                             </div>
                                         )}
                                     </div>

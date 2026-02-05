@@ -206,7 +206,7 @@ function HomeContent() {
                     <span className="bg-gradient-to-r from-pink-300 via-pink-400 to-rose-400 text-transparent bg-clip-text drop-shadow-[0_0_15px_rgba(244,114,182,0.6)]">Phu</span>
                     <span className="text-white drop-shadow-md">sao</span>
                     <span className="text-pink-400">💕</span> */}
-                    <Image src="/Phusao.gif" alt="logo" width={200} height={200} />
+                    <Image src="/logo-home.png" alt="logo" width={200} height={200} />
                 </p>
 
                 <div className="max-w-4xl mx-auto px-4 mb-8 space-y-4">
@@ -585,19 +585,13 @@ function CreatorCard({ creator }: { creator: Creator }) {
                             if (isAngel) {
                                 return (
                                     <div className="w-7 h-7 rounded-full  flex items-center justify-center text-white">
-                                        <Image src="/Angel2.gif" alt="angel" width={20} height={20} />
+                                        <Image src="/Star.png" alt="angel" width={30} height={30} />
                                     </div>
                                 );
                             } else if (isPopular) {
                                 return (
                                     <div className="w-7 h-7 rounded-full  flex items-center justify-center text-white">
-                                        <Image src="/Fire.gif" alt="Fire" width={20} height={20} />
-                                    </div>
-                                );
-                            } else if (isRisingStar) {
-                                return (
-                                    <div className="w-7 h-7 rounded-full bg-blue-600/90 backdrop-blur-md flex items-center justify-center border border-white/10 text-white shadow-lg shadow-blue-500/40">
-                                        <Image src="/Star.gif" alt="rising" width={20} height={20} />
+                                        <Image src="/Fire.png" alt="Fire" width={30} height={30} />
                                     </div>
                                 );
                             }
@@ -605,7 +599,7 @@ function CreatorCard({ creator }: { creator: Creator }) {
                         })()}
                         {creator.isVerified && (
                             <div className="w-7 h-7 rounded-full flex items-center justify-center">
-                                <Image src="/verification.gif" alt="Flag" width={25} height={25} />
+                                <Image src="/verification.png" alt="Flag" width={25} height={25} />
                             </div>
                         )}
                         {creator.isAcceptingWork === false && (
