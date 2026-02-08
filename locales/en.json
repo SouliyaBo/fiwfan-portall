@@ -585,7 +585,8 @@
         "weight": "Weight",
         "chest": "Chest",
         "waist": "Waist",
-        "hips": "Hips"
+        "hips": "Hips",
+        "package_details_default": "Ask for details"
     },
     "agency": {
         "not_found": "Agency not found",

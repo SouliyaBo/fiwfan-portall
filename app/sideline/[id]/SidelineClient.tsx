@@ -449,6 +449,7 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                                                     </span>
                                                 )}
                                             </h1>
+                                            <p className="text-sm text-zinc-500">อายุ: {creator.age} ปี</p>
                                         </div>
                                         {badgeLabel && (
                                             <div className={`${badgeStyle} text-xs font-bold px-2 py-1 rounded shadow-lg`}>
@@ -488,47 +489,48 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                                     {creator.bio ? creator.bio : t('sideline.default_bio')}
                                 </div>
 
-                                <div className="flex flex-wrap gap-2 text-sm text-[#F84E6E]">
+                                {/* <div className="flex flex-wrap gap-2 text-sm text-[#F84E6E]">
                                     {creator.services?.map((s, i) => (
                                         <span key={i} className="flex items-center gap-1">💙 {s}</span>
                                     ))}
-                                </div>
+                                </div> */}
 
                                 {/* Physical Stats */}
                                 {(creator.gender || creator.height || creator.weight || creator.chest || creator.waist || creator.hips) && (
                                     <div className="bg-white/5 rounded-xl p-4 grid grid-cols-2 gap-y-3 gap-x-4 text-sm border border-white/5">
-                                        {creator.gender && (
+                                        {creator.gender !== "" && (
                                             <div className="flex justify-between items-center text-zinc-400">
                                                 <span>{t('sideline.gender')}</span>
                                                 <span className="text-white font-bold">{creator.gender}</span>
                                             </div>
                                         )}
-                                        {creator.height && (
+                                        {creator.height !== 0 && (
                                             <div className="flex justify-between items-center text-zinc-400">
                                                 <span>{t('sideline.height')}</span>
                                                 <span className="text-white font-bold">{creator.height} cm</span>
                                             </div>
                                         )}
-                                        {creator.weight && (
+                                        {creator.weight !== 0 && (
                                             <div className="flex justify-between items-center text-zinc-400">
                                                 <span>{t('sideline.weight')}</span>
                                                 <span className="text-white font-bold">{creator.weight} kg</span>
                                             </div>
                                         )}
-                                        {creator.chest && (
+                                        {creator.chest !== 0 && (
                                             <div className="flex justify-between items-center text-zinc-400">
                                                 <span>{t('sideline.chest')}</span>
                                                 <span className="text-white font-bold">{creator.chest === 0 ? "ไม่ระบุ" : creator.chest}"</span>
                                             </div>
                                         )}
 
-                                        {creator.waist && (
+                                        {creator.waist !== 0 && (
                                             <div className="flex justify-between items-center text-zinc-400">
                                                 <span>{t('sideline.waist')}</span>
                                                 <span className="text-white font-bold">{creator.waist === 0 ? "" : creator.waist}"</span>
                                             </div>
                                         )}
-                                        {creator.hips && (
+
+                                        {creator.hips !== 0 && (
                                             <div className="flex justify-between items-center text-zinc-400">
                                                 <span>{t('sideline.hips')}</span>
                                                 <span className="text-white font-bold">{creator.hips === 0 ? "" : creator.hips}"</span>
@@ -537,34 +539,36 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                                     </div>
                                 )}
 
-                                <div className="text-xl font-bold text-white">
+                                {/* <div className="text-xl font-bold text-white">
                                     {creator.price}.- <span className="text-sm font-normal text-white">/ {creator.priceTime || '1 ชม.'} ({t('sideline.start_price')})</span>
-                                </div>
+                                </div> */}
 
                                 {/* Service Packages */}
                                 {creator.packages && creator.packages.length > 0 && (
-                                    <div className="space-y-2 pt-2 border-t border-zinc-200 dark:border-white/10 mt-2">
-                                        <h4 className="text-xs font-bold text-zinc-400 uppercase">{t('sideline.recommended_package')}</h4>
+                                    <div className="space-y-4 pt-4 border-t border-zinc-200 dark:border-white/10 mt-4">
+                                        <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-wider">{t('sideline.recommended_package')}</h4>
                                         <div className="space-y-3">
                                             {creator.packages.map((pkg, idx) => (
-                                                <div key={idx} className="flex items-center p-4 rounded-2xl bg-white/5 border border-white/5 gap-4">
-                                                    {/* Checkmark Circle */}
-                                                    <div className="w-10 h-10 rounded-full bg-[#F84E6E]/20 flex items-center justify-center text-[#F84E6E] flex-shrink-0">
-                                                        <Check size={20} strokeWidth={3} />
-                                                    </div>
-
-                                                    <div className="flex-1">
-                                                        <div className="font-bold text-lg sm:text-xl text-white flex flex-wrap items-center gap-2 align-middle">
-                                                            <span className="text-[#F84E6E]">{pkg.price}</span>
-                                                            <span className="text-white text-base">/</span>
-                                                            {pkg.details && (
-                                                                <>
-                                                                    <span>{pkg.details}</span>
-                                                                    <span className="text-white text-base">/</span>
-                                                                </>
-                                                            )}
-                                                            <span>{pkg.time}</span>
+                                                <div key={idx} className="group flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 hover:border-[#F84E6E]/30 transition-all gap-4">
+                                                    <div className="flex items-start gap-4 flex-1">
+                                                        <div className="mt-1 w-8 h-8 rounded-full bg-[#F84E6E]/10 flex items-center justify-center text-[#F84E6E] flex-shrink-0 group-hover:bg-[#F84E6E] group-hover:text-white transition">
+                                                            <Check size={16} strokeWidth={3} />
                                                         </div>
+                                                        <div className="space-y-1">
+                                                            <div className="text-[#F84E6E] font-bold text-lg sm:hidden">
+                                                                {pkg.price}
+                                                            </div>
+                                                            <p className="text-white text-sm font-medium leading-relaxed">
+                                                                {pkg.details || t('sideline.package_details_default')}
+                                                            </p>
+                                                            <div className="flex items-center gap-2 text-xs text-zinc-400">
+                                                                <div className="w-1.5 h-1.5 rounded-full bg-zinc-600"></div>
+                                                                <span>{pkg.time}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="hidden sm:block text-right pl-4 border-l border-white/10">
+                                                        <span className="text-[#F84E6E] font-bold text-lg whitespace-nowrap">{pkg.price}</span>
                                                     </div>
                                                 </div>
                                             ))}

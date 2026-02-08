@@ -586,7 +586,8 @@
         "add_favorite": "Add to favourite",
         "favourite": "Favourite",
         "loading": "กำลังโหลด...",
-        "creator_not_found": "ไม่พบโปรไฟล์"
+        "creator_not_found": "ไม่พบโปรไฟล์",
+        "package_details_default": "สอบถามรายละเอียด"
     },
     "agency": {
         "not_found": "ไม่พบสังกัด",

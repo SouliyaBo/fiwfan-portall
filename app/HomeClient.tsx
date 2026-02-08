@@ -202,11 +202,10 @@ function HomeContent() {
             {/* Search Hero */}
             <section className="text-center py-8">
                 <p className="text-3xl md:text-5xl font-extrabold mb-4 flex items-center justify-center gap-2 tracking-wide">
-                    {/* <Sparkles className="text-pink-400 animate-pulse" size={32} />
+                    <Sparkles className="text-pink-400 animate-pulse" size={32} />
                     <span className="bg-gradient-to-r from-pink-300 via-pink-400 to-rose-400 text-transparent bg-clip-text drop-shadow-[0_0_15px_rgba(244,114,182,0.6)]">Phu</span>
                     <span className="text-white drop-shadow-md">sao</span>
-                    <span className="text-pink-400">💕</span> */}
-                    <Image src="/logo-home.png" alt="logo" width={200} height={200} />
+                    <span className="text-pink-400">💕</span>
                 </p>
 
                 <div className="max-w-4xl mx-auto px-4 mb-8 space-y-4">

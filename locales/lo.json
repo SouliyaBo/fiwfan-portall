@@ -585,7 +585,8 @@
         "add_favorite": "ເພີ່ມໃນລາຍການໂປດ",
         "favourite": "ລາຍການໂປດ",
         "loading": "ກຳລັງໂຫຼດ...",
-        "creator_not_found": "ບໍ່ພົບໂປຣໄຟລ໌"
+        "creator_not_found": "ບໍ່ພົບໂປຣໄຟລ໌",
+        "package_details_default": "ສອບຖາມລາຍລະອຽດ"
     },
     "agency": {
         "not_found": "ບໍ່ພົບສັງກັດ",
