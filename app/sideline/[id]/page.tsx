@@ -61,6 +61,20 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
             images: creator.images && creator.images.length > 0 ? [creator.images[0]] : [],
             type: 'profile',
         },
+        alternates: {
+            canonical: `https://phusao.com/sideline/${id}`,
+        },
+        robots: {
+            index: true,
+            follow: true,
+            googleBot: {
+                index: true,
+                follow: true,
+                'max-video-preview': -1,
+                'max-image-preview': 'large',
+                'max-snippet': -1,
+            },
+        },
     };
 }
 
