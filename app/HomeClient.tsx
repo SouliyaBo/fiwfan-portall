@@ -57,7 +57,7 @@ function HomeContent({
     initialZones = [],
     initialTelegramUrl = "",
     initialJobCount = 0
-}: HomeContentProps) {
+}: HomeClientProps) {
     const { t } = useLanguage();
     const searchParams = useSearchParams();
     const [creators, setCreators] = useState<Creator[]>(initialCreators);
