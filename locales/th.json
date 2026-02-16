@@ -587,7 +587,9 @@
         "favourite": "Favourite",
         "loading": "กำลังโหลด...",
         "creator_not_found": "ไม่พบโปรไฟล์",
-        "package_details_default": "สอบถามรายละเอียด"
+        "package_details_default": "สอบถามรายละเอียด",
+        "review_min_length_error": "กรุณาติชมอย่างน้อย 25 ตัวอักษร",
+        "min_chars": "ตัวอักษรขั้นต่ำ"
     },
     "agency": {
         "not_found": "ไม่พบสังกัด",

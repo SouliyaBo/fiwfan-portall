@@ -586,7 +586,9 @@
         "chest": "Chest",
         "waist": "Waist",
         "hips": "Hips",
-        "package_details_default": "Ask for details"
+        "package_details_default": "Ask for details",
+        "review_min_length_error": "Please write at least 25 characters.",
+        "min_chars": "minimum characters"
     },
     "agency": {
         "not_found": "Agency not found",

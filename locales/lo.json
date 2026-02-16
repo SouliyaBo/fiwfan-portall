@@ -586,7 +586,9 @@
         "favourite": "ລາຍການໂປດ",
         "loading": "ກຳລັງໂຫຼດ...",
         "creator_not_found": "ບໍ່ພົບໂປຣໄຟລ໌",
-        "package_details_default": "ສອບຖາມລາຍລະອຽດ"
+        "package_details_default": "ສອບຖາມລາຍລະອຽດ",
+        "review_min_length_error": "ກະລຸນາຂຽນລີວິວຢ່າງຫນ້ອຍ 25 ຕົວອັກສອນ",
+        "min_chars": "ຕົວອັກສອນຂັ້ນຕ່ຳ"
     },
     "agency": {
         "not_found": "ບໍ່ພົບສັງກັດ",

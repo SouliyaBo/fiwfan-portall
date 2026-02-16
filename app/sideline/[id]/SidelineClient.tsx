@@ -100,6 +100,11 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                 return;
             }
 
+            if (reviewForm.comment.length < 25) {
+                toast.error(t('sideline.review_min_length_error') || "กรุณาเขียนรีวิวอย่างน้อย 25 ตัวอักษร");
+                return;
+            }
+
             // Upload images
             const imageUrls: string[] = [];
             for (const file of reviewImages) {
@@ -909,6 +914,11 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                                         className="w-full bg-black/30 border border-white/10 rounded-xl p-3 h-32 focus:outline-none focus:ring-2 focus:ring-[#F84E6E] text-white"
                                         placeholder={t('sideline.review_impression_placeholder')}
                                     />
+                                    <div className="flex justify-end mt-1">
+                                        <span className={`text-xs ${reviewForm.comment.length < 25 ? 'text-red-400' : 'text-green-400'}`}>
+                                            {reviewForm.comment.length} / 25 {t('sideline.min_chars') || "ตัวอักษรขั้นต่ำ"}
+                                        </span>
+                                    </div>
                                 </div>
 
                                 <div>

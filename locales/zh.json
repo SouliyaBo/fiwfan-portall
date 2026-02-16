@@ -588,7 +588,9 @@
         "favourite": "收藏",
         "loading": "加载中...",
         "creator_not_found": "未找到资料",
-        "package_details_default": "询问详情"
+        "package_details_default": "询问详情",
+        "review_min_length_error": "评论内容至少需要25个字符",
+        "min_chars": "最少字符"
     },
     "agency": {
         "not_found": "未找到机构",
