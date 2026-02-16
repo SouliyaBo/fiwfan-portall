@@ -6,7 +6,7 @@ import { getImageUrl } from "../../../lib/images";
 import { useEffect, useState } from "react";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { API_BASE_URL } from "../../../lib/constants";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Check, Zap } from "lucide-react";
 
 interface LocationClientProps {
     creators: any[];
@@ -139,7 +139,11 @@ function CreatorCard({ creator }: { creator: any }) {
         ? getImageUrl(avatarUrl)
         : `/mock/creators/${(parseInt((creator._id || "0").slice(-1), 16) % 8) + 1}.png`;
 
-    const planKey = (creator.planId || creator.planName || "").toUpperCase().replace(/ /g, '_');
+    const activeSub = creator.activeSubscription;
+    const planKey = (activeSub?.planType || creator.planId || creator.planName || "").toUpperCase().replace(/ /g, '_');
+
+    // Check for angel/popular status (mapped from plan or flags)
+    // Note: Adjust logic if plan names differ in your DB
     const isAngel = planKey === 'THE_ANGEL' || creator.isHot;
     const isPopular = planKey === 'POPULAR';
     const isRisingStar = planKey === 'RISING_STAR';
@@ -194,34 +198,38 @@ function CreatorCard({ creator }: { creator: any }) {
                     <div className="absolute top-2 right-2 flex flex-col gap-1 z-10">
 
                         <div className="w-7 h-7 rounded-full  flex items-center justify-center text-white">
-                            {creator?.country === "Thailand" ? <Image src="/Thai.gif" alt="Flag" width={20} height={20} /> : creator?.country === "Laos" ? <Image src="/Laos.gif" alt="Flag" width={20} height={20} /> : "🇹🇭"}
+                            {creator?.country === "Thailand" ? <Image src="/Thai.gif" alt="Flag" width={26} height={26} /> : creator?.country === "Laos" ? <Image src="/Laos.gif" alt="Flag" width={26} height={26} /> : "🇹🇭"}
                         </div>
 
                         {(() => {
                             if (isAngel) {
                                 return (
-                                    <div className="w-7 h-7 rounded-full  flex items-center justify-center text-white">
-                                        <Image src="/recommend.gif" alt="angel" width={20} height={20} />
+                                    <div className="relative group/angel w-7 h-7 flex items-center justify-center">
+                                        <div className="absolute inset-0 bg-amber-500 rounded-full opacity-60 animate-pulse group-hover/angel:animate-ping duration-1000"></div>
+                                        <div className="relative w-full h-full rounded-full flex items-center justify-center text-white bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 border-2 border-white shadow-md transform hover:scale-110 transition-all duration-300 z-10">
+                                            <span style={{ transform: "scaleX(-1)" }} className="inline-block -mr-1 text-lg leading-none filter drop-shadow-md">🪽</span>
+                                            <span className="text-lg leading-none filter drop-shadow-md">🪽</span>
+                                        </div>
                                     </div>
                                 );
                             } else if (isPopular) {
                                 return (
-                                    <div className="w-7 h-7 rounded-full  flex items-center justify-center text-white">
-                                        <Image src="/Fire.gif" alt="Fire" width={20} height={20} />
-                                    </div>
-                                );
-                            } else if (isRisingStar) {
-                                return (
-                                    <div className="w-7 h-7 rounded-full bg-blue-600/90 backdrop-blur-md flex items-center justify-center border border-white/10 text-white shadow-lg shadow-blue-500/40">
-                                        <Image src="/Star.gif" alt="rising" width={20} height={20} />
+                                    <div className="relative group/popular w-7 h-7 flex items-center justify-center">
+                                        <div className="absolute inset-0 bg-purple-500 rounded-full opacity-60 animate-pulse group-hover/popular:animate-ping duration-1000"></div>
+                                        <div className="relative w-full h-full rounded-full flex items-center justify-center text-white bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-600 border-2 border-white shadow-md transform hover:scale-110 transition-all duration-300 z-10">
+                                            <span className="text-lg leading-none filter drop-shadow-md">🔥</span>
+                                        </div>
                                     </div>
                                 );
                             }
                             return null;
                         })()}
                         {creator.isVerified && (
-                            <div className="w-7 h-7 rounded-full flex items-center justify-center">
-                                <Image src="/verification.gif" alt="Flag" width={25} height={25} />
+                            <div className="relative group/verify w-7 h-7 flex items-center justify-center">
+                                <div className="absolute inset-0 bg-emerald-500 rounded-full opacity-60 animate-pulse group-hover/verify:animate-ping duration-1000"></div>
+                                <div className="relative w-full h-full rounded-full flex items-center justify-center bg-gradient-to-br from-green-400 via-emerald-500 to-teal-600 border-2 border-white shadow-md z-10">
+                                    <Check className="w-4 h-4 text-white font-bold drop-shadow-md" strokeWidth={4} />
+                                </div>
                             </div>
                         )}
                         {creator.isAcceptingWork === false && (
@@ -240,7 +248,7 @@ function CreatorCard({ creator }: { creator: any }) {
                             {creator.displayName}
                         </h2>
                         <span className="bg-green-600 text-white text-[10px] px-2 py-0.5 rounded-full font-medium truncate max-w-[35%] shadow-sm shadow-green-900/20">
-                            {creator.zones && creator.zones.length > 0 ? creator.zones[0] : "Bangkok"}
+                            {creator.zones && creator.zones.length > 0 ? creator.zones[0] : (creator.province || "Bangkok")}
                         </span>
                     </div>
 

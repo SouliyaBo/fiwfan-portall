@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Send, Flame, Sparkles } from "lucide-react";
+import { Send, Flame, Sparkles, Check } from "lucide-react";
 import { useState, useEffect } from "react";
 import { API_BASE_URL } from "../../lib/constants";
 import { getImageUrl } from "../../lib/images";
@@ -159,6 +159,8 @@ export default function AgencyPage() {
     );
 }
 
+
+
 function ModelCard({ creator, index }: { creator: any, index: number }) {
     const { t } = useLanguage();
     // Determine image logic: Gallery -> Avatar -> Mock
@@ -167,7 +169,10 @@ function ModelCard({ creator, index }: { creator: any, index: number }) {
         ? getImageUrl(avatarUrl)
         : `/mock/creators/${(parseInt(creator._id.slice(-1), 16) % 8) + 1}.png`;
 
-    const planKey = (creator.planId || creator.planName || "").toUpperCase().replace(/ /g, '_');
+    const activeSub = creator.activeSubscription;
+    const planKey = (activeSub?.planType || creator.planId || creator.planName || "").toUpperCase().replace(/ /g, '_');
+
+    // Safety for Agency page where extra creator fields might be missing initially
     const isAngel = planKey === 'THE_ANGEL' || creator.isHot;
     const isPopular = planKey === 'POPULAR';
     const isRisingStar = planKey === 'RISING_STAR';
@@ -177,6 +182,7 @@ function ModelCard({ creator, index }: { creator: any, index: number }) {
         : creator.planName || "";
 
     // Dynamic card styling with gradients
+    // Using w-48 h-72 specifically for the horizontal scrolling cards in Agency list
     let containerClasses = "block relative rounded-[14px] overflow-hidden group transition shadow-lg hover:shadow-xl hover:-translate-y-1 w-48 h-72 shrink-0 flex flex-col";
     let innerClasses = "relative w-full h-full bg-[#0a101f] overflow-hidden flex flex-col";
 
@@ -210,7 +216,7 @@ function ModelCard({ creator, index }: { creator: any, index: number }) {
             )}
             <div className={innerClasses}>
                 {/* Image Section */}
-                <div className="relative h-full w-full overflow-hidden">
+                <div className="relative aspect-[3/4] w-full overflow-hidden">
                     <Image
                         src={imageSrc}
                         alt={creator.displayName || "Creator"}
@@ -222,34 +228,38 @@ function ModelCard({ creator, index }: { creator: any, index: number }) {
                     <div className="absolute top-2 right-2 flex flex-col gap-1 z-10">
 
                         <div className="w-7 h-7 rounded-full  flex items-center justify-center text-white">
-                            {creator?.country === "Thailand" ? <Image src="/Thai.gif" alt="Flag" width={20} height={20} /> : creator?.country === "Laos" ? <Image src="/Laos.gif" alt="Flag" width={20} height={20} /> : "🇹🇭"}
+                            {creator?.country === "Thailand" ? <Image src="/Thai.gif" alt="Flag" width={26} height={26} /> : creator?.country === "Laos" ? <Image src="/Laos.gif" alt="Flag" width={26} height={26} /> : "🇹🇭"}
                         </div>
 
                         {(() => {
                             if (isAngel) {
                                 return (
-                                    <div className="w-7 h-7 rounded-full  flex items-center justify-center text-white">
-                                        <Image src="/recommend.gif" alt="angel" width={20} height={20} />
+                                    <div className="relative group/angel w-7 h-7 flex items-center justify-center">
+                                        <div className="absolute inset-0 bg-amber-500 rounded-full opacity-60 animate-pulse group-hover/angel:animate-ping duration-1000"></div>
+                                        <div className="relative w-full h-full rounded-full flex items-center justify-center text-white bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 border-2 border-white shadow-md transform hover:scale-110 transition-all duration-300 z-10">
+                                            <span style={{ transform: "scaleX(-1)" }} className="inline-block -mr-1 text-lg leading-none filter drop-shadow-md">🪽</span>
+                                            <span className="text-lg leading-none filter drop-shadow-md">🪽</span>
+                                        </div>
                                     </div>
                                 );
                             } else if (isPopular) {
                                 return (
-                                    <div className="w-7 h-7 rounded-full  flex items-center justify-center text-white">
-                                        <Image src="/Fire.gif" alt="Fire" width={20} height={20} />
-                                    </div>
-                                );
-                            } else if (isRisingStar) {
-                                return (
-                                    <div className="w-7 h-7 rounded-full bg-blue-600/90 backdrop-blur-md flex items-center justify-center border border-white/10 text-white shadow-lg shadow-blue-500/40">
-                                        <Image src="/Star.gif" alt="rising" width={20} height={20} />
+                                    <div className="relative group/popular w-7 h-7 flex items-center justify-center">
+                                        <div className="absolute inset-0 bg-purple-500 rounded-full opacity-60 animate-pulse group-hover/popular:animate-ping duration-1000"></div>
+                                        <div className="relative w-full h-full rounded-full flex items-center justify-center text-white bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-600 border-2 border-white shadow-md transform hover:scale-110 transition-all duration-300 z-10">
+                                            <span className="text-lg leading-none filter drop-shadow-md">🔥</span>
+                                        </div>
                                     </div>
                                 );
                             }
                             return null;
                         })()}
                         {creator.isVerified && (
-                            <div className="w-7 h-7 rounded-full flex items-center justify-center">
-                                <Image src="/verification.gif" alt="Flag" width={25} height={25} />
+                            <div className="relative group/verify w-7 h-7 flex items-center justify-center">
+                                <div className="absolute inset-0 bg-emerald-500 rounded-full opacity-60 animate-pulse group-hover/verify:animate-ping duration-1000"></div>
+                                <div className="relative w-full h-full rounded-full flex items-center justify-center bg-gradient-to-br from-green-400 via-emerald-500 to-teal-600 border-2 border-white shadow-md z-10">
+                                    <Check className="w-4 h-4 text-white font-bold drop-shadow-md" strokeWidth={4} />
+                                </div>
                             </div>
                         )}
                         {creator.isAcceptingWork === false && (
@@ -260,50 +270,6 @@ function ModelCard({ creator, index }: { creator: any, index: number }) {
                     </div>
                 </div>
 
-                {/* Info Overlay (Agency style distinct from Home/AgencyDetail) - Wait, user asked to make it LIKE the one just now.
-                   The one just now (CreatorCard) has "Info Section" below the image.
-                   The ModelCard here is smaller (w-48 h-72) and was originally an OVERLAY style.
-                   If I change it to "Info Section below", the layout implies a taller card or squashed image.
-                   The AgencyDetail card is flex-col with image- [x] Populate Plan Data in Agency API <!-- id: 14 -->
-- [x] Sync ModelCard Style in Agency Listing <!-- id: 15 -->
-- [ ] Verify the changes <!-- id: 5 -->                
-                   If I use the EXACT code from CreatorCard, it expects "aspect-[3/4]" for image and then info below.
-                   The styles I copied above `containerClasses` uses `h-full flex flex-col`.
-                   Wait, `ModelCard` puts it in `w-48 h-72`.
-                   If I use flex-col layout inside h-72:
-                   Image takes remaining space?
-                   If I follow CreatorCard structure exactly, I need to fit it in w-48.
-                   
-                   Let's TRY to adapt the structure to match CreatorCard but respect the small size if needed?
-                   Actually, `AgencyPage` displays them in a horizontal scroll. `w-48` is fixed width.
-                   Let's use the CreatorCard structure but adapted to be `h-full` (with image taking flex-1 or aspect).
-                   
-                   In my copied code above:
-                   `let innerClasses = "relative w-full h-full bg-[#0a101f] overflow-hidden flex flex-col";`
-                   
-                   I will structure it as:
-                   Image (flex-1 or large aspect)
-                   Info (condensed?)
-                   
-                   Actually, the user said "Make this part like the one just now".
-                   The safest bet is to use the EXACT structure of CreatorCard (Image top, Info bottom) and let it scale into the container `w-48 h-72`.
-                   
-                   In the replacement content below, I'm using the structure from CreatorCard:
-                   Div (Image)
-                   Div (Info)
-                   
-                   But I need to adjust the Image container. CreatorCard uses `aspect-[3/4]`. 
-                   If `w-48` (192px), `h` would be 256px. Total card `h-72` (288px). That leaves 32px for info. That's tight but maybe okay.
-                   
-                   Let's modify the Image container in my replacement content to be `flex-1` instead of fixed aspect, so it fills updated available space, or keep aspect and see.
-                   I'll set Image container to `class="relative flex-1 w-full overflow-hidden"` so it takes available space?
-                   No, `CreatorCard` uses `aspect-[3/4]`.
-                   
-                   Functionally, I should probably stick to `aspect-[3/4]` or `h-[75%]`?
-                   Let's try `relative flex-1 w-full overflow-hidden` for the image div, so it pushes the info down.
-                   And the info div will take the rest.
-                */}
-
                 {/* Info Section */}
                 <div className="flex flex-col mt-auto">
                     {/* Name & Zone */}
@@ -312,7 +278,7 @@ function ModelCard({ creator, index }: { creator: any, index: number }) {
                             {creator.displayName}
                         </h2>
                         <span className="bg-green-600 text-white text-[9px] px-1.5 py-0.5 rounded-full font-medium truncate max-w-[35%] shadow-sm shadow-green-900/20">
-                            {creator.zones && creator.zones.length > 0 ? creator.zones[0] : "Bangkok"}
+                            {creator.zones && creator.zones.length > 0 ? creator.zones[0] : (creator.province || "Bangkok")}
                         </span>
                     </div>
 

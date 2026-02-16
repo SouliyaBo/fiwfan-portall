@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronRight, Search, Building2, Send, Sparkles, Megaphone } from "lucide-react";
+import { ChevronRight, Search, Building2, Send, Sparkles, Megaphone, Check } from "lucide-react";
 import { useEffect, useState } from "react";
 import { API_BASE_URL } from "../lib/constants";
 import { getImageUrl } from "../lib/images";
@@ -41,22 +41,38 @@ interface Agency {
     country?: string;
 }
 
-function HomeContent() {
+interface HomeClientProps {
+    initialCreators?: Creator[];
+    initialAgencies?: Agency[];
+    initialStories?: any[];
+    initialZones?: any[];
+    initialTelegramUrl?: string;
+    initialJobCount?: number;
+}
+
+function HomeContent({
+    initialCreators = [],
+    initialAgencies = [],
+    initialStories = [],
+    initialZones = [],
+    initialTelegramUrl = "",
+    initialJobCount = 0
+}: HomeContentProps) {
     const { t } = useLanguage();
     const searchParams = useSearchParams();
-    const [creators, setCreators] = useState<Creator[]>([]);
-    const [agencies, setAgencies] = useState<Agency[]>([]);
-    const [stories, setStories] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [creators, setCreators] = useState<Creator[]>(initialCreators);
+    const [agencies, setAgencies] = useState<Agency[]>(initialAgencies);
+    const [stories, setStories] = useState<any[]>(initialStories);
+    const [loading, setLoading] = useState(initialCreators.length === 0);
     const [searchTerm, setSearchTerm] = useState("");
     const [usePreferences, setUsePreferences] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [selectedStoryCreatorIndex, setSelectedStoryCreatorIndex] = useState<number | null>(null);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [activeFilters, setActiveFilters] = useState<any>({});
-    const [zones, setZones] = useState<any[]>([]);
-    const [telegramUrl, setTelegramUrl] = useState("");
-    const [jobCount, setJobCount] = useState(0);
+    const [zones, setZones] = useState<any[]>(initialZones);
+    const [telegramUrl, setTelegramUrl] = useState(initialTelegramUrl);
+    const [jobCount, setJobCount] = useState(initialJobCount);
     const [selectedCountry, setSelectedCountry] = useState("Thailand");
 
     useEffect(() => {
@@ -77,13 +93,27 @@ function HomeContent() {
         if (location) filters.location = location;
         if (name) filters.name = name;
 
-        fetchCreators(filters, false);
+        // If we have initial data and no filters are active (or initial data matches filters - simplified here), 
+        // we might skip fetching. But typically searchParams changing means we should refetch.
+        // For simple SSR -> CSR transition:
+        // If it's the first mount and we have initialCreators, we might want to skip.
+        // But simpler logic: just fetch only if we don't have data OR if params changed?
+        // Actually, easiest is: always fetch on param change, but if initial mount matches params, use initial.
 
-        fetchAgencies();
-        fetchStories();
-        fetchZones();
-        fetchTelegramUrl();
-        fetchJobCount();
+        // Use a ref or simple check? 
+        // Let's just fetch if searchParams are present OR if it's a client-side navigation.
+        // For now, let's keep the fetch logic but maybe optimize later. 
+        // Or if we want to rely on SSR data for initial load:
+
+        if (Object.keys(filters).length > 0 || initialCreators.length === 0) {
+            fetchCreators(filters, false);
+        }
+
+        if (initialAgencies.length === 0) fetchAgencies();
+        if (initialStories.length === 0) fetchStories();
+        if (initialZones.length === 0) fetchZones();
+        if (!initialTelegramUrl) fetchTelegramUrl();
+        if (initialJobCount === 0) fetchJobCount();
     }, [searchParams]);
 
     const fetchTelegramUrl = async () => {
@@ -368,7 +398,10 @@ function HomeContent() {
                             .some(c => (c.planId === 'THE_ANGEL' || c.planName === 'The_Angel' || c.planName === 'THE_ANGEL' || c.isHot)) && (
                                 <div className="mb-8">
                                     <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                                        <span className="text-2xl">🔥</span> The Angel Phusao
+                                        <span className="text-2xl flex items-center">
+                                            <span style={{ transform: "scaleX(-1)" }} className="inline-block -mr-1">🪽</span>
+                                            <span>🪽</span>
+                                        </span> The Angel Phusao
                                     </h3>
                                     <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                                         {creators
@@ -387,7 +420,7 @@ function HomeContent() {
                             .some(c => (c.planId === 'POPULAR' || c.planName === 'Popular' || c.planName === 'POPULAR')) && (
                                 <div className="mb-8">
                                     <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                                        <span className="text-2xl">⭐</span> Popular Phusao
+                                        <span className="text-2xl">🔥</span> Popular Phusao
                                     </h3>
                                     <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                                         {creators
@@ -576,29 +609,39 @@ function CreatorCard({ creator }: { creator: Creator }) {
                     <div className="absolute top-2 right-2 flex flex-col gap-1 z-10">
 
                         <div className="w-7 h-7 rounded-full  flex items-center justify-center text-white">
-                            {creator?.country === "Thailand" ? <Image src="/Thai.gif" alt="Flag" width={20} height={20} /> : creator?.country === "Laos" ? <Image src="/Laos.gif" alt="Flag" width={20} height={20} /> : "🇹🇭"}
+                            {creator?.country === "Thailand" ? <Image src="/Thai.gif" alt="Flag" width={26} height={26} /> : creator?.country === "Laos" ? <Image src="/Laos.gif" alt="Flag" width={26} height={26} /> : "🇹🇭"}
                         </div>
 
                         {(() => {
 
                             if (isAngel) {
                                 return (
-                                    <div className="w-7 h-7 rounded-full  flex items-center justify-center text-white">
-                                        <Image src="/Star.png" alt="angel" width={30} height={30} />
+                                    <div className="relative group/angel w-7 h-7 flex items-center justify-center">
+                                        <div className="absolute inset-0 bg-amber-500 rounded-full opacity-60 animate-pulse group-hover/angel:animate-ping duration-1000"></div>
+                                        <div className="relative w-full h-full rounded-full flex items-center justify-center text-white bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 border border-white shadow-md transform hover:scale-110 transition-all duration-300 z-10">
+                                            <span style={{ transform: "scaleX(-1)" }} className="inline-block -mr-1 text-lg leading-none filter drop-shadow-md">🪽</span>
+                                            <span className="text-lg leading-none filter drop-shadow-md">🪽</span>
+                                        </div>
                                     </div>
                                 );
                             } else if (isPopular) {
                                 return (
-                                    <div className="w-7 h-7 rounded-full  flex items-center justify-center text-white">
-                                        <Image src="/Fire.png" alt="Fire" width={30} height={30} />
+                                    <div className="relative group/popular w-7 h-7 flex items-center justify-center">
+                                        <div className="absolute inset-0 bg-purple-500 rounded-full opacity-60 animate-pulse group-hover/popular:animate-ping duration-1000"></div>
+                                        <div className="relative w-full h-full rounded-full flex items-center justify-center text-white bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-600 border border-white shadow-md transform hover:scale-110 transition-all duration-300 z-10">
+                                            <span className="text-lg leading-none filter drop-shadow-md">🔥</span>
+                                        </div>
                                     </div>
                                 );
                             }
                             return null;
                         })()}
                         {creator.isVerified && (
-                            <div className="w-7 h-7 rounded-full flex items-center justify-center">
-                                <Image src="/verification.png" alt="Flag" width={25} height={25} />
+                            <div className="relative group/verify w-7 h-7 flex items-center justify-center">
+                                <div className="absolute inset-0 bg-emerald-500 rounded-full opacity-60 animate-pulse group-hover/verify:animate-ping duration-1000"></div>
+                                <div className="relative w-full h-full rounded-full flex items-center justify-center bg-gradient-to-br from-green-400 via-emerald-500 to-teal-600 border border-white shadow-md z-10">
+                                    <Check className="w-4 h-4 text-white font-bold drop-shadow-md" strokeWidth={4} />
+                                </div>
                             </div>
                         )}
                         {creator.isAcceptingWork === false && (

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { MessageCircle, Star, MapPin, Share2, ArrowLeft, ChevronLeft, ChevronRight, Check, Flag, Heart, Instagram, Phone, Car, Train, Zap } from "lucide-react";
+import { MessageCircle, Star, MapPin, Share2, ArrowLeft, ChevronLeft, ChevronRight, Check, Flag, Heart, Instagram, Phone, Car, Train, Zap, Sparkles } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { API_BASE_URL } from "../../../lib/constants";
@@ -713,51 +713,141 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                         </div>
 
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                            {recommendedCreators.map((item) => (
-                                <div
-                                    key={item._id}
-                                    onClick={() => {
-                                        router.push(`/sideline/${item._id}`);
-                                        window.scrollTo(0, 0);
-                                    }}
-                                    className="group bg-white/5 rounded-2xl overflow-hidden border border-white/5 hover:border-[#F84E6E]/50 transition duration-300 cursor-pointer shadow-sm hover:shadow-xl"
-                                >
-                                    <div className="aspect-[3/4] relative bg-white/5">
-                                        {(item.images?.[0] || item.user?.avatarUrl) ? (
-                                            <Image
-                                                src={getImageUrl(item.images?.[0] || item.user?.avatarUrl)}
-                                                fill
-                                                className="object-cover group-hover:scale-110 transition duration-500"
-                                                alt={item.displayName}
-                                            />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center">
-                                                <User size={40} className="text-zinc-300" />
-                                            </div>
+                            {recommendedCreators.map((item) => {
+                                const activeSub = item.activeSubscription;
+                                const planKey = activeSub?.planType || item.planId || "";
+                                const isAngel = planKey === 'THE_ANGEL' || item.isHot;
+                                const isPopular = planKey === 'POPULAR';
+                                const isRisingStar = planKey === 'RISING_STAR';
+
+                                const displayPlanName = activeSub?.planType ? t(`plan_names.${activeSub.planType}`) : (item.planName || "");
+
+                                // Dynamic card styling from HomeClient
+                                let containerClasses = "block relative rounded-[14px] overflow-hidden group transition shadow-lg hover:shadow-xl hover:-translate-y-1 h-full flex flex-col";
+                                let innerClasses = "relative w-full h-full bg-[#0a101f] overflow-hidden flex flex-col";
+
+                                if (isAngel) {
+                                    containerClasses += " p-[3px] bg-gradient-to-br from-[#FCD34D] via-[#F59E0B] to-[#EF4444] shadow-xl shadow-amber-500/50 hover:shadow-2xl hover:shadow-amber-500/70 rounded-2xl";
+                                    innerClasses += " rounded-[13px]";
+                                } else if (isPopular) {
+                                    containerClasses += " p-[3px] bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-600 shadow-purple-500/30 rounded-2xl";
+                                    innerClasses += " rounded-[13px]";
+                                } else if (isRisingStar) {
+                                    containerClasses += " p-[3px] bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600 shadow-blue-500/30 rounded-2xl";
+                                    innerClasses += " rounded-[13px]";
+                                } else {
+                                    containerClasses += " border border-white/5 bg-zinc-900 rounded-2xl";
+                                    innerClasses += " rounded-[15px]";
+                                }
+
+                                const imageSrc = (item.images?.[0] || item.user?.avatarUrl)
+                                    ? getImageUrl(item.images?.[0] || item.user?.avatarUrl)
+                                    : `/mock/creators/${(parseInt(item._id.slice(-1), 16) % 8) + 1}.png`;
+
+                                return (
+                                    <Link
+                                        key={item._id}
+                                        href={`/sideline/${item._id}`}
+                                        className={containerClasses}
+                                        onClick={() => window.scrollTo(0, 0)}
+                                    >
+                                        {isAngel && (
+                                            <>
+                                                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent z-20 pointer-events-none mix-blend-overlay" />
+                                                <div className="absolute -inset-full top-0 block h-full w-1/2 -skew-x-12 bg-gradient-to-r from-transparent to-white opacity-40 group-hover:animate-shine z-20" />
+                                            </>
                                         )}
+                                        <div className={innerClasses}>
+                                            <div className="aspect-[3/4] relative w-full overflow-hidden bg-white/5">
+                                                <Image
+                                                    src={imageSrc}
+                                                    fill
+                                                    className="object-cover group-hover:scale-110 transition duration-700"
+                                                    alt={item.displayName}
+                                                />
 
-                                        {/* Status Badges Overlay */}
-                                        <div className="absolute top-3 left-3 flex flex-col gap-2">
-                                            <div className="bg-red-500 text-white p-1.5 rounded-full shadow-lg">
-                                                <Zap size={14} fill="currentColor" />
+                                                {/* Status Icons Overlay */}
+                                                <div className="absolute top-2 right-2 flex flex-col gap-1 z-10">
+                                                    <div className="w-7 h-7 rounded-full flex items-center justify-center text-white">
+                                                        {item?.country === "Thailand" ? <Image src="/Thai.gif" alt="Flag" width={26} height={26} /> : item?.country === "Laos" ? <Image src="/Laos.gif" alt="Flag" width={26} height={26} /> : "🇹🇭"}
+                                                    </div>
+
+                                                    {(() => {
+                                                        if (isAngel) {
+                                                            return (
+                                                                <div className="relative group/angel w-7 h-7 flex items-center justify-center">
+                                                                    <div className="absolute inset-0 bg-amber-500 rounded-full opacity-60 animate-pulse group-hover/angel:animate-ping duration-1000"></div>
+                                                                    <div className="relative w-full h-full rounded-full flex items-center justify-center text-white bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 border-2 border-white shadow-md transform hover:scale-110 transition-all duration-300 z-10">
+                                                                        <span style={{ transform: "scaleX(-1)" }} className="inline-block -mr-1 text-lg leading-none filter drop-shadow-md">🪽</span>
+                                                                        <span className="text-lg leading-none filter drop-shadow-md">🪽</span>
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        } else if (isPopular) {
+                                                            return (
+                                                                <div className="relative group/popular w-7 h-7 flex items-center justify-center">
+                                                                    <div className="absolute inset-0 bg-purple-500 rounded-full opacity-60 animate-pulse group-hover/popular:animate-ping duration-1000"></div>
+                                                                    <div className="relative w-full h-full rounded-full flex items-center justify-center text-white bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-600 border-2 border-white shadow-md transform hover:scale-110 transition-all duration-300 z-10">
+                                                                        <span className="text-lg leading-none filter drop-shadow-md">🔥</span>
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        }
+                                                        return null;
+                                                    })()}
+
+                                                    {item.isVerified && (
+                                                        <div className="relative group/verify w-7 h-7 flex items-center justify-center">
+                                                            <div className="absolute inset-0 bg-emerald-500 rounded-full opacity-60 animate-pulse group-hover/verify:animate-ping duration-1000"></div>
+                                                            <div className="relative w-full h-full rounded-full flex items-center justify-center bg-gradient-to-br from-green-400 via-emerald-500 to-teal-600 border-2 border-white shadow-md z-10">
+                                                                <Check className="w-4 h-4 text-white font-bold drop-shadow-md" strokeWidth={4} />
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {item.isAcceptingWork === false && (
+                                                        <div className="w-7 h-7 rounded-full bg-black/80 backdrop-blur-md flex items-center justify-center border border-white/10 text-white">
+                                                            <span className="text-[8px] font-bold text-red-500">OFF</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <div className="flex flex-col">
+                                                {/* Name & Zone */}
+                                                <div className="bg-[#111827] px-3 py-2 flex items-center justify-between border-t border-white/5">
+                                                    <h2 className="font-bold text-white text-sm truncate pr-2 max-w-[65%]">
+                                                        {item.displayName}
+                                                    </h2>
+                                                    <span className="bg-green-600 text-white text-[10px] px-2 py-0.5 rounded-full font-medium truncate max-w-[35%] shadow-sm shadow-green-900/20">
+                                                        {item.zones && item.zones.length > 0 ? item.zones[0] : (item.province || "Bangkok")}
+                                                    </span>
+                                                </div>
+
+                                                {/* Review Bar */}
+                                                <div className="bg-gradient-to-r from-[#be123c]/90 to-transparent px-3 py-1.5 flex items-center justify-between text-white shadow-inner relative z-10">
+                                                    <div className="flex items-center gap-1">
+                                                        <div className="flex bg-white/20 rounded px-1 py-0.5 gap-0.5">
+                                                            {[1, 2, 3].map(i => <Sparkles key={i} size={8} className="text-yellow-200 fill-yellow-200" />)}
+                                                        </div>
+                                                    </div>
+                                                    <span className="font-bold text-[11px] tracking-wide opacity-90">{item.reviewCount || 0} : รีวิว</span>
+                                                </div>
+
+                                                {/* Footer: Age & Plan */}
+                                                <div className="bg-[#0f172a] px-3 py-2 flex items-center justify-between text-white border-t border-white/5 pb-3">
+                                                    <div className="text-xs text-zinc-400 font-medium">
+                                                        อายุ <span className="text-white text-sm font-bold">{item.age || "??"}</span>
+                                                    </div>
+                                                    <span className={`text-[11px] font-bold px-2 py-0.5 rounded border ${isAngel ? 'text-red-300 border-red-500/30 bg-red-500/10' : isPopular ? 'text-purple-300 border-purple-500/30 bg-purple-500/10' : isRisingStar ? 'text-blue-300 border-blue-500/30 bg-blue-500/10' : 'text-zinc-400 border-zinc-700 bg-zinc-800'}`}>
+                                                        {displayPlanName || "MEMBER"}
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
-
-                                        <div className="absolute bottom-3 left-3">
-                                            <div className="bg-green-500 rounded-full p-1 border-2 border-white shadow-lg">
-                                                <Check size={12} className="text-white" strokeWidth={4} />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="p-4">
-                                        <h3 className="font-bold text-white truncate group-hover:text-[#F84E6E] transition">{item.displayName}</h3>
-                                        <div className="flex items-center gap-1 text-[10px] text-gray-400 mt-1">
-                                            <MapPin size={10} />
-                                            {item.province || t('sideline.bangkok')}, {item.country || "Thailand"}
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
+                                    </Link>
+                                )
+                            })}
                         </div>
                     </div>
                 )}
