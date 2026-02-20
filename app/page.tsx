@@ -82,17 +82,39 @@ async function getData() {
 export default async function Home() {
   const data = await getData();
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Phusao',
+    url: 'https://phusao.com',
+    description: 'ค้นหาสาวไซด์ไลน์ เด็กเอน สาวพีอาร์ ตรงปก 100% รีวิวจริง มีคลิปยืนยัน ครอบคลุมไทยและลาว',
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: 'https://phusao.com/?search={search_term_string}',
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  };
+
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#020617] text-white flex items-center justify-center">Loading...</div>}>
-      <HomeClient
-        initialCreators={data.creators}
-        initialAgencies={data.agencies}
-        initialStories={data.stories}
-        initialZones={data.zones}
-        initialTelegramUrl={data.telegramUrl}
-        initialJobCount={data.jobCount}
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-    </Suspense>
+      <Suspense fallback={<div className="min-h-screen bg-[#020617] text-white flex items-center justify-center">Loading...</div>}>
+        <HomeClient
+          initialCreators={data.creators}
+          initialAgencies={data.agencies}
+          initialStories={data.stories}
+          initialZones={data.zones}
+          initialTelegramUrl={data.telegramUrl}
+          initialJobCount={data.jobCount}
+        />
+      </Suspense>
+    </>
   );
 }
 

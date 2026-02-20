@@ -2,17 +2,33 @@ import { MetadataRoute } from 'next';
 import { API_BASE_URL } from '../lib/constants';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    // Base URLs
+    // Base URLs - Main Pages
     const routes = [
         '',
         '/agency',
         '/auth',
         '/plans',
+        '/jobs',
     ].map((route) => ({
         url: `https://phusao.com${route}`,
         lastModified: new Date(),
         changeFrequency: 'daily' as const,
-        priority: 1,
+        priority: route === '' ? 1 : 0.8,
+    }));
+
+    // Static / Legal Pages
+    const staticRoutes = [
+        '/terms',
+        '/privacy',
+        '/faq',
+        '/gdpr',
+        '/contact',
+        '/leaderboard',
+    ].map((route) => ({
+        url: `https://phusao.com${route}`,
+        lastModified: new Date(),
+        changeFrequency: 'monthly' as const,
+        priority: 0.3,
     }));
 
     // Fetch Creators
@@ -69,5 +85,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         console.error("Sitemap fetch zones failed", error);
     }
 
-    return [...routes, ...creatorUrls, ...agencyUrls, ...locationUrls];
+    return [...routes, ...staticRoutes, ...creatorUrls, ...agencyUrls, ...locationUrls];
 }

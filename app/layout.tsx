@@ -24,8 +24,25 @@ const notoSansLao = Noto_Sans_Lao({
 });
 
 export const metadata: Metadata = {
-  title: "Phusao",
-  description: "Creator & Agency Portal",
+  metadataBase: new URL('https://phusao.com'),
+  title: {
+    default: "Phusao - สาวลาว สาวพีอาร์ เด็กเอน ไซด์ไลน์ ตรงปก 100%",
+    template: "%s | Phusao",
+  },
+  description: "ค้นหาสาวไซด์ไลน์ เด็กเอน สาวพีอาร์ ตรงปก 100% รีวิวจริง มีคลิปยืนยัน ครอบคลุมไทยและลาว | Phusao.com",
+  keywords: ["ไซด์ไลน์", "เด็กเอน", "สาวพีอาร์", "sideline", "Phusao", "รับงาน", "หาคู่เดท", "ไซไล", "phusao"],
+  openGraph: {
+    type: "website",
+    siteName: "Phusao",
+    locale: "th_TH",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
   verification: {
     google: "wpSSc1eQpNvWIejUDf9kJ6QV4O-DYkb6PKN1pFga-Jw",
   },

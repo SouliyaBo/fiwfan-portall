@@ -34,6 +34,18 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
             description: description,
             type: 'website',
         },
+        alternates: {
+            canonical: `/location/${encodeURIComponent(locationName)}`,
+        },
+        robots: {
+            index: true,
+            follow: true,
+            googleBot: {
+                index: true,
+                follow: true,
+                'max-image-preview': 'large',
+            },
+        },
     };
 }
 
@@ -43,7 +55,22 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
     console.log("locationName: ", locationName)
     const creators = await fetchCreators(locationName);
 
+    const jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        name: `ไซด์ไลน์ ${locationName}`,
+        description: `รวมน้องๆ ไซด์ไลน์ โซน${locationName}`,
+        url: `https://phusao.com/location/${encodeURIComponent(locationName)}`,
+        numberOfItems: Array.isArray(creators) ? creators.length : 0,
+    };
+
     return (
-        <LocationClient creators={creators} locationName={locationName} />
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+            <LocationClient creators={creators} locationName={locationName} />
+        </>
     );
 }

@@ -61,6 +61,18 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
             images: agency.bannerUrl ? [agency.bannerUrl] : (agency.logoUrl ? [agency.logoUrl] : []),
             type: 'website',
         },
+        alternates: {
+            canonical: `/agency/${id}`,
+        },
+        robots: {
+            index: true,
+            follow: true,
+            googleBot: {
+                index: true,
+                follow: true,
+                'max-image-preview': 'large',
+            },
+        },
     };
 }
 

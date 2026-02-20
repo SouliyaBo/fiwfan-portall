@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
         rules: {
             userAgent: '*',
             allow: '/',
-            disallow: ['/dashboard/', '/admin/', '/check-homework/'],
+            disallow: ['/dashboard/', '/admin/', '/check-homework/', '/auth/', '/api/'],
         },
         sitemap: 'https://phusao.com/sitemap.xml', // Domain alias
     };
