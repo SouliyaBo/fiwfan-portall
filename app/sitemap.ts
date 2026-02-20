@@ -9,6 +9,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         '/auth',
         '/plans',
         '/jobs',
+        '/profiles',
     ].map((route) => ({
         url: `https://phusao.com${route}`,
         lastModified: new Date(),
@@ -31,13 +32,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.3,
     }));
 
-    // Fetch Creators
+    // Fetch ALL Creators (unfiltered — for maximum indexing coverage)
     let creatorUrls: MetadataRoute.Sitemap = [];
     try {
-        // In build time or server run, fetch full list. 
-        // WARNING: If list is huge (10k+), this should be paginated or split. 
-        // For now assuming reasonable size.
-        const res = await fetch(`${API_BASE_URL}/creators`);
+        const res = await fetch(`${API_BASE_URL}/creators/sitemap`);
         if (res.ok) {
             const creators = await res.json();
             creatorUrls = creators.map((creator: any) => ({

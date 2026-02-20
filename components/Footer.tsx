@@ -8,6 +8,8 @@ export function Footer() {
 
                 {/* Links Section */}
                 <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-white/60">
+                    <Link href="/profiles" className="hover:text-white transition font-medium text-pink-400/80 hover:text-pink-300">All Profiles</Link>
+                    <span className="text-white/20">|</span>
                     <Link href="/faq" className="hover:text-white transition">FAQ's</Link>
                     <span className="text-white/20">|</span>
                     <Link href="/gdpr" className="hover:text-white transition">GDPR</Link>

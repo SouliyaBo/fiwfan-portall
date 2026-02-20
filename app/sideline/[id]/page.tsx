@@ -42,19 +42,41 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
         };
     }
 
-    const { displayName, gender, location, weight, height, chest, waist, hips } = creator;
+    const { displayName, gender, location, weight, height, chest, waist, hips, bio, age, province, services } = creator;
 
-    // SEO Optimized Title & Description
-    // Include keywords: ไซด์ไลน์ (Sideline), รับงาน (Available), สัดส่วน (Stats)
-    const title = `${displayName} ${gender || ''} ${location || ''} | Phusao`.replace(/\s+/g, ' ').trim();
+    // SEO Optimized Title — clean, no empty segments
+    const titleParts = [displayName];
+    if (gender) titleParts.push(gender);
+    if (province || location) titleParts.push(province || location || '');
+    const title = titleParts.filter(Boolean).join(' ') + ' | Phusao';
 
-    const stats = `${chest || '?'}-${waist || '?'}-${hips || '?'} สูง ${height || '?'} หนัก ${weight || '?'}`;
-    const description = `น้อง${displayName} ${gender || ''} รับงานไซด์ไลน์ ${location || ''} สัดส่วน ${stats} การันตีความน่ารัก เป็นกันเอง | Phusao`.replace(/\s+/g, ' ').trim();
+    // SEO Optimized Description — only include data that exists (no more "?-?-?")
+    let description = '';
+
+    if (bio && bio.length > 30) {
+        // Use bio as primary description (most unique content for SEO)
+        description = `น้อง${displayName} - ${bio.slice(0, 120)}`;
+    } else {
+        // Build smart description from available fields only
+        const descParts: string[] = [`น้อง${displayName}`];
+        if (gender) descParts.push(gender);
+        descParts.push('รับงานไซด์ไลน์');
+        if (province || location) descParts.push(province || location || '');
+        if (chest && waist && hips) descParts.push(`สัดส่วน ${chest}-${waist}-${hips}`);
+        if (height) descParts.push(`สูง ${height}`);
+        if (weight) descParts.push(`หนัก ${weight}`);
+        if (age) descParts.push(`อายุ ${age}`);
+        if (services && services.length > 0) descParts.push(services.slice(0, 3).join(' '));
+        descParts.push('การันตีตรงปก เป็นกันเอง');
+        description = descParts.join(' ');
+    }
+
+    description = (description + ' | Phusao').replace(/\s+/g, ' ').trim();
 
     return {
         title: title,
         description: description,
-        keywords: [`ไซด์ไลน์`, `รับงาน`, `หาเพื่อนเที่ยว`, `Phusao`, location || '', displayName, gender || ''].filter(Boolean),
+        keywords: ['ไซด์ไลน์', 'รับงาน', 'หาเพื่อนเที่ยว', 'Phusao', province || location || '', displayName, gender || ''].filter(Boolean),
         openGraph: {
             title: title,
             description: description,
@@ -90,7 +112,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         image: creator.images?.[0],
         description: `Sideline profile of ${creator.displayName}`,
         jobTitle: 'Content Creator',
-        url: `https://phusao.com/sideline/${id}`, // Assuming domain
+        url: `https://phusao.com/sideline/${id}`,
     } : null;
 
     return (
