@@ -1,12 +1,14 @@
 import { MetadataRoute } from 'next';
 import { API_BASE_URL } from '../lib/constants';
 
+// Force Netlify/Next.js to re-generate sitemap every hour (ISR)
+export const revalidate = 3600;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Base URLs - Main Pages
     const routes = [
         '',
         '/agency',
-        '/auth',
         '/plans',
         '/jobs',
         '/profiles',
@@ -35,7 +37,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Fetch ALL Creators (unfiltered — for maximum indexing coverage)
     let creatorUrls: MetadataRoute.Sitemap = [];
     try {
-        const res = await fetch(`${API_BASE_URL}/creators/sitemap`);
+        const res = await fetch(`${API_BASE_URL}/creators/sitemap`, {
+            next: { revalidate: 3600 },
+        });
         if (res.ok) {
             const creators = await res.json();
             creatorUrls = creators.map((creator: any) => ({
@@ -52,7 +56,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Fetch Agencies
     let agencyUrls: MetadataRoute.Sitemap = [];
     try {
-        const res = await fetch(`${API_BASE_URL}/agencies`);
+        const res = await fetch(`${API_BASE_URL}/agencies`, {
+            next: { revalidate: 3600 },
+        });
         if (res.ok) {
             const agencies = await res.json();
             agencyUrls = agencies.map((agency: any) => ({
@@ -69,7 +75,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Fetch Locations (Zones)
     let locationUrls: MetadataRoute.Sitemap = [];
     try {
-        const res = await fetch(`${API_BASE_URL}/creators/zones`);
+        const res = await fetch(`${API_BASE_URL}/creators/zones`, {
+            next: { revalidate: 3600 },
+        });
         if (res.ok) {
             const zones = await res.json();
             locationUrls = zones.map((zone: any) => ({

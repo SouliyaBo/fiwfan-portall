@@ -39,6 +39,9 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
   },
+  alternates: {
+    canonical: '/',
+  },
   robots: {
     index: true,
     follow: true,
@@ -61,7 +64,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="th" className="dark">
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${notoSansLao.variable} antialiased`}
         suppressHydrationWarning={true}
