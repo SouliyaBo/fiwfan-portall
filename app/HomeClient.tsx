@@ -87,11 +87,13 @@ function HomeContent({
         const province = searchParams.get('province');
         const location = searchParams.get('location'); // Zone
         const name = searchParams.get('name');
+        const gender = searchParams.get('gender');
 
         if (country) filters.country = country;
         if (province) filters.province = province;
         if (location) filters.location = location;
         if (name) filters.name = name;
+        if (gender) filters.gender = gender;
 
         // If we have initial data and no filters are active (or initial data matches filters - simplified here), 
         // we might skip fetching. But typically searchParams changing means we should refetch.
@@ -201,6 +203,10 @@ function HomeContent({
             }
 
             const query = `?${searchParams.toString()}${prefsParam}`;
+
+            // Update URL without triggering a full Next.js App Router navigation loop
+            const newUrl = query !== '?' ? query : window.location.pathname;
+            window.history.replaceState({ path: newUrl }, '', newUrl);
 
             const res = await fetch(`${API_BASE_URL}/creators${query}`, { headers });
             if (res.ok) {

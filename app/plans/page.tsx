@@ -42,6 +42,8 @@ export default function PlansPage() {
 
     // QR Code State
     const [qrCodes, setQrCodes] = useState<{ th: string, la: string, wc: string }>({ th: '', la: '', wc: '' });
+    const [qrCodeNames, setQrCodeNames] = useState<{ th: string, la: string, wc: string }>({ th: 'Thai QR', la: 'Lao QR', wc: 'WeChat' });
+    const [qrCodeFlags, setQrCodeFlags] = useState<{ th: string, la: string, wc: string }>({ th: '🇹🇭', la: '🇱🇦', wc: '🇨🇳' });
     const [selectedQrType, setSelectedQrType] = useState<'th' | 'la' | 'wc'>('th');
     const [exchangeRates, setExchangeRates] = useState<{ lak: number, cny: number }>({ lak: 0, cny: 0 });
 
@@ -62,10 +64,19 @@ export default function PlansPage() {
                 const la = data.find((s: any) => s.key === 'payment_qr_la')?.value || '';
                 const wc = data.find((s: any) => s.key === 'payment_qr_wechat')?.value || '';
 
+                const nameTh = data.find((s: any) => s.key === 'payment_name_th')?.value || 'Thai QR';
+                const flagTh = data.find((s: any) => s.key === 'payment_flag_th')?.value || '🇹🇭';
+                const nameLa = data.find((s: any) => s.key === 'payment_name_la')?.value || 'Lao QR';
+                const flagLa = data.find((s: any) => s.key === 'payment_flag_la')?.value || '🇱🇦';
+                const nameWc = data.find((s: any) => s.key === 'payment_name_wc')?.value || 'WeChat';
+                const flagWc = data.find((s: any) => s.key === 'payment_flag_wc')?.value || '🇨🇳';
+
                 const rateLak = parseFloat(data.find((s: any) => s.key === 'exchange_rate_lak')?.value || '0');
                 const rateCny = parseFloat(data.find((s: any) => s.key === 'exchange_rate_cny')?.value || '0');
 
                 setQrCodes({ th, la, wc });
+                setQrCodeNames({ th: nameTh, la: nameLa, wc: nameWc });
+                setQrCodeFlags({ th: flagTh, la: flagLa, wc: flagWc });
                 setExchangeRates({ lak: rateLak, cny: rateCny });
             }
         } catch (error) {
@@ -449,19 +460,19 @@ export default function PlansPage() {
                                             onClick={() => setSelectedQrType('th')}
                                             className={`px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2 ${selectedQrType === 'th' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 ring-2 ring-blue-500/50' : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'}`}
                                         >
-                                            <span className="text-base">🇹🇭</span> Thai QR
+                                            <span className="text-base">{qrCodeFlags.th}</span> {qrCodeNames.th}
                                         </button>
                                         <button
                                             onClick={() => setSelectedQrType('la')}
                                             className={`px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2 ${selectedQrType === 'la' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 ring-2 ring-blue-500/50' : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'}`}
                                         >
-                                            <span className="text-base">🇱🇦</span> Lao QR
+                                            <span className="text-base">{qrCodeFlags.la}</span> {qrCodeNames.la}
                                         </button>
                                         <button
                                             onClick={() => setSelectedQrType('wc')}
                                             className={`px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2 ${selectedQrType === 'wc' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 ring-2 ring-blue-500/50' : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'}`}
                                         >
-                                            <span className="text-base">🇨🇳</span> WeChat
+                                            <span className="text-base">{qrCodeFlags.wc}</span> {qrCodeNames.wc}
                                         </button>
                                     </div>
 
@@ -484,9 +495,9 @@ export default function PlansPage() {
                                         </div>
                                     </div>
                                     <p className="text-xs text-zinc-400 mt-2">
-                                        {selectedQrType === 'th' && "Scan using Thai Bank App"}
-                                        {selectedQrType === 'la' && "Scan using OnePay / BCEL"}
-                                        {selectedQrType === 'wc' && "Scan using WeChat Pay"}
+                                        {selectedQrType === 'th' && `Scan using ${qrCodeNames.th}`}
+                                        {selectedQrType === 'la' && `Scan using ${qrCodeNames.la}`}
+                                        {selectedQrType === 'wc' && `Scan using ${qrCodeNames.wc}`}
                                     </p>
                                 </div>
 
