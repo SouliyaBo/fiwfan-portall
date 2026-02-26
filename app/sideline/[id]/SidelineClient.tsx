@@ -141,6 +141,7 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
 
     // Report State
     const [isReportOpen, setIsReportOpen] = useState(false);
+    const [reportingReviewId, setReportingReviewId] = useState<string | null>(null); // null means reporting profile
     const [reportReason, setReportReason] = useState("");
     const [reportDescription, setReportDescription] = useState("");
     const [isReporting, setIsReporting] = useState(false);
@@ -159,8 +160,8 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                 method: "POST",
                 headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
                 body: JSON.stringify({
-                    targetType: "CREATOR",
-                    targetId: creator?.id || params.id,
+                    targetType: reportingReviewId ? "REVIEW" : "CREATOR",
+                    targetId: reportingReviewId || creator?.id || params.id,
                     reason: reportReason,
                     description: reportDescription
                 })
@@ -169,6 +170,7 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
             if (res.ok) {
                 toast.success(t('sideline.toast_report_success'));
                 setIsReportOpen(false);
+                setReportingReviewId(null);
                 setReportReason("");
                 setReportDescription("");
             } else {
@@ -633,7 +635,7 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                                     <span>{t('sideline.views')}: {creator.views || 0}</span>
                                     <span>{t('sideline.joined')}: {creator.createdAt ? new Date(creator.createdAt).toLocaleDateString(language === 'th' ? 'th-TH' : 'en-US') : '-'}</span>
                                 </div>
-                                <button onClick={() => setIsReportOpen(true)} className="flex items-center gap-1 hover:text-red-500 transition cursor-pointer">
+                                <button onClick={() => { setReportingReviewId(null); setIsReportOpen(true); }} className="flex items-center gap-1 hover:text-red-500 transition cursor-pointer">
                                     <Flag size={12} /> {t('sideline.report_profile')}
                                 </button>
                             </div>
@@ -680,9 +682,17 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                                             <div className="text-xs text-zinc-500">{new Date(review.createdAt).toLocaleDateString()}</div>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-1 bg-yellow-400/10 text-yellow-600 dark:text-yellow-400 px-2 py-1 rounded-lg">
-                                        <Star size={14} className="fill-current" />
-                                        <span className="font-bold">{review.rating}</span>
+                                    <div className="flex flex-col items-end gap-2">
+                                        <div className="flex items-center gap-1 bg-yellow-400/10 text-yellow-600 dark:text-yellow-400 px-2 py-1 rounded-lg">
+                                            <Star size={14} className="fill-current" />
+                                            <span className="font-bold">{review.rating}</span>
+                                        </div>
+                                        <button
+                                            onClick={() => { setReportingReviewId(review._id); setIsReportOpen(true); }}
+                                            className="text-[10px] text-zinc-500 hover:text-red-500 flex items-center gap-1 transition cursor-pointer"
+                                        >
+                                            <Flag size={10} /> {t('sideline.report_review') || "รายงานรีวิว"}
+                                        </button>
                                     </div>
                                 </div>
 
@@ -958,9 +968,9 @@ export default function SidelineClient({ initialCreatorData }: SidelineClientPro
                         <div className="bg-white dark:bg-[#1e1b4b] border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl animate-in fade-in zoom-in-95 duration-200">
                             <div className="flex justify-between items-center mb-6">
                                 <h3 className="text-xl font-bold flex items-center gap-2">
-                                    <Flag className="text-[#F84E6E]" /> {t('sideline.modal_report_title')}
+                                    <Flag className="text-[#F84E6E]" /> {reportingReviewId ? (t('sideline.modal_report_review_title') || "รายงานรีวิวที่ไม่เหมาะสม") : t('sideline.modal_report_title')}
                                 </h3>
-                                <button onClick={() => setIsReportOpen(false)} className="text-zinc-400 hover:text-white transition">
+                                <button onClick={() => { setIsReportOpen(false); setReportingReviewId(null); }} className="text-zinc-400 hover:text-white transition cursor-pointer">
                                     <X size={24} />
                                 </button>
                             </div>

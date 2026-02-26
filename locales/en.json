@@ -532,6 +532,8 @@
         "views": "Views",
         "joined": "Joined",
         "report_profile": "Report Profile",
+        "report_review": "Report Review",
+        "modal_report_review_title": "Report Inappropriate Review",
         "reviews_title": "Reviews from friends",
         "add_review": "+ Add Review",
         "no_reviews": "No reviews yet. Be the first to review!",

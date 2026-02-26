@@ -538,6 +538,8 @@
         "views": "ເຂົ້າຊົມ",
         "joined": "ເຂົ້າຮ່ວມເມື່ອ",
         "report_profile": "ແຈ້ງລາຍງານໂປຣໄຟລ໌",
+        "report_review": "ແຈ້ງລາຍງານລີວິວ",
+        "modal_report_review_title": "ລາຍງານລີວິວ",
         "reviews_title": "ລີວິວຈາກໝູ່ເພື່ອນ",
         "add_review": "+ ເພີ່ມຄວາມຄິດເຫັນ",
         "no_reviews": "ຍັງບໍ່ມີລີວິວ",

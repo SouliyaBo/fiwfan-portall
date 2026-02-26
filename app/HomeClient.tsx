@@ -80,7 +80,14 @@ function HomeContent({
         if (token) {
             setIsLoggedIn(true);
         }
+        if (initialAgencies.length === 0) fetchAgencies();
+        if (initialStories.length === 0) fetchStories();
+        if (initialZones.length === 0) fetchZones();
+        if (!initialTelegramUrl) fetchTelegramUrl();
+        if (initialJobCount === 0) fetchJobCount();
+    }, []);
 
+    useEffect(() => {
         // Parse query params
         const filters: any = {};
         const country = searchParams.get('country');
@@ -95,27 +102,9 @@ function HomeContent({
         if (name) filters.name = name;
         if (gender) filters.gender = gender;
 
-        // If we have initial data and no filters are active (or initial data matches filters - simplified here), 
-        // we might skip fetching. But typically searchParams changing means we should refetch.
-        // For simple SSR -> CSR transition:
-        // If it's the first mount and we have initialCreators, we might want to skip.
-        // But simpler logic: just fetch only if we don't have data OR if params changed?
-        // Actually, easiest is: always fetch on param change, but if initial mount matches params, use initial.
-
-        // Use a ref or simple check? 
-        // Let's just fetch if searchParams are present OR if it's a client-side navigation.
-        // For now, let's keep the fetch logic but maybe optimize later. 
-        // Or if we want to rely on SSR data for initial load:
-
         if (Object.keys(filters).length > 0 || initialCreators.length === 0) {
             fetchCreators(filters, false);
         }
-
-        if (initialAgencies.length === 0) fetchAgencies();
-        if (initialStories.length === 0) fetchStories();
-        if (initialZones.length === 0) fetchZones();
-        if (!initialTelegramUrl) fetchTelegramUrl();
-        if (initialJobCount === 0) fetchJobCount();
     }, [searchParams]);
 
     const fetchTelegramUrl = async () => {
@@ -204,9 +193,7 @@ function HomeContent({
 
             const query = `?${searchParams.toString()}${prefsParam}`;
 
-            // Update URL without triggering a full Next.js App Router navigation loop
-            const newUrl = query !== '?' ? query : window.location.pathname;
-            window.history.replaceState({ path: newUrl }, '', newUrl);
+            // Removed window.history.replaceState which bypassed Next.js router and caused infinite searchParams change trigger
 
             const res = await fetch(`${API_BASE_URL}/creators${query}`, { headers });
             if (res.ok) {
