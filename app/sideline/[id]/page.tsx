@@ -11,7 +11,7 @@ async function fetchCreator(id: string): Promise<CreatorDetail | null> {
 
         console.log(`[SEO Debug] Fetching creator from: ${url} (Env: ${process.env.NODE_ENV})`);
 
-        const res = await fetch(url, { cache: 'no-store' }); // Ensure fresh data
+        const res = await fetch(url, { next: { revalidate: 3600 } }); // Use ISR to speed up TTFB for SEO
         console.log(`[SEO Debug] Response status: ${res.status}`);
 
         if (!res.ok) {
@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     const titleParts = [displayName];
     if (gender) titleParts.push(gender);
     if (province || location) titleParts.push(province || location || '');
-    const title = titleParts.filter(Boolean).join(' ') + ' | Phusao';
+    const title = titleParts.filter(Boolean).join(' ');
 
     // SEO Optimized Description — only include data that exists (no more "?-?-?")
     let description = '';
@@ -71,7 +71,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
         description = descParts.join(' ');
     }
 
-    description = (description + ' | Phusao').replace(/\s+/g, ' ').trim();
+    description = description.replace(/\s+/g, ' ').trim();
 
     return {
         title: title,
